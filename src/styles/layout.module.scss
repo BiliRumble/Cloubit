@@ -1,0 +1,50 @@
+.layout {
+	display: flex;
+	width: 100vw;
+	height: 100vh;
+
+	.sidebar {
+		display: flex;
+		flex-direction: column;
+		width: 208px;
+		margin-right: 3px;
+		height: 100%;
+	}
+
+	.content {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		height: 100%;
+		margin: 6px 8px;
+		padding: 10px 20px;
+		border-radius: var(--border-radius);
+		background-color: var(--second-background-color);
+
+		.header {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 35px;
+			margin-top: 10px;
+			margin-bottom: 30px;
+		}
+
+		.page_content {
+			flex: 1;
+			overflow-y: auto !important;
+		}
+	}
+
+	/* 固定底部满宽(100vw)的播放器栏 */
+	.bottom_bar {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 75px;
+		z-index: 2;
+		background-color: var(--second-background-color);
+		border-top: 1px solid var(--hr-color);
+	}
+}
