@@ -1,0 +1,3 @@
+[submodule "qqMusicApi"]
+	path = qqMusicApi
+	url = https://github.com/yan123zi/qqMusicApi.git
