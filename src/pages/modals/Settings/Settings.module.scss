@@ -1,0 +1,72 @@
+.settings {
+	display: flex;
+
+	&__sidebar {
+		margin: -0.5rem -0.8rem;
+		border-radius: var(--border-radius);
+		padding: 1rem;
+		background-color: var(--background-color);
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		flex-wrap: nowrap;
+
+		h1 {
+			font-size: 1.5rem;
+			font-weight: 500;
+			color: var(--text-color);
+			margin-bottom: 1rem;
+		}
+
+		&__list {
+			flex: 1;
+			button {
+				width: 177px !important;
+				height: 38px !important;
+				display: flex;
+				flex-direction: row;
+				align-items: stretch;
+				justify-content: flex-start;
+				flex-wrap: nowrap;
+				border: none;
+				border-radius: var(--border-radius);
+				padding: 8px;
+				margin: 0 8px 0 4px;
+				background: transparent;
+				flex: 1;
+				cursor: pointer;
+				font-size: 1rem;
+				color: var(--text-color);
+				transition: all 0.1s ease-in-out;
+
+				&:not(:last-child) {
+					margin-bottom: 4px;
+				}
+
+				.icon {
+					margin-right: 8px;
+					font-size: 1.5rem;
+				}
+
+				&.active {
+					background: var(--button-focus-bg-color);
+				}
+
+				&:hover {
+					background-color: var(--button-hover-bg-color);
+				}
+			}
+		}
+	}
+
+	&__content {
+		flex-grow: 1;
+		margin: 0 1rem;
+		padding: 1rem;
+		border-radius: var(--border-radius);
+		min-width: 500px;
+		min-height: 300px;
+		display: flex;
+		flex-direction: column;
+	}
+}

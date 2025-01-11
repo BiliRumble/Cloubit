@@ -1,0 +1,62 @@
+.control {
+	display: flex;
+	flex-direction: row;
+	margin: 1rem 0.8rem;
+	align-items: center;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+
+	.label {
+		font-size: 1rem;
+		color: var(--text-color);
+		margin-bottom: 0.5rem;
+	}
+}
+.checkbox {
+	display: flex;
+	align-items: center;
+
+	input {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 2.5rem;
+		height: 1.5rem;
+		background: var(--hr-color);
+		border-radius: 4px;
+		position: relative;
+		outline: none;
+		cursor: pointer;
+		transition: all 0.3s ease-in-out;
+
+		&:checked {
+			background: var(--primary-color);
+		}
+
+		&:before {
+			content: '';
+			position: absolute;
+			width: 1.5rem;
+			height: 1.5rem;
+			background: var(--text-color);
+			border-radius: 4px;
+			top: 0;
+			left: 0;
+			transform: translateX(0);
+			transition: all 0.3s ease-in-out;
+		}
+
+		&:checked:before {
+			transform: translateX(1.2rem);
+		}
+	}
+}
+
+.select {
+	width: 100%;
+	padding: 0.5rem;
+	background: var(--hr-color);
+	color: var(--text-color);
+	border: none;
+	min-width: 8rem;
+	border-radius: 6px;
+}

@@ -1,0 +1,29 @@
+.chip {
+	display: inline-block;
+	max-width: 100%;
+	padding: 0.25rem 0.5rem;
+	color: var(--text-color);
+	background: var(--hr-color);
+	border-radius: 8px;
+	cursor: pointer;
+	transition: background-color 0.2s ease-in-out;
+
+	&:not(:last-child) {
+		margin-right: 0.5rem;
+	}
+
+	p {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		position: relative;
+		top: -2px;
+		transition: color 0.2s ease-in-out;
+	}
+
+	&:hover {
+		& > p {
+			color: var(--primary-color);
+		}
+	}
+}

@@ -1,0 +1,225 @@
+.search {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	height: 100vh;
+
+	&__input {
+		width: 200px;
+		border: none;
+		background-color: var(--button-focus-bg-color);
+		border-radius: 1rem;
+		padding: 0.5rem 1rem;
+		border-radius: 50px;
+		position: fixed;
+		z-index: 110;
+		transition:
+			background-color 0.3s,
+			width 0.3s;
+		color: var(--text-color);
+		outline: none;
+
+		// 自定义右边的x
+		&::webkit-search-cancel-button {
+			background-color: red;
+			color: white;
+		}
+
+		&__focus {
+			width: 300px;
+		}
+	}
+
+	&__card {
+		// 对齐到搜索框
+		width: 300px;
+		max-height: 75vh;
+		padding: 10px;
+		border-radius: 4px;
+		background: var(--second-background-color);
+		position: fixed;
+		top: 70px;
+		z-index: -114514;
+		opacity: 0;
+		overflow-y: auto;
+		transition: opacity 0.6s;
+
+		&::-webkit-scrollbar {
+			background-color: transparent;
+		}
+		&::-webkit-scrollbar-thumb {
+			background-color: var(--hr-color);
+			border-radius: 10px;
+		}
+
+		&__visible {
+			opacity: 1;
+			z-index: 110;
+		}
+
+		&__default {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			flex-wrap: nowrap;
+			width: 100%;
+
+			&__history {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				width: 100%;
+
+				&__title {
+					display: flex;
+					margin-bottom: 8px;
+					flex-direction: row;
+					align-items: center;
+					justify-content: space-between;
+					width: 100%;
+
+					h3 {
+						text-align: center;
+						vertical-align: middle;
+						display: flex;
+						align-items: center;
+						margin-bottom: 8px;
+
+						span {
+							margin-right: 0.4rem;
+							position: relative;
+							top: 2px;
+						}
+					}
+
+					&__clear {
+						cursor: pointer;
+						font-size: 1.25rem;
+						color: var(--text-color);
+						position: relative;
+						top: 2px;
+						transition: color 0.3s;
+
+						&:hover {
+							color: var(--primary-color);
+						}
+					}
+				}
+
+				&__list {
+					display: flex;
+					flex-direction: row;
+					flex-wrap: wrap;
+					align-items: stretch;
+
+					&__item {
+						margin-bottom: 8px;
+						max-width: 275px !important;
+					}
+				}
+			}
+
+			&__hot {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				width: 100%;
+
+				h3 {
+					text-align: center;
+					vertical-align: middle;
+					display: flex;
+					align-items: center;
+					margin-bottom: 8px;
+
+					span {
+						margin-right: 0.4rem;
+						position: relative;
+						top: 2px;
+					}
+				}
+
+				&__list {
+					display: flex;
+					width: 100%;
+					height: 100%;
+					flex-direction: column;
+					flex-wrap: nowrap;
+					align-items: flex-start;
+
+					&__item {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						margin-bottom: 8px;
+						border-radius: 8px;
+						padding: 6px;
+						transition: background-color 0.3s;
+						margin-bottom: 8px;
+						width: 275px;
+						cursor: pointer;
+
+						&__index {
+							width: 30px;
+							height: 30px;
+							min-width: 30px;
+							font-weight: bold;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							font-size: 1rem;
+							margin-right: 8px;
+
+							color: var(--second-text-color);
+						}
+
+						&__data {
+							flex: 1;
+							width: 100%;
+							padding-right: 8px;
+
+							h3 {
+								margin: 0;
+							}
+							h4 {
+								color: var(--second-text-color);
+							}
+						}
+
+						&__count {
+							display: flex;
+							flex-direction: row;
+							align-items: center;
+
+							h4 {
+								font-size: 0.9rem;
+							}
+						}
+
+						&:hover {
+							background: var(--hr-color);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	&__mask {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background-color: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(20px);
+		z-index: -114514;
+		opacity: 0;
+		transition: opacity 0.3s;
+
+		&__visible {
+			opacity: 1;
+			z-index: 100;
+		}
+	}
+}

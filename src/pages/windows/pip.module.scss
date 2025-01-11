@@ -1,0 +1,153 @@
+.pip {
+	width: 100vw;
+	height: 100vh;
+	background: transparent;
+	display: flex;
+	flex-direction: column-reverse;
+	flex-wrap: nowrap;
+	align-items: center;
+
+	.card {
+		display: flex;
+		height: 80%;
+		width: 100%;
+		background: var(--background-color);
+		border-radius: var(--border-radius);
+		position: relative;
+
+		.cover {
+			height: 72px;
+			width: 72px;
+			position: relative;
+			border-radius: 50%;
+			overflow: hidden;
+			top: -15px;
+			left: 10px;
+
+			img {
+				width: 100%;
+				height: 100%;
+				border-radius: 50%;
+			}
+
+			&::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				border-radius: 50%;
+				background: conic-gradient(
+					var(--primary-color) calc(var(--progress) * 1%),
+					var(--hr-color) 0
+				);
+				mask-image: radial-gradient(circle, transparent 67%, black 61%);
+				backface-visibility: hidden;
+				transform: translateZ(0);
+			}
+		}
+
+		.pip__info {
+			display: flex;
+			flex: 1;
+			padding: 10px 20px;
+			flex-direction: column;
+			align-items: center;
+			flex-wrap: nowrap;
+			justify-content: center;
+			opacity: 1;
+			visibility: visible;
+			transform: scale(1);
+			transition:
+				opacity 0.15s ease,
+				visibility 0.15s ease;
+
+			h1 {
+				font-size: 1rem;
+			}
+		}
+
+		.pip__control {
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+			flex-wrap: nowrap;
+			justify-content: center;
+			height: 100%;
+			min-width: 155px;
+			align-items: center;
+			margin: auto;
+			opacity: 0;
+			visibility: hidden;
+			position: absolute;
+			transform: scale(0);
+			transition:
+				opacity 0.15s ease,
+				visibility 0.15s ease;
+
+			.control__buttons {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: nowrap;
+				align-items: center;
+				justify-content: center;
+				height: 100%;
+				min-width: 155px;
+				margin-right: 1rem;
+
+				span {
+					font-size: 1.3rem;
+					cursor: pointer;
+
+					&:not(:last-child) {
+						margin-right: 25px;
+					}
+
+					&:hover {
+						color: var(--primary-color);
+					}
+
+					transition: color 0.1s ease-in-out;
+				}
+			}
+		}
+
+		.closeBtn {
+			opacity: 0;
+			transition: opacity 0.3s ease;
+			cursor: pointer;
+			position: absolute;
+			top: 0px;
+			right: 0px;
+			z-index: 2;
+
+			span {
+				font-size: 1.5rem;
+			}
+		}
+
+		&:hover {
+			.closeBtn {
+				opacity: 1;
+			}
+			.pip__control {
+				opacity: 1;
+				visibility: visible;
+				position: static;
+				transform: scale(1);
+				transition:
+					opacity 0.15s ease,
+					visibility 0.15s ease,
+					transform 0.15s ease,
+					position 0s; // 立即还原 position
+			}
+			.pip__info {
+				opacity: 0;
+				visibility: hidden;
+				transform: scale(0);
+				position: absolute;
+			}
+		}
+	}
+}

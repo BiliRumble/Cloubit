@@ -1,0 +1,20 @@
+.notfound {
+	display: flex;
+	align-items: center;
+	padding-top: 4rem;
+	height: 100%;
+	width: 100%;
+	font-size: 2rem;
+	font-weight: bold;
+	color: var(--text-color);
+	flex-direction: column;
+
+	h1 {
+		font-size: 2rem;
+	}
+
+	p {
+		font-size: 1rem;
+		color: var(--second-text-color);
+	}
+}

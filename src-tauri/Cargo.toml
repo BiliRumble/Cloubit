@@ -1,9 +1,11 @@
 [package]
 name = "qtmusic"
 version = "0.1.0"
-description = "QQ音乐的客户端代替方案"
+description = "网易云音乐的客户端代替方案"
 authors = ["rumble"]
 edition = "2021"
+
+include = ["src-tauri/util/config.json"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -18,8 +20,32 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = [ "tray-icon" ] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-window-state = "2"
+tokio = { version = "1", features = ["full"] }
+
+# 后端依赖
+reqwest = { version = "0.12.9", features = ["json", "cookies", "gzip", "native-tls"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.133"
+rust-crypto = "0.2.36"
+base64 = "0.22.1"
+hex = "0.4.3"
+openssl = "0.10"
+rand = "0.8.5"
+regex = "1.11.1"
+lazy_static = "1.5.0"
+chrono = "0.4.38"
+form_urlencoded = "1.2.1"
+sled = "0.34"
+md5 = "0.7.0"
+actix-web = "4"
+env_logger = "0.11.5"
+cached = "0.54.0"
+qrcode = "0.14.1"
+actix-cors = "0.6"

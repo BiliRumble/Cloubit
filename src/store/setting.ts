@@ -1,16 +1,26 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 /**
  * 系统设置store类型
  */
 export interface settingsStoreType {
-	isDark: boolean;
-	setThemeDark: (value: boolean) => void;
+	theme: 'light' | 'dark' | 'auto';
+	setTheme: (value: 'light' | 'dark' | 'auto') => void;
+	searchShowHot: boolean;
+	setSearchShowHot: (value: boolean) => void;
 }
 
-export const useSettingStore = create<settingsStoreType>()((set) => ({
-	isDark: false, // 深色模式 切换暗黑模式
-
-	// 设置暗黑模式
-	setThemeDark: (value: boolean) => set({ isDark: value }),
-}));
+export const useSettingStore = create(
+	persist<settingsStoreType>(
+		(set) => ({
+			theme: 'auto',
+			setTheme: (value) => set(() => ({ theme: value })),
+			searchShowHot: true,
+			setSearchShowHot: (value) => set(() => ({ searchShowHot: value })),
+		}),
+		{
+			name: 'settings-storage', // 存储的名称
+		}
+	)
+);

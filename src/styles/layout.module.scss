@@ -2,6 +2,7 @@
 	display: flex;
 	width: 100vw;
 	height: 100vh;
+	background-color: var(--background-color);
 
 	.sidebar {
 		display: flex;
@@ -16,7 +17,8 @@
 		flex: 1;
 		flex-direction: column;
 		height: 100%;
-		margin: 6px 8px;
+		max-width: 100%;
+		margin: 10px 8px;
 		padding: 10px 20px;
 		border-radius: var(--border-radius);
 		background-color: var(--second-background-color);
@@ -26,13 +28,24 @@
 			align-items: center;
 			justify-content: center;
 			height: 35px;
-			margin-top: 10px;
+			margin-top: 8px;
 			margin-bottom: 30px;
 		}
 
 		.page_content {
+			max-width: 100%;
 			flex: 1;
 			overflow-y: auto !important;
+			margin-bottom: 4.8rem;
+
+			/* 自定义滚动条样式 */
+			&::-webkit-scrollbar {
+				background-color: transparent;
+			}
+			&::-webkit-scrollbar-thumb {
+				background-color: var(--hr-color);
+				border-radius: 10px;
+			}
 		}
 	}
 

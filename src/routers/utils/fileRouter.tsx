@@ -7,10 +7,12 @@ import { RouteObject } from 'react-router-dom';
  */
 function generatePathConfig(): Record<string, any> {
 	const modules = import.meta.glob('/src/pages/**/*.{ts,tsx}');
-	const pathConfig = {};
+	const pathConfig: Record<string, any> = {};
 	let notFoundRoute;
 
 	Object.keys(modules).forEach((filePath) => {
+		// 跳过modal目录
+		if (filePath.includes('/modals/')) return;
 		if (filePath.includes('[...notFound]')) {
 			notFoundRoute = modules[filePath];
 			return;
