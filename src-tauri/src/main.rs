@@ -28,6 +28,7 @@ use serde::{Deserialize, Serialize};
 
 lazy_static! {
     pub static ref RESOURCE_TYPE_MAP: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
+		// 读取config - TODO: 使用tauri2 resources
         let config_str = include_str!("./config.json");
         let config_value: Value = from_str(config_str).expect("Failed to parse config.json");
         config_value
@@ -41,8 +42,9 @@ lazy_static! {
     });
 
     pub static ref CONFIG: Value = {
-        let config_str = include_str!("./config.json");
-        let config_value:Value = from_str(config_str).expect("Failed to parse config.json");
+		// 读取config - TODO: 使用tauri2 resources
+        let config_str = std::fs::read_to_string("./config.json").expect("Failed to read config.json");
+        let config_value: Value = from_str(&config_str).expect("Failed to parse config.json");
         config_value.get("APP_CONF")
             .expect("Failed to get APP_CONF")
             .clone()
@@ -74,7 +76,7 @@ lazy_static! {
 }
 
 fn get_random_device_id(filename: &str) -> io::Result<String> {
-    // 打开文件
+    // 打开文件 - TODO: 使用tauri2 resources文件
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
 

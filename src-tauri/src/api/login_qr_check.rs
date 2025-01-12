@@ -35,7 +35,7 @@ impl LoginQrCheck {
         ).await;
 
         match response {
-            Ok(mut result) => {
+            Ok(result) => {
                 // 使用 join 将 Vec<String> 转为单个字符串
                 let cookie_str = result.cookie.as_ref().map(|cookies| cookies.join(";")).unwrap_or_default();
                 let mut body = result.body.clone();

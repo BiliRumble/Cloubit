@@ -1,6 +1,4 @@
 use base64::{engine::general_purpose::STANDARD, Engine};
-use crypto::digest::Digest;
-use crypto::md5::Md5;
 use rand::{Rng, RngCore};
 use serde_json::{Map, Value};
 

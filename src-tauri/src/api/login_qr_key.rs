@@ -37,7 +37,7 @@ impl LoginQrKey {
 
         // 处理响应结果
         match response {
-            Ok(mut response) => {
+            Ok(response) => {
                 Ok(Response {
                     status: 200,
                     body: json!({

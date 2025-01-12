@@ -5,6 +5,7 @@ import '@mdui/icons/access-time--outlined.js';
 import '@mdui/icons/download--outlined.js';
 import '@mdui/icons/settings--outlined.js';
 import '@mdui/icons/accessible-forward--outlined.js';
+import { useNavigate } from 'react-router-dom';
 
 interface SideBarProps {
 	className?: string;
@@ -12,6 +13,8 @@ interface SideBarProps {
 
 const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 	const url = window.location.pathname;
+	const navigate = useNavigate();
+
 	return (
 		<nav className={`${className || ''} ${styles.sidebar}`.trim()}>
 			<div data-tauri-drag-region className={styles.logo}>
@@ -20,10 +23,7 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 			</div>
 			<div className={styles.item}>
 				<h1>推荐</h1>
-				<button
-					className={url === '/' ? styles.active : ''}
-					onClick={() => (window.location.href = '/')}
-				>
+				<button className={url === '/' ? styles.active : ''} onClick={() => navigate('/')}>
 					<span className={`${styles.icon} i-solar-home-angle-linear`} />
 					推荐
 				</button>
@@ -32,21 +32,21 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 				<h1>我的</h1>
 				<button
 					className={url === '/playlist/like' ? styles.active : ''}
-					onClick={() => (window.location.href = '/playlist/like')}
+					onClick={() => navigate('/playlist/like')}
 				>
 					<span className={`${styles.icon} i-solar-heart-linear`} />
 					收藏
 				</button>
 				<button
 					className={url === '/history' ? styles.active : ''}
-					onClick={() => (window.location.href = '/history')}
+					onClick={() => navigate('/history')}
 				>
 					<span className={`${styles.icon} i-solar-history-linear`} />
 					历史
 				</button>
 				<button
 					className={url === '/download' ? styles.active : ''}
-					onClick={() => (window.location.href = '/download')}
+					onClick={() => navigate('/download')}
 				>
 					<span className={`${styles.icon} i-solar-download-minimalistic-linear`} />
 					下载

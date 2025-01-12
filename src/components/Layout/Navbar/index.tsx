@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { closePip, createPip } from '../../../managers/PIPWindowManager';
 import Settings from '../../../pages/modals/Settings/Settings';
 import Modal from '../../Modal';
-import Search from '../Search';
+import Search from './Search';
 import styles from './Navbar.module.scss';
 
 interface NavbarProps {

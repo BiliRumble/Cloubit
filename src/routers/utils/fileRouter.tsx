@@ -21,7 +21,7 @@ function generatePathConfig(): Record<string, any> {
 		const routePath = filePath
 			.replace('/src/pages/', '')
 			.replace(/.tsx?/, '')
-			.replace(/\$\[([\w-]+)]/, ':$1')
+			.replace(/\[(.*?)\]/g, ':$1')
 			.replace(/\$([\w-]+)/, '$1')
 			.split('/');
 

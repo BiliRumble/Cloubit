@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import About from './subPages/About';
-import GeneralSettings from './subPages/general';
+import GeneralSettings from './subPages/General';
 import styles from './Settings.module.scss';
 
 const Settings = () => {

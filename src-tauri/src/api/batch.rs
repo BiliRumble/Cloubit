@@ -7,7 +7,7 @@ use actix_web::http::StatusCode;
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use serde::Deserialize;
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value};
 use std::str::FromStr;
 use web::Query;
 

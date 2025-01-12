@@ -32,7 +32,7 @@ impl LoginRefresh {
 
         // 处理响应
         match response {
-            Ok(mut response) => {
+            Ok(response) => {
                 let code = response.body.get("code").and_then(|v| v.as_i64()).unwrap_or(0);
                 if code == 200 {
                     // 当返回 code 为 200 时，构造成功响应

@@ -32,7 +32,7 @@ impl LoginRefresh {
 
         // 处理响应结果
         match response {
-            Ok(mut response) => {
+            Ok(response) => {
                 let code = response.body.get("code").and_then(|v| v.as_i64()).unwrap_or(0);
                 if code == 200 {
                     // 直接使用 `cookie`，如果不存在则提供空字符串

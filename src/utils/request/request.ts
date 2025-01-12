@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios from 'axios';
 
 // 创建新的axios实例
 const service = axios.create({

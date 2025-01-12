@@ -20,7 +20,7 @@ export const useSettingStore = create(
 			setSearchShowHot: (value) => set(() => ({ searchShowHot: value })),
 		}),
 		{
-			name: 'settings-storage', // 存储的名称
+			name: 'settings-storage',
 		}
 	)
 );
