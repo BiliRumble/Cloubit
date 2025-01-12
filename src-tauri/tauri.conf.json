@@ -37,8 +37,8 @@
 			"icons/icon.ico"
 		],
 		"resources": {
-			"src/config.json": "config.json",
-			"src/deviceid.txt": "deviceid.txt"
+			"config.json": "config.json",
+			"deviceid.txt": "deviceid.txt"
 		}
 	}
 }

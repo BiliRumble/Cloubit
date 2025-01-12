@@ -19,18 +19,18 @@ use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader};
 use std::sync::{Arc, LazyLock, Mutex};
+use std::env;
 
 mod api;
 mod util;
 use crate::api::router_config::configure_routes;
 use crate::util::cache::AppState;
-use serde::{Deserialize, Serialize};
 
 lazy_static! {
     pub static ref RESOURCE_TYPE_MAP: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
 		// 读取config - TODO: 使用tauri2 resources
-        let config_str = include_str!("./config.json");
-        let config_value: Value = from_str(config_str).expect("Failed to parse config.json");
+        let config_str = std::fs::read_to_string("config.json").expect("Failed to read config.json");
+        let config_value: Value = from_str(&config_str).expect("Failed to parse config.json");
         config_value
             .get("resourceTypeMap")
             .expect("Failed to get resourceTypeMap")
@@ -43,7 +43,7 @@ lazy_static! {
 
     pub static ref CONFIG: Value = {
 		// 读取config - TODO: 使用tauri2 resources
-        let config_str = std::fs::read_to_string("./config.json").expect("Failed to read config.json");
+        let config_str = std::fs::read_to_string("config.json").expect("Failed to read config.json");
         let config_value: Value = from_str(&config_str).expect("Failed to parse config.json");
         config_value.get("APP_CONF")
             .expect("Failed to get APP_CONF")
@@ -51,7 +51,9 @@ lazy_static! {
     };
 
     pub static ref db:Db = {
-        sled::open("target/temp_db").expect("Failed to open temp_db")
+        let temp_dir = env::temp_dir();
+		let db_path = temp_dir.join("temp_db");
+		sled::open(db_path).expect("Failed to open temp_db")
     };
 
     pub static ref DEVICE_ID:String = {
@@ -60,7 +62,7 @@ lazy_static! {
         //     return String::from_utf8(device_id.to_vec()).expect("Failed to convert deviceId to string");
         // }
         // 从文件中读取
-        let device_id = get_random_device_id("src/deviceid.txt").expect("Failed to get random device id");
+        let device_id = get_random_device_id("deviceid.txt").expect("Failed to get random device id");
         db.insert("deviceId", device_id.as_str()).expect("Failed to insert deviceId");
         db.flush().expect("Failed to flush db");
         device_id
@@ -76,7 +78,7 @@ lazy_static! {
 }
 
 fn get_random_device_id(filename: &str) -> io::Result<String> {
-    // 打开文件 - TODO: 使用tauri2 resources文件
+    // 打开文件
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
 
