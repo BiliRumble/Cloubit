@@ -7,6 +7,16 @@
 	border-radius: 8px;
 	cursor: pointer;
 	transition: background-color 0.2s ease-in-out;
+	box-shadow: var(--shadow);
+	transition: box-shadow 0.3s;
+
+	&:hover {
+		box-shadow: var(--shadow-hover);
+	}
+
+	&:focus {
+		box-shadow: var(--shadow-focus);
+	}
 
 	&:not(:last-child) {
 		margin-right: 0.5rem;

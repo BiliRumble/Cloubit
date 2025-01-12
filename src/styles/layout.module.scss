@@ -37,15 +37,6 @@
 			flex: 1;
 			overflow-y: auto !important;
 			margin-bottom: 4.8rem;
-
-			/* 自定义滚动条样式 */
-			&::-webkit-scrollbar {
-				background-color: transparent;
-			}
-			&::-webkit-scrollbar-thumb {
-				background-color: var(--hr-color);
-				border-radius: 10px;
-			}
 		}
 	}
 

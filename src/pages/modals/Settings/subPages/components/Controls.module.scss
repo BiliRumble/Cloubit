@@ -12,9 +12,16 @@
 		margin-bottom: 0.5rem;
 	}
 }
+
 .checkbox {
 	display: flex;
 	align-items: center;
+	box-shadow: var(--shadow);
+	transition: box-shadow 0.3s;
+
+	&:hover {
+		box-shadow: var(--shadow-hover);
+	}
 
 	input {
 		-webkit-appearance: none;
@@ -59,4 +66,14 @@
 	border: none;
 	min-width: 8rem;
 	border-radius: 6px;
+	outline: none;
+	box-shadow: var(--shadow);
+	transition: box-shadow 0.3s;
+
+	& > option {
+	}
+
+	&:hover {
+		box-shadow: var(--shadow-hover);
+	}
 }

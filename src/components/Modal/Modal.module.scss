@@ -16,6 +16,16 @@
 		padding: 0.5rem 0.8rem;
 		border-radius: 8px;
 		position: relative;
+		box-shadow: var(--shadow);
+		transition: box-shadow 0.3s;
+
+		&:hover {
+			box-shadow: var(--shadow-hover);
+		}
+
+		&:focus {
+			box-shadow: var(--shadow-focus);
+		}
 
 		.closeButton {
 			position: absolute;

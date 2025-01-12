@@ -17,12 +17,13 @@ const Control: React.FC<ControlProps> = ({ label, children }) => {
 
 interface CheckboxProps {
 	value: boolean;
+	title?: string;
 	onChange: (value: boolean) => void;
 }
 
-export const Checkbox: React.FC<CheckboxProps> = ({ value, onChange }) => {
+export const Checkbox: React.FC<CheckboxProps> = ({ value, title, onChange }) => {
 	return (
-		<label className={styles.checkbox}>
+		<label className={styles.checkbox} title={title}>
 			<input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} />
 			<span className={styles.checkbox__checkmark}></span>
 		</label>
@@ -32,12 +33,18 @@ export const Checkbox: React.FC<CheckboxProps> = ({ value, onChange }) => {
 interface SelectProps {
 	options: { value: string; label: string }[];
 	value: string;
+	title?: string;
 	onChange: (value: any) => void;
 }
 
-export const Select: React.FC<SelectProps> = ({ options, value, onChange }) => {
+export const Select: React.FC<SelectProps> = ({ options, value, title, onChange }) => {
 	return (
-		<select className={styles.select} value={value} onChange={(e) => onChange(e.target.value)}>
+		<select
+			className={styles.select}
+			value={value}
+			onChange={(e) => onChange(e.target.value)}
+			title={title}
+		>
 			{options.map((option) => (
 				<option key={option.value} value={option.value}>
 					{option.label}

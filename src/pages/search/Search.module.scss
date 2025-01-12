@@ -1,40 +1,191 @@
 .search {
 	display: flex;
 	flex-direction: column;
+	max-height: 100%;
+	max-width: 100%;
 
-	&__typeTab {
-		display: flex;
-		width: 100%;
-		margin-bottom: 1rem;
-		border-radius: 8px;
-		background: var(--background-color);
+	&__topbar {
+		// 固定顶部，不随滚动
+		z-index: 1;
+		background: var(--second-background-color);
 
-		&__item {
-			flex: 1;
+		&__typeTab {
+			display: flex;
 			width: 100%;
-			padding: 0.5rem 0;
-			margin: 0 0.2rem;
-			font-size: 1.2rem;
-			font-weight: 500;
-			background-color: transparent;
-			border: none;
-			border-bottom: 2px solid transparent;
-			color: var(--text-color);
+			margin-bottom: 0.5rem;
 			border-radius: 8px;
-			cursor: pointer;
-			transition: all 0.3s ease-in-out;
+			background: var(--background-color);
 
-			&__focus {
-				background: var(--button-focus-bg-color);
+			h1 {
+				margin-bottom: 0.7rem;
 			}
 
-			&:hover {
-				background: var(--button-hover-bg-color);
+			&__item {
+				flex: 1;
+				width: 100%;
+				padding: 0.5rem 0;
+				margin: 0 0.2rem;
+				font-size: 1.2rem;
+				font-weight: 500;
+				background-color: transparent;
+				border: none;
+				border-bottom: 2px solid transparent;
+				color: var(--text-color);
+				border-radius: 8px;
+				cursor: pointer;
+				transition: all 0.3s ease-in-out;
+
+				&__focus {
+					background: var(--button-focus-bg-color);
+				}
+
+				&:hover {
+					background: var(--button-hover-bg-color);
+				}
 			}
 		}
 	}
 
 	&__result {
 		margin-bottom: 1rem;
+		// 只为这里启用滚动条
+		overflow-y: auto;
+		overflow-x: hidden;
+		flex: 1;
+		width: 100%;
+
+		&__song {
+			&__header {
+				position: sticky;
+				top: 0;
+				z-index: 1;
+				display: flex;
+				width: 100%;
+				height: 40px;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+				background: var(--second-background-color);
+				padding: 8px 12px;
+
+				h2 {
+					font-size: 1rem;
+				}
+
+				&__name {
+					position: relative;
+					flex: 1;
+					display: flex;
+					align-items: center;
+					padding: 4px 20px 4px 0;
+				}
+
+				&__album {
+				    flex: 1;
+    				padding-right: 20px;
+				}
+
+				&__operation {
+				    display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 40px;
+				}
+
+				&__duration {
+					width: 50px;
+					font-size: 13px;
+					text-align: center;
+				}
+			}
+
+			&__item {
+				display: flex;
+				width: 100%;
+				padding: 8px 12px;
+				border-radius: 8px;
+				cursor: pointer;
+				color: var(--text-color);
+				transition: all 0.3s ease-in-out;
+
+				// 内容与顶部header对齐
+				&__title {
+					flex: 1;
+					display: flex;
+					align-items: center;
+					padding: 4px 0;
+
+					&__info {
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+
+						h3, p {
+							display: -webkit-inline-box;
+							-webkit-box-orient: vertical;
+							-webkit-line-clamp: 1;
+							overflow: hidden;
+						}
+					}
+
+					img {
+						height: 50px;
+						width: 50px;
+						border-radius: 4px;
+						margin-right: 12px;
+					}
+				}
+
+				&__album {
+					flex: 1;
+					line-clamp: 2;
+					padding-right: 20px;
+
+					h3 {
+						font-size: 1rem;
+						display: -webkit-inline-box;
+						-webkit-box-orient: vertical;
+						-webkit-line-clamp: 2;
+						overflow: hidden;
+					}
+				}
+
+				&__operation {
+				    display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 50px;
+
+					span {
+						font-size: 1.2rem;
+						cursor: pointer;
+						width: 50px;
+						text-align: center;
+						color: var(--text-color);
+						transition: color 0.1s ease-in-out;
+
+						&:hover {
+						    color: var(--primary-color);
+						}
+					}
+				}
+
+				&__duration {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 50px;
+				}
+
+				&:hover {
+				    background: var(--button-hover-bg-color);
+				}
+
+				&:not(:last-child) {
+					margin-bottom: .4rem;
+				}
+			}
+		}
 	}
 }

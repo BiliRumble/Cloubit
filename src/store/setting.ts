@@ -7,8 +7,10 @@ import { persist } from 'zustand/middleware';
 export interface settingsStoreType {
 	theme: 'light' | 'dark' | 'auto';
 	setTheme: (value: 'light' | 'dark' | 'auto') => void;
-	searchShowHot: boolean;
-	setSearchShowHot: (value: boolean) => void;
+	searchAutoComplete: boolean;
+	setSearchAutoComplete: (value: boolean) => void;
+	searchHistoryRecord: boolean;
+	setSearchHistoryRecord: (value: boolean) => void;
 }
 
 export const useSettingStore = create(
@@ -16,8 +18,10 @@ export const useSettingStore = create(
 		(set) => ({
 			theme: 'auto',
 			setTheme: (value) => set(() => ({ theme: value })),
-			searchShowHot: true,
-			setSearchShowHot: (value) => set(() => ({ searchShowHot: value })),
+			searchAutoComplete: true,
+			setSearchAutoComplete: (value) => set(() => ({ searchAutoComplete: value })),
+			searchHistoryRecord: true,
+			setSearchHistoryRecord: (value) => set(() => ({ searchHistoryRecord: value })),
 		}),
 		{
 			name: 'settings-storage',

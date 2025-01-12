@@ -11,6 +11,11 @@
 	--primary-color: #00cc65;
 	--border-radius: 4px;
 	--box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+	/* 通用阴影 */
+	--shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	--shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.15);
+	--shadow-focus: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 
 :root[data-theme='dark'] {

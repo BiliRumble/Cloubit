@@ -40,6 +40,7 @@ export interface Album {
 }
 
 export interface Song {
+	[x: string]: any;
 	album: Album;
 	alias: string[];
 	artists: Artist[];
@@ -112,49 +113,18 @@ export type DefaultSearchResult = {
 	message: string | null;
 };
 
-// TODO: 搜索结果
-// 搜索结果 - 单曲
-export interface SongSearchResult {
-	code: number;
-	result: {
-		searchQcReminder: any;
-		songCount: number;
-		songs: Song[];
-	};
-}
-
-// 搜索结果 - 歌单
-export interface PlaylistSearchResult {
-	code: number;
-	result: {
-		playlistCount: number;
-		playlists: Playlist[];
-		searchQcReminder: any;
-	};
-}
-
-// 搜索结果 - 专辑
-export interface AlbumSearchResult {
-	code: number;
-	result: {
-		albumCount: number;
-		albums: Album[];
-	};
-}
-
-// 搜索结果 - 歌手
-export interface ArtistSearchResult {
-	code: number;
-	result: {
-		artistCount: number;
-		artists: Artist[];
-		searchQcReminder: any;
-	};
-}
-
+// 通用结果接口
 type searchType = 'song' | 'album' | 'playlist' | 'artist';
-type SearchResult =
-	| SongSearchResult
-	| PlaylistSearchResult
-	| AlbumSearchResult
-	| ArtistSearchResult;
+export interface SearchResult {
+	code: number;
+	result: {
+		songCount?: number;
+		songs?: Song[];
+		albumCount?: number;
+		albums?: Album[];
+		artistCount?: number;
+		artists?: Artist[];
+		playlistCount?: number;
+		playlists?: Playlist[];
+	};
+}

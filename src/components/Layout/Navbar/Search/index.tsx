@@ -27,9 +27,12 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 	const [lastCallTime, setLastCallTime] = useState<number | null>(null); // for suggest search debounce
 	const settingStore = useSettingStore();
 
+	let autocompleteInterval: ReturnType<typeof setInterval> | null = null;
+
 	const navigate = useNavigate();
 
 	const updateHistory = (newHistory: HistoryItem[]) => {
+		if (!settingStore.searchHistoryRecord) return;
 		localStorage.setItem('history', JSON.stringify(newHistory));
 		setHistory(newHistory);
 	};
@@ -64,10 +67,28 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 		getHotSearch().then((data) => {
 			setHotSearch(data);
 		});
-		getDefaultKey().then((data) => {
-			setDefaultSearch(data);
-		});
+		// 间隔一分钟获取一次
+		autocompleteInterval = setInterval(() => {
+			getDefaultKey().then((data) => {
+				setDefaultSearch(data);
+			});
+		}, 60000);
+		autocompleteInterval;
 	}, []);
+
+	useEffect(() => {
+		if (settingStore.searchAutoComplete) {
+			autocompleteInterval = setInterval(() => {
+				getDefaultKey().then((data) => {
+					setDefaultSearch(data);
+				});
+			});
+			autocompleteInterval;
+		} else {
+			if (autocompleteInterval !== null) clearInterval(autocompleteInterval);
+			setSuggestSearch(null);
+		}
+	}, [settingStore.searchAutoComplete]);
 
 	useEffect(() => {
 		const delayDebounceFn = setTimeout(() => {
@@ -90,7 +111,7 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 				className={styles.search__input + ` ${isFocus ? styles.search__input__focus : ''}`}
 				type="search"
 				placeholder={
-					settingStore.searchShowHot && defaultSearch !== null
+					settingStore.searchAutoComplete && defaultSearch !== null
 						? defaultSearch?.showKeyword || ''
 						: '搜索'
 				}
@@ -103,7 +124,7 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 					} else if (
 						e.key === 'Enter' &&
 						inputValue === '' &&
-						settingStore.searchShowHot &&
+						settingStore.searchAutoComplete &&
 						isFocus
 					) {
 						e.preventDefault();
