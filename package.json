@@ -35,11 +35,12 @@
 		]
 	},
 	"dependencies": {
-		"@mdui/icons": "^1.0.2",
 		"@tauri-apps/api": "^2",
 		"@tauri-apps/plugin-opener": "^2",
 		"@tauri-apps/plugin-window-state": "^2.2.0",
 		"axios": "^1.7.7",
+		"howler": "^2.2.4",
+		"js-cookie": "^3.0.5",
 		"qtmusic": "file:",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",

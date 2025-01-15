@@ -69,15 +69,6 @@ const Home = () => {
 
 	return (
 		<div className={styles.recommends}>
-			<div id="test">
-				<button
-					onClick={async () => {
-						//
-					}}
-				>
-					Login
-				</button>
-			</div>
 			<h1 className={styles.title}>
 				{welcome}, {data.userName}
 			</h1>

@@ -1,10 +1,4 @@
 import styles from './Sidebar.module.scss';
-import '@mdui/icons/home--outlined.js';
-import '@mdui/icons/sentiment-satisfied--outlined.js';
-import '@mdui/icons/access-time--outlined.js';
-import '@mdui/icons/download--outlined.js';
-import '@mdui/icons/settings--outlined.js';
-import '@mdui/icons/accessible-forward--outlined.js';
 import { useNavigate } from 'react-router-dom';
 
 interface SideBarProps {

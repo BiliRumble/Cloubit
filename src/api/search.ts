@@ -1,3 +1,4 @@
+import { search_hot_detail } from './NeteaseCloudMusicApi.js';
 import {
 	DefaultSearchResult,
 	HotSearchResult,
@@ -10,7 +11,7 @@ import request from '../utils/request';
 const { get, post } = request;
 
 export async function getHotSearch(): Promise<HotSearchResult['data'] | null> {
-	const response = (await get('search/hot/detail')).data as HotSearchResult;
+	const response = search_hot_detail();
 	if (response.code === 200) {
 		console.debug('🌐 Get hot search result successfully: ', response);
 		return response.data;

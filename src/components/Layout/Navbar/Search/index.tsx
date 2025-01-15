@@ -27,8 +27,6 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 	const [lastCallTime, setLastCallTime] = useState<number | null>(null); // for suggest search debounce
 	const settingStore = useSettingStore();
 
-	let autocompleteInterval: ReturnType<typeof setInterval> | null = null;
-
 	const navigate = useNavigate();
 
 	const updateHistory = (newHistory: HistoryItem[]) => {
@@ -68,7 +66,8 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 			setHotSearch(data);
 		});
 		// 间隔一分钟获取一次
-		autocompleteInterval = setInterval(() => {
+		const autocompleteInterval = setInterval(() => {
+			if (!settingStore.searchAutoComplete) return setDefaultSearch(null);
 			getDefaultKey().then((data) => {
 				setDefaultSearch(data);
 			});
@@ -77,18 +76,11 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 	}, []);
 
 	useEffect(() => {
-		if (settingStore.searchAutoComplete) {
-			autocompleteInterval = setInterval(() => {
-				getDefaultKey().then((data) => {
-					setDefaultSearch(data);
-				});
-			});
-			autocompleteInterval;
-		} else {
-			if (autocompleteInterval !== null) clearInterval(autocompleteInterval);
-			setSuggestSearch(null);
-		}
-	}, [settingStore.searchAutoComplete]);
+	    if (!settingStore.searchAutoComplete) return setSuggestSearch(null);
+		getDefaultKey().then((data) => {
+			setDefaultSearch(data);
+		})
+	}, [settingStore.searchAutoComplete])
 
 	useEffect(() => {
 		const delayDebounceFn = setTimeout(() => {
