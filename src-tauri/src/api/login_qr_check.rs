@@ -37,15 +37,15 @@ impl LoginQrCheck {
         match response {
             Ok(result) => {
                 // 使用 join 将 Vec<String> 转为单个字符串
-                let cookie_str = result.cookie.as_ref().map(|cookies| cookies.join(";")).unwrap_or_default();
+                let cookie_str = result.cookie.as_ref().map(|cookies| cookies.join(";")).unwrap_or_else(|| "".to_string());
                 let mut body = result.body.clone();
                 if let Some(body_obj) = body.as_object_mut() {
                     body_obj.insert("cookie".to_string(), json!(cookie_str));
                 }
 
                 let response_body = json!({
-                    "status": 200,
-                    "body": body,
+                    "code": 200,
+                    "data": body,
                     "cookie": cookie_str,
                 });
 
@@ -56,7 +56,7 @@ impl LoginQrCheck {
                 })
             }
             Err(_) => Ok(Response {
-                status: 200,
+                status: 500,
                 body: json!({}),
                 cookie: None,
             }),

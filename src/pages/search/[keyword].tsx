@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getSearchResult } from '../../api/search';
-import { SearchResult, searchType } from '../../models/main';
+import { usePlayerManager } from '../../context/PlayerContext';
+import { Artist, SearchResult, searchType } from '../../models/main';
 import styles from './Search.module.scss';
+import notFoundImg from '../../assets/nodata.png';
 
 const search = () => {
 	const [searchResult, setSearchResult] = useState<SearchResult['result'] | null>(null);
 	const [searchType, setSearchType] = useState<searchType>('song');
 	const { keyword } = useParams<{ keyword: string }>();
 	const navigate = useNavigate();
+
+	const usePlayer = usePlayerManager();
 
 	useEffect(() => {
 		if (!keyword) return navigate('/');
@@ -24,8 +28,28 @@ const search = () => {
 		});
 	}, [keyword, searchType]);
 
+	const play = (id: number, name: string, cover: string, artist: Artist[]) => () => {
+		// 获取歌手名字列表
+		const artistNames: string[] = artist.map((a) => a.name);
+		usePlayer.addToPlaylist({
+			index: usePlayer.playlist.count,
+			id,
+			name,
+			cover,
+			artists: artistNames,
+		});
+		usePlayer.setCurrentSong(id, true);
+	};
+
+	const defaultNotFound = () => (
+		<div className={styles.centBox}>
+			<img src={notFoundImg} alt="No data" />
+			<h3>没有找到相关内容</h3>
+		</div>
+	);
+
 	const renderResults = () => {
-		if (!searchResult) return <div>No results found</div>;
+		if (!searchResult) return defaultNotFound();
 
 		switch (searchType) {
 			case 'song':
@@ -38,7 +62,11 @@ const search = () => {
 							<h2 className={styles.search__result__song__header__duration}>时长</h2>
 						</div>
 						{searchResult.songs?.map((song) => (
-							<div className={styles.search__result__song__item} key={song.id}>
+							<div
+								className={styles.search__result__song__item}
+								key={song.id}
+								onClick={play(song.id, song.name, song.al.picUrl, song.ar)}
+							>
 								<div className={styles.search__result__song__item__title}>
 									<img src={song.al.picUrl} alt={song.name} />
 									<div className={styles.search__result__song__item__title__info}>
@@ -55,7 +83,10 @@ const search = () => {
 									<span className={`i-solar-heart-angle-line-duotone`} />
 								</div>
 								<div className={styles.search__result__song__item__duration}>
-									{song.dt / 1000 / 60 < 10 ? '0' : ''}{Math.floor(song.dt / 1000 / 60)}:{song.dt / 1000 % 60 < 10 ? '0' : ''}{Math.floor(song.dt / 1000 % 60)}
+									{song.dt / 1000 / 60 < 10 ? '0' : ''}
+									{Math.floor(song.dt / 1000 / 60)}:
+									{(song.dt / 1000) % 60 < 10 ? '0' : ''}
+									{Math.floor((song.dt / 1000) % 60)}
 								</div>
 							</div>
 						))}
@@ -72,7 +103,7 @@ const search = () => {
 					<div key={artist.id}>{artist.name}</div>
 				));
 			default:
-				return <div>No results found</div>;
+				return defaultNotFound;
 		}
 	};
 

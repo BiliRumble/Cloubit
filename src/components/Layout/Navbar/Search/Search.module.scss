@@ -43,7 +43,9 @@
 		opacity: 0;
 		overflow-y: auto;
 		box-shadow: var(--shadow);
-		transition: opacity 0.6s, box-shadow 0.3s;
+		transition:
+			opacity 0.6s,
+			box-shadow 0.3s;
 
 		&__visible {
 			opacity: 1;
@@ -272,6 +274,15 @@
 
 		&:focus {
 			box-shadow: var(--shadow-focus);
+		}
+
+		&::-webkit-scrollbar {
+			width: 6px;
+			transition: width 0.3s ease-in-out;
+
+			&:hover {
+				width: 10px;
+			}
 		}
 	}
 

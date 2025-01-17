@@ -170,7 +170,7 @@ async fn main() -> io::Result<()> {
             // 添加日志中间件，默认会记录请求和响应
             .wrap(Logger::default())
 			// 配置CORS中间件
-			.wrap(Cors::default().allow_any_origin().allow_any_method().allow_any_header().send_wildcard())
+			.wrap(Cors::default().allow_any_origin().allow_any_method().allow_any_header().supports_credentials())
             // 配置路由
             .configure(configure_routes)
             // 捕获所有未定义的路由

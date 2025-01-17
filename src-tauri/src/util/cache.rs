@@ -41,15 +41,17 @@ macro_rules! cache_handler {
                 return HttpResponse::Ok().json(item);
             }
 
-            let result = $struct_name::requests(req,query).await;
+            let result = $struct_name::requests(req, query).await;
             match result {
                 Ok(res) => {
-                    let code = res.body.get("code").unwrap().as_i64().unwrap();
-                    if res.status == 200  &&  code == 200{
+                    let status_code = res.body.get("code").and_then(|v| v.as_i64()).unwrap_or_else(|| {
+                        res.body.get("status").and_then(|v| v.as_i64()).unwrap_or(0)
+                    });
+                    if res.status == 200 && status_code == 200 {
                         set_cached_data(&cache_key, cache_data.cache.clone(), res.body.clone());
                     }
-                    let status = StatusCode::from_str(&code.to_string()).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
-                    HttpResponse::build(status).json(res.body)
+                    let http_status = StatusCode::from_str(&status_code.to_string()).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
+                    HttpResponse::build(http_status).json(res.body)
                 }
                 Err(val) => {
                     HttpResponse::Ok().json(val)

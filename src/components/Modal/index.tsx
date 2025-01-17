@@ -3,21 +3,26 @@ import styles from './Modal.module.scss';
 
 interface ModalProps {
 	isOpen: boolean;
+	hasCard?: boolean;
 	onClose: () => void;
 	children: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, hasCard = true, onClose, children }) => {
 	if (!isOpen) return null;
 
 	return (
 		<div className={styles.modal} onClick={onClose}>
-			<div className={styles.modal__content} onClick={(e) => e.stopPropagation()}>
-				<button className={styles.closeButton} onClick={onClose}>
-					&times;
-				</button>
-				{children}
-			</div>
+			{hasCard ? (
+				<div className={styles.modal__content} onClick={(e) => e.stopPropagation()}>
+					<button className={styles.closeButton} onClick={onClose}>
+						&times;
+					</button>
+					{children}
+				</div>
+			) : (
+				<>{children}</>
+			)}
 		</div>
 	);
 };

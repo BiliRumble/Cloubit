@@ -76,11 +76,11 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 	}, []);
 
 	useEffect(() => {
-	    if (!settingStore.searchAutoComplete) return setSuggestSearch(null);
+		if (!settingStore.searchAutoComplete) return setSuggestSearch(null);
 		getDefaultKey().then((data) => {
 			setDefaultSearch(data);
-		})
-	}, [settingStore.searchAutoComplete])
+		});
+	}, [settingStore.searchAutoComplete]);
 
 	useEffect(() => {
 		const delayDebounceFn = setTimeout(() => {

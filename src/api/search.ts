@@ -1,4 +1,3 @@
-import { search_hot_detail } from './NeteaseCloudMusicApi.js';
 import {
 	DefaultSearchResult,
 	HotSearchResult,
@@ -11,7 +10,7 @@ import request from '../utils/request';
 const { get, post } = request;
 
 export async function getHotSearch(): Promise<HotSearchResult['data'] | null> {
-	const response = search_hot_detail();
+	const response = (await get('search/hot/detail')).data as HotSearchResult;
 	if (response.code === 200) {
 		console.debug('🌐 Get hot search result successfully: ', response);
 		return response.data;
@@ -57,9 +56,12 @@ export async function getSearchResult(
 		artist: 100,
 	};
 	const response = (
-		await get(
-			`cloudsearch?keywords=${keyWord}&limit=${limit}&offset=${offset}&type=${typeMap[type]}`
-		)
+		await get('cloudsearch', {
+			keywords: keyWord,
+			limit,
+			offset,
+			type: typeMap[type],
+		})
 	).data as SearchResult;
 	if (response.code === 200) {
 		console.debug('🌐 Get search result successfully: ', response);

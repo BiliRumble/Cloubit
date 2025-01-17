@@ -6,6 +6,7 @@ import Settings from '../../../pages/modals/Settings/Settings';
 import Modal from '../../Modal';
 import Search from './Search';
 import styles from './Navbar.module.scss';
+import Login from '../../../pages/modals/Login/Login';
 
 interface NavbarProps {
 	className?: string;
@@ -15,6 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 	const appWindow = new Window('main');
 	const [maximized, setMaximized] = useState(false);
 	const [isSettingModalOpen, setSettingModalOpen] = useState(false);
+	const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
 	const toggleMaximize = async () => {
 		try {
@@ -40,6 +42,14 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 		setSettingModalOpen(false);
 	};
 
+	const openLoginModal = () => {
+		setLoginModalOpen(true);
+	};
+
+	const closeLoginModal = () => {
+		setLoginModalOpen(false);
+	};
+
 	return (
 		<>
 			<header data-tauri-drag-region className={`${className || ''} ${styles.navbar}`.trim()}>
@@ -62,6 +72,9 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					<Search />
 				</div>
 				<div data-tauri-drag-region className={styles.navbar__right}>
+					<button id="Login" onClick={openLoginModal}>
+						Login
+					</button>
 					<button id="Setting" onClick={openSettingModal}>
 						<span className={`${styles.icon} i-solar-settings-linear`} />
 					</button>
@@ -81,6 +94,9 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 			</header>
 			<Modal isOpen={isSettingModalOpen} onClose={closeSettingModal}>
 				<Settings />
+			</Modal>
+			<Modal isOpen={isLoginModalOpen} onClose={closeLoginModal}>
+				<Login />
 			</Modal>
 		</>
 	);

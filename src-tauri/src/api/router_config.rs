@@ -47,7 +47,7 @@ use crate::api::{listentogether_play_command, listentogether_room_check, };
 use crate::api::{yunbei_today,listentogether_sync_playlist_get,listentogether_room_create};
 use crate::api::{listentogether_status, listentogether_sync_list_command, };
 use crate::api::{album_detail_dynamic,login_refresh,dj_recommend_type,artist_sublist};
-use crate::api::{login, login_cellphone, login_qr_check, login_qr_create, login_qr_key, };
+use crate::api::{login, login_cellphone, login_qr_check, login_qr_create, login_qr_key, register_anonimous };
 use crate::api::{homepage_dragon_ball, likelist, listen_data_realtime_report, listen_data_report,};
 use crate::api::{logout, lyric, lyric_new, mlog_music_rcmd, mlog_to_video, mlog_url, msg_comments};
 use crate::api::{msg_forwards, msg_notices, login_status, mv_exclusive_rcmd, mv_first, mv_sub};
@@ -76,6 +76,8 @@ use crate::api::{dj_program, dj_radio_hot, dj_recommend, dj_sub, dj_sublist, dj_
 use crate::api::{dj_toplist, dj_toplist_pay,dj_program_toplist_hours,mv_detail_info};
 
 use actix_web::web;
+
+use self::register_anonimous::register_anonimous;
 
 // 路由配置函数，集中管理不同模块的路由配置
 pub fn configure_routes(cfg: &mut web::ServiceConfig) {
@@ -293,7 +295,7 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
         .configure(program_recommend::configure)
         .configure(personalized_privatecontent::configure)
         .configure(playlist_tracks::configure)
-        
+
         .configure(rebind::configure)
         .configure(recent_listen_list::configure)
         .configure(recommend_resource::configure)
@@ -305,11 +307,12 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
         .configure(record_recent_song::configure)
         .configure(record_recent_video::configure)
         .configure(record_recent_voice::configure)
+		.configure(register_anonimous::configure)
         .configure(register_cellphone::configure)
         .configure(related_allvideo::configure)
         .configure(related_playlist::configure)
         .configure(resource_like::configure)
-        
+
         .configure(scrobble::configure)
         .configure(send_album::configure)
         .configure(search::configure)
@@ -358,7 +361,7 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
         .configure(summary_annual::configure)
         .configure(song_download_url::configure)
         .configure(song_download_url_v1::configure)
-        
+
         .configure(threshold_detail_get::configure)
         .configure(top_album::configure)
         .configure(top_artists::configure)
@@ -373,8 +376,8 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
         .configure(toplist::configure)
         .configure(toplist_artist::configure)
         .configure(toplist_detail::configure)
-        
-        
+
+
         .configure(ugc_album_get::configure)
         .configure(ugc_artist_get::configure)
         .configure(ugc_artist_search::configure)
@@ -408,8 +411,8 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
         .configure(user_social_status_support::configure)
         .configure(user_subcount::configure)
         .configure(user_update::configure)
-        
-        
+
+
         .configure(verify_get_qr::configure)
         .configure(video_category_list::configure)
         .configure(video_detail::configure)
@@ -435,9 +438,9 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
         .configure(voicelist_list_search::configure)
         .configure(voicelist_search::configure)
         .configure(voicelist_trans::configure)
-        
+
         .configure(weblog::configure)
-        
+
         .configure(yunbei::configure)
         .configure(yunbei_expense::configure)
         .configure(yunbei_info::configure)
@@ -449,6 +452,6 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
         .configure(yunbei_tasks::configure)
         .configure(yunbei_tasks_todo::configure)
         .configure(yunbei_today::configure)
-    
+
     ;
 }

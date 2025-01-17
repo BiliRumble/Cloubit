@@ -2,6 +2,7 @@ import { BrowserRouter } from 'react-router-dom';
 import Navbar from './components/Layout/Navbar';
 import PlayBar from './components/Layout/PlayBar';
 import Sidebar from './components/Layout/Sidebar';
+import { usePlayerManager } from './context/PlayerContext';
 import { useTheme } from './hooks/useTheme';
 import Router from './routers';
 import styles from './styles/layout.module.scss';
@@ -9,6 +10,8 @@ import styles from './styles/layout.module.scss';
 const App = () => {
 	const isWindowPath = location.pathname.startsWith('/windows/');
 	useTheme();
+
+	usePlayerManager().init();
 
 	return (
 		<BrowserRouter>

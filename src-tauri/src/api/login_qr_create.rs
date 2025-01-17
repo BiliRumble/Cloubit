@@ -3,7 +3,7 @@ use crate::util::request::{QueryOption, Response};
 use crate::{cache_handler, define_request_struct};
 use actix_web::http::StatusCode;
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
-use qrcode::render::unicode;
+use qrcode::render::{svg, unicode};
 use qrcode::QrCode;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -30,9 +30,15 @@ impl LoginQrCreate {
         let qrimg = if query.qrimg.unwrap_or(false) {
             match QrCode::new(&url) {
                 Ok(code) => {
-                    let image = code.render::<unicode::Dense1x2>().build();
-                    Some(image)
-                }
+					let image = code.render::<svg::Color>()
+						.min_dimensions(200, 200)
+						.dark_color(svg::Color("#000000"))
+						.light_color(svg::Color("#ffffff"))
+						.build();
+					let base64_image = base64::encode(image);
+					let data_uri = format!("data:image/svg+xml;base64,{}", base64_image);
+					Some(data_uri)
+				}
                 Err(_) => None,
             }
         } else {
@@ -59,7 +65,7 @@ cache_handler!(login_qr_create, LoginQrCreate);
 
 
 // const QRCode = require('qrcode')
-// 
+//
 // const createOption = require('../util/option.js')
 // module.exports = (query, request) => {
 //   return new Promise(async (resolve) => {

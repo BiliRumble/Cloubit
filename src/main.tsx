@@ -1,5 +1,5 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { PlayerProvider } from './context/PlayerContext.tsx';
 import { createPip } from './managers/PIPWindowManager.ts';
 import App from './App.tsx';
 import 'virtual:uno.css';
@@ -13,7 +13,7 @@ const isPip = localStorage.getItem('isPip') == 'true';
 if (isPip) createPip(true);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-	<React.StrictMode>
+	<PlayerProvider>
 		<App />
-	</React.StrictMode>
+	</PlayerProvider>
 );
