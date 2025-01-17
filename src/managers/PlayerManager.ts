@@ -1,8 +1,8 @@
+import { event } from '@tauri-apps/api';
 import { Howl } from 'howler';
 import { getSongURL } from '../api/song';
 import { PlayList, PlayListItem } from '../models/main';
 import { usePlayerStore } from '../store/player';
-import { event } from '@tauri-apps/api';
 
 export default class PlayerManager {
 	private playerStore = usePlayerStore();
@@ -168,8 +168,14 @@ export default class PlayerManager {
 	get playlist() {
 		return this._playlist;
 	}
-	get currentSong() {
-		return this._currentSong;
+	get currentSong(): PlayListItem {
+		if (this._currentSong) return this._currentSong;
+		return {
+			index: -1,
+			id: -1,
+			name: 'QTMusic',
+			cover: 'https://cdn.discordapp.com/attachments/929847977705945610/929848029813848478/unknown.png',
+		};
 	}
 	get mode() {
 		return this._mode;

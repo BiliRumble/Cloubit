@@ -1,6 +1,6 @@
 import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { closePip } from '../../managers/PIPWindowManager';
 import { PlayListItem } from '../../models/main';
 import styles from './pip.module.scss';
@@ -16,33 +16,35 @@ const Pip = () => {
 	const [seek, setSeek] = useState(0);
 	const [duration, setDuration] = useState(1);
 
-	// 通过tauri拉取主窗口数据
-	event.listen('player-updataCurrentSong', (event) => {
-		const data = event.payload as PlayListItem;
-		setCurrentSong(data);
-	});
+	useEffect(() => {
+		// 监听
+		const ucs = event.listen('player-update-current-song', (event) => {
+			const data = event.payload as PlayListItem;
+			setCurrentSong(data);
+		});
+		const up = event.listen('player-update-playing', (event) => {
+			const data = event.payload as boolean;
+			setPlaying(data);
+			console.log(`player-update-playing: ${data}`);
+		});
+		const us = event.listen('player-update-seek', (event) => {
+			const data = event.payload as number;
+			setSeek(data);
+		});
+		const ud = event.listen('player-update-duration', (event) => {
+			const data = event.payload as number;
+			setDuration(data);
+		});
 
-	event.listen('player-play', () => {
-		setPlaying(true);
-	});
-
-	event.listen('player-pause', () => {
-		setPlaying(false);
-	});
-
-	event.listen('player-updataSeek', (event) => {
-		const data = event.payload as number;
-		setSeek(data);
-	});
-
-	event.listen('player-updataDuration', (event) => {
-		const data = event.payload as number;
-		setDuration(data);
-		// ok
-	});
+		return () => {
+			ucs.then((f) => f());
+			up.then((f) => f());
+			us.then((f) => f());
+			ud.then((f) => f());
+		};
+	}, []);
 
 	const progress = (seek / duration) * 100;
-	console.debug({progress, seek, duration});
 
 	return (
 		<div
@@ -65,23 +67,19 @@ const Pip = () => {
 					<div data-tauri-drag-region className={styles.control__buttons}>
 						<span
 							className="i-solar-rewind-back-line-duotone"
-							onClick={async () => await event.emitTo('main', 'pip-prev')}
+							onClick={() => event.emitTo('main', 'pip-prev')}
 						/>
 						<span
 							className={
 								playing ? 'i-solar-pause-line-duotone' : 'i-solar-play-line-duotone'
 							}
 							onClick={async () => {
-								if (playing) {
-									await event.emitTo('main', 'pip-pause');
-								} else {
-									await event.emitTo('main', 'pip-play1');
-								}
+								event.emitTo('main', 'pip-play');
 							}}
 						/>
 						<span
 							className="i-solar-rewind-forward-line-duotone"
-							onClick={async () => await event.emitTo('main', 'pip-next')}
+							onClick={() => event.emitTo('main', 'pip-next')}
 						/>
 					</div>
 				</div>

@@ -1,7 +1,7 @@
+import { event } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import styles from './PlayBar.module.scss';
-import { event } from '@tauri-apps/api';
 
 interface PlayBarProps {
 	className?: string;
@@ -41,6 +41,53 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 
 		return () => clearInterval(interval);
 	}, [usePlayer, seekDragging]);
+
+	useEffect(() => {
+		const lazyAsync = async () => {
+			await event.emitTo('main', 'player-update-duration', duration);
+			await event.emitTo('main', 'player-update-playing', playing);
+		};
+		lazyAsync();
+	}, [currentSong, duration, playing, playing]);
+
+	useEffect(() => {
+		const async = async () => {
+			await event.emitTo('main', 'player-update-seek', seek);
+		};
+		async();
+	}, [seek]);
+
+	useEffect(() => {
+		// 注册事件
+		const prev = event.listen('pip-prev', () => {
+			usePlayer.prev();
+		});
+
+		const next = event.listen('pip-next', () => {
+			usePlayer.next();
+		});
+
+		const play = event.listen('pip-play', () => {
+			if (playing) {
+				console.log('暂停');
+				return usePlayer.pause();
+			} else {
+				console.log('播放');
+				return usePlayer.play();
+			}
+		});
+
+		event.emitTo('main', 'player-update-current-song', currentSong);
+		event.emitTo('main', 'player-update-duration', duration);
+		event.emitTo('main', 'player-update-playing', playing);
+
+		return () => {
+			// 取消事件监听
+			prev.then((f) => f());
+			next.then((f) => f());
+			play.then((f) => f());
+		};
+	}, [playing]);
 
 	return (
 		<div className={`${className || ''} ${styles.playbar}`.trim()}>
@@ -90,7 +137,16 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 							if (playing) return usePlayer.pause();
 							usePlayer.play();
 							// deubg
-							console.debug({currentSong, playlist, mode, playing, muted, volume, seek, duration});
+							console.debug({
+								currentSong,
+								playlist,
+								mode,
+								playing,
+								muted,
+								volume,
+								seek,
+								duration,
+							});
 						}}
 					/>
 					<span

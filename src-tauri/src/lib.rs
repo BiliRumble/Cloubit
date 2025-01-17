@@ -2,12 +2,8 @@ use tauri::{Manager, AppHandle};
 
 #[tauri::command]
 async fn close_webview_window(window_label: String, app_handle: AppHandle) {
-    if let Some(window) = app_handle.get_webview_window(&window_label) {
-        window.close().unwrap();
-		println!("Window with label '{}' closed", window_label);
-    } else {
-        println!("Window with label '{}' not found", window_label);
-    }
+	// 关闭webview窗口
+	app_handle.get_webview_window(&window_label).unwrap().close().unwrap();
 }
 
 #[cfg(desktop)]

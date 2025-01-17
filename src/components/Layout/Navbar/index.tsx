@@ -2,11 +2,13 @@ import { Window } from '@tauri-apps/api/window';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { closePip, createPip } from '../../../managers/PIPWindowManager';
+import Login from '../../../pages/modals/Login/Login';
 import Settings from '../../../pages/modals/Settings/Settings';
 import Modal from '../../Modal';
 import Search from './Search';
 import styles from './Navbar.module.scss';
-import Login from '../../../pages/modals/Login/Login';
+import { event } from '@tauri-apps/api';
+import { usePlayerManager } from '../../../context/PlayerContext';
 
 interface NavbarProps {
 	className?: string;
@@ -17,6 +19,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 	const [maximized, setMaximized] = useState(false);
 	const [isSettingModalOpen, setSettingModalOpen] = useState(false);
 	const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+
+	const currentSong = usePlayerManager().currentSong;
 
 	const toggleMaximize = async () => {
 		try {
@@ -78,7 +82,14 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					<button id="Setting" onClick={openSettingModal}>
 						<span className={`${styles.icon} i-solar-settings-linear`} />
 					</button>
-					<button onClick={() => changePip()}>
+					<button
+						onClick={() => {
+							changePip();
+							setTimeout(() => {
+								event.emitTo('main', 'player-update-current-song', currentSong);
+							}, 1000);
+						}}
+					>
 						<span className="i-solar-pip-2-line-duotone" />
 					</button>
 					<button onClick={() => appWindow.minimize()}>
