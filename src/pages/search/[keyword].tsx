@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getSearchResult } from '../../api/search';
+import { getSearchResult } from '../../apis/search';
 import { usePlayerManager } from '../../context/PlayerContext';
 import { Artist, SearchResult, searchType } from '../../models/main';
 import styles from './Search.module.scss';
@@ -41,15 +41,14 @@ const search = () => {
 		usePlayer.setCurrentSong(id, true);
 	};
 
-	const defaultNotFound = () => (
-		<div className={styles.centBox}>
-			<img src={notFoundImg} alt="No data" />
-			<h3>没有找到相关内容</h3>
-		</div>
-	);
-
 	const renderResults = () => {
-		if (!searchResult) return defaultNotFound();
+		if (!searchResult)
+			return (
+				<div className={styles.centBox}>
+					<img src={notFoundImg} alt="No data" />
+					<h3>没有找到相关内容</h3>
+				</div>
+			);
 
 		switch (searchType) {
 			case 'song':
@@ -103,7 +102,12 @@ const search = () => {
 					<div key={artist.id}>{artist.name}</div>
 				));
 			default:
-				return defaultNotFound;
+				return (
+					<div className={styles.centBox}>
+						<img src={notFoundImg} alt="No data" />
+						<h3>没有找到相关内容</h3>
+					</div>
+				);
 		}
 	};
 

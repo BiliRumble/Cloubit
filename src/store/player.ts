@@ -7,7 +7,7 @@ import { PlayList, PlayListItem } from '../models/main';
  */
 export interface playerStoreType {
 	playlist: PlayList;
-	currentSong: PlayListItem | null;
+	currentSong: PlayListItem;
 	seek: number;
 	duration: number;
 	volume: number;
@@ -22,7 +22,11 @@ export const usePlayerStore = create(
 				count: 0,
 				data: [],
 			},
-			currentSong: null,
+			currentSong: {
+				index: -1,
+				id: 0,
+				name: '暂无歌曲',
+			},
 			seek: 0,
 			duration: 0,
 			volume: 0.5,

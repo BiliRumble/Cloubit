@@ -1,0 +1,137 @@
+.playlist {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	height: 100%;
+	width: 21%;
+	min-width: 350px;
+	min-height: 100%;
+	max-width: 405px;
+	max-height: 100vh;
+	background: var(--background-color);
+	padding: 1rem;
+	border-radius: 0.5rem 0 0 0.5rem;
+
+	&__header {
+		display: flex;
+		flex-direction: column;
+		color: var(--text-color);
+		padding: 0 0 1rem 0;
+
+		// 底部横线，左右缺0.5rem
+		border-bottom: 1px solid var(--hr-color);
+
+		span {
+			color: var(--second-text-color);
+
+			span {
+				transition: color 0.1s ease-in-out;
+				cursor: pointer;
+
+				&:hover {
+					color: var(--primary-color);
+				}
+			}
+		}
+
+		.closeButton {
+			color: var(--text-color);
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
+			background: none;
+			border: none;
+			font-size: 2rem;
+			cursor: pointer;
+			transition: color 0.1s ease-in-out;
+
+			&:hover {
+				color: var(--primary-color);
+			}
+		}
+	}
+
+	&__list {
+		display: flex;
+		flex-direction: column;
+		overflow-y: auto;
+		height: 100%;
+		width: 100%;
+		padding: 1rem 0;
+
+		&__item {
+			display: flex;
+			align-items: center;
+			width: 100%;
+			padding: 8px 8px;
+			border-radius: 8px;
+			cursor: pointer;
+			color: var(--text-color);
+			transition: all 0.3s ease-in-out;
+
+			img {
+				width: 50px;
+				height: 50px;
+				border-radius: 8px;
+				margin-right: 1rem;
+			}
+
+			&__info {
+				display: flex;
+				flex: 2;
+				width: 100%;
+				flex-direction: column;
+				align-items: flex-start;
+				flex-wrap: nowrap;
+
+				// 溢出显示省略号
+				h3,
+				span {
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+
+				span {
+					color: var(--second-text-color);
+					font-size: 0.9rem;
+				}
+			}
+
+			&__delete {
+				height: 100%;
+				text-align: center;
+				background: none;
+				border: none;
+				font-size: 1.5rem;
+				cursor: pointer;
+				transition: color 0.1s ease-in-out;
+
+				&:hover {
+					color: var(--primary-color);
+				}
+			}
+
+			&__active {
+				background: var(--button-focus-bg-color);
+			}
+
+			&:hover {
+				background: var(--button-hover-bg-color);
+			}
+
+			&:not(:last-child) {
+				margin-bottom: 0.4rem;
+			}
+		}
+
+		&::-webkit-scrollbar {
+			width: 6px;
+			transition: width 0.3s ease-in-out;
+
+			&:hover {
+				width: 10px;
+			}
+		}
+	}
+}

@@ -1,14 +1,14 @@
+import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePlayerManager } from '../../../context/PlayerContext';
 import { closePip, createPip } from '../../../managers/PIPWindowManager';
 import Login from '../../../pages/modals/Login/Login';
 import Settings from '../../../pages/modals/Settings/Settings';
-import Modal from '../../Modal';
+import Modal from '../../Common/Modal';
 import Search from './Search';
 import styles from './Navbar.module.scss';
-import { event } from '@tauri-apps/api';
-import { usePlayerManager } from '../../../context/PlayerContext';
 
 interface NavbarProps {
 	className?: string;
@@ -38,22 +38,6 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
 	const navigate = useNavigate();
 
-	const openSettingModal = () => {
-		setSettingModalOpen(true);
-	};
-
-	const closeSettingModal = () => {
-		setSettingModalOpen(false);
-	};
-
-	const openLoginModal = () => {
-		setLoginModalOpen(true);
-	};
-
-	const closeLoginModal = () => {
-		setLoginModalOpen(false);
-	};
-
 	return (
 		<>
 			<header data-tauri-drag-region className={`${className || ''} ${styles.navbar}`.trim()}>
@@ -76,10 +60,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					<Search />
 				</div>
 				<div data-tauri-drag-region className={styles.navbar__right}>
-					<button id="Login" onClick={openLoginModal}>
-						Login
-					</button>
-					<button id="Setting" onClick={openSettingModal}>
+					<button id="Login" onClick={() => setLoginModalOpen(true)}></button>
+					<button id="Setting" onClick={() => setSettingModalOpen(true)}>
 						<span className={`${styles.icon} i-solar-settings-linear`} />
 					</button>
 					<button
@@ -103,10 +85,10 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					</button>
 				</div>
 			</header>
-			<Modal isOpen={isSettingModalOpen} onClose={closeSettingModal}>
+			<Modal isOpen={isSettingModalOpen} onClose={() => setSettingModalOpen(false)}>
 				<Settings />
 			</Modal>
-			<Modal isOpen={isLoginModalOpen} onClose={closeLoginModal}>
+			<Modal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)}>
 				<Login />
 			</Modal>
 		</>

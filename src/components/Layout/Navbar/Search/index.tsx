@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDefaultKey, getHotSearch, getSuggestSearch } from '../../../../api/search';
+import { getDefaultKey, getHotSearch, getSuggestSearch } from '../../../../apis/search';
 import { DefaultSearchResult, HotSearchResult, SuggestSearchResult } from '../../../../models/main';
 import { useSettingStore } from '../../../../store/setting';
-import Chip from '../../../Chip';
+import Chip from '../../../Common/Chip';
 import styles from './Search.module.scss';
 
 interface PlayBarProps {
@@ -167,7 +167,7 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 													navigate(`/search/${item.name}`);
 													setIsFocus(false);
 												}}
-												classNames={
+												className={
 													styles.search__card__default__history__list__item
 												}
 											/>

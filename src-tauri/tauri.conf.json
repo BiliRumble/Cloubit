@@ -4,9 +4,9 @@
 	"version": "0.1.0",
 	"identifier": "top.rumble.qtmusic",
 	"build": {
-		"beforeDevCommand": "pnpm dev",
+		"beforeDevCommand": "pnpm vdev",
 		"devUrl": "http://localhost:1420",
-		"beforeBuildCommand": "pnpm build",
+		"beforeBuildCommand": "pnpm vbuild",
 		"frontendDist": "../dist"
 	},
 	"app": {

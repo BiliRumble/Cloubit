@@ -1,5 +1,4 @@
-import { event } from '@tauri-apps/api';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import PlayerManager from '../managers/PlayerManager';
 
 // 创建 Context

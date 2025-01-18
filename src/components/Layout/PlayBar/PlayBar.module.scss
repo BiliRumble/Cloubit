@@ -191,3 +191,29 @@
 		}
 	}
 }
+
+.volume__popover {
+	display: flex !important;
+	flex-direction: column;
+	align-items: center;
+	flex-wrap: nowrap;
+
+	input[type='range'] {
+		// 竖着显示
+		-webkit-appearance: slider-vertical;
+		-moz-appearance: slider-vertical;
+		appearance: slider-vertical;
+		width: 1rem;
+		height: 100px;
+		background: transparent;
+		outline: none;
+		border-radius: 2px;
+		cursor: pointer;
+		margin: 0 0.5rem;
+	}
+
+	span {
+		font-size: 0.8rem;
+		color: var(--second-text-color);
+	}
+}

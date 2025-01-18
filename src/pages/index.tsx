@@ -1,4 +1,4 @@
-import Card from '../components/Card';
+import Card from '../components/Common/Card';
 import styles from './index.module.scss';
 
 const Home = () => {

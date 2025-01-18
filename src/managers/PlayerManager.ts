@@ -1,34 +1,41 @@
 import { event } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 import { Howl } from 'howler';
-import { getSongURL } from '../api/song';
+import { getSongURL } from '../apis/song';
 import { PlayList, PlayListItem } from '../models/main';
 import { usePlayerStore } from '../store/player';
 import { useSettingStore } from '../store/setting';
-import { invoke } from 'lodash-es';
 
 export default class PlayerManager {
+	// 占位符currentSong
+	private _placeholderSong: PlayListItem = {
+		index: -1,
+		id: 0,
+		name: '暂无歌曲',
+	};
+
 	private static instance: PlayerManager;
-	private playerStore = usePlayerStore();
 	private _playlist: PlayList = { count: 0, data: [] };
-	private _currentSong: PlayListItem | null = null;
+	private _currentSong: PlayListItem = this._placeholderSong;
 	private _mode: 'list' | 'single' | 'random' = 'list';
 	private _player: Howl | null = new Howl({
 		src: [''],
 		format: ['mp3', 'wav', 'ogg'],
-		volume: this.playerStore.volume,
-		mute: this.playerStore.muted,
+		volume: usePlayerStore.getState().volume,
+		mute: usePlayerStore.getState().muted,
 		autoplay: false,
 		loop: this._mode === 'single',
 	});
 	private isChangingSong: boolean = false;
-	private isFadingOut: boolean = false;
 	private _playing: boolean = false;
+	private _volume: number = 0.5;
 
 	constructor() {
 		console.debug('🎵 Player Manager Init');
-		this._playlist = this.playerStore.playlist;
-		this._currentSong = this.playerStore.currentSong;
-		this._mode = this.playerStore.mode;
+		this._playlist = usePlayerStore.getState().playlist;
+		this._currentSong = usePlayerStore.getState().currentSong;
+		this._mode = usePlayerStore.getState().mode;
+		this._volume = usePlayerStore.getState().volume;
 	}
 
 	public init() {
@@ -64,8 +71,8 @@ export default class PlayerManager {
 			this._player = new Howl({
 				src: [data.url],
 				format: ['mp3', 'wav', 'ogg'],
-				volume: this.playerStore.volume,
-				mute: this.playerStore.muted,
+				volume: this._volume,
+				mute: usePlayerStore.getState().muted,
 				autoplay: play,
 				loop: this._mode === 'single',
 				onend: () => {
@@ -82,7 +89,7 @@ export default class PlayerManager {
 			this._currentSong = target;
 			this._playing = play;
 			usePlayerStore.setState({ currentSong: target });
-			if (init) this._player?.seek(this.playerStore.seek);
+			if (init) this._player?.seek(usePlayerStore.getState().seek);
 			console.debug('🎵 Set Current Song:', this._currentSong);
 		} catch (error) {
 			console.error('Error setting current song:', error);
@@ -95,55 +102,74 @@ export default class PlayerManager {
 		if (this._playlist.data.find((item) => item.id === song.id)) return;
 		this._playlist.data.push(song);
 		this._playlist.count++;
-		this.playerStore.playlist = this._playlist;
+		usePlayerStore.setState({ playlist: this._playlist });
 		console.log(this._playlist);
 	}
 
 	public removeFromPlaylist(id: number) {
+		if (this._playlist.count < 1) return;
+		if (this._playlist.count === 1) return this.clearPlaylist();
 		const index = this._playlist.data.findIndex((item) => item.id === id);
-		if (index === -1) return;
+		// 如果当前播放的歌曲被移除，则播放下一首
+		if (this._currentSong.id === id) {
+			this._player?.unload();
+			this.next();
+		}
 		this._playlist.data.splice(index, 1);
 		this._playlist.count--;
-		this.playerStore.playlist = this._playlist;
+		usePlayerStore.setState({ playlist: this._playlist });
+	}
+
+	public clearPlaylist() {
+		this._playlist = { count: 0, data: [] };
+		usePlayerStore.setState({ playlist: this._playlist });
+		this._currentSong = this._placeholderSong;
+		usePlayerStore.setState({ currentSong: this._placeholderSong });
+
+		// 清空播放器
+		if (this._player) {
+			this._player.pause();
+			this._player.unload();
+		}
 	}
 
 	public play() {
-		if (!this._player || this._playing || this.isFadingOut) return;
-		this.isFadingOut = true;
+		if (!this._player || this._currentSong.index === -1) return;
 		this._player.play();
 		this._playing = true;
-		if (useSettingStore.getState().fadeInOut) {
-			this._player.fade(0, this.playerStore.volume, useSettingStore.getState().fadeTime);
-			setTimeout(() => {
-				this.isFadingOut = false;
-			}, useSettingStore.getState().fadeTime);
-		}
 		event.emit('player-play');
 	}
 
 	public pause() {
-		if (!this._player || !this._playing || this.isFadingOut) return;
-		this.isFadingOut = true;
-		if (useSettingStore.getState().fadeInOut)
-			this._player.fade(this.playerStore.volume, 0, useSettingStore.getState().fadeTime);
+		if (!this._player || this._currentSong.index === -1) return;
 		this._playing = false;
-		setTimeout(() => {
-			if (!this._player?.playing) return;
-			this._player.pause();
-			this.isFadingOut = false;
-		}, useSettingStore.getState().fadeTime);
+		this._player.pause();
 		event.emit('player-pause');
 	}
 
-	public next() {
+	public next(force = false) {
 		usePlayerStore.setState({ seek: 0 });
+		if (force) {
+			if (this._playlist.count < 2) {
+				this._player?.seek(0);
+			}
+			if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
+			// eslint-disable-next-line no-case-declarations
+			const index = (this._currentSong?.index as number) + 1;
+			if (index >= this._playlist.count)
+				return this.setCurrentSong(this._playlist.data[0].id);
+			this.setCurrentSong(this._playlist.data[index].id);
+			return;
+		}
 		switch (this._mode) {
 			case 'single':
+				this._player?.seek(0);
 				if (!this._player?.playing) this._player?.play();
 				break;
 			case 'list':
-				if (this._playlist.count < 1) break;
-				if (this._playlist.count === 1) return this._player?.play();
+				if (this._playlist.count < 2) {
+					this._player?.seek(0);
+				}
 				if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
 				// eslint-disable-next-line no-case-declarations
 				const index = (this._currentSong?.index as number) + 1;
@@ -152,8 +178,9 @@ export default class PlayerManager {
 				this.setCurrentSong(this._playlist.data[index].id);
 				break;
 			case 'random':
-				if (this._playlist.count < 1) break;
-				if (this._playlist.count === 1) return this._player?.play();
+				if (this._playlist.count < 2) {
+					this._player?.seek(0);
+				}
 				if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
 				// eslint-disable-next-line no-case-declarations
 				let random;
@@ -169,11 +196,13 @@ export default class PlayerManager {
 		usePlayerStore.setState({ seek: 0 });
 		switch (this._mode) {
 			case 'single':
+				this._player?.seek(0);
 				if (!this._player?.playing) this._player?.play();
 				break;
 			case 'list':
-				if (this._playlist.count < 1) break;
-				if (this._playlist.count === 1) return this._player?.play();
+				if (this._playlist.count < 2) {
+					this._player?.seek(0);
+				}
 				if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
 				// eslint-disable-next-line no-case-declarations
 				const index = (this._currentSong?.index as number) - 1;
@@ -182,8 +211,9 @@ export default class PlayerManager {
 				this.setCurrentSong(this._playlist.data[index].id);
 				break;
 			case 'random':
-				if (this._playlist.count < 1) break;
-				if (this._playlist.count === 1) return this._player?.play();
+				if (this._playlist.count < 2) {
+					this._player?.seek(0);
+				}
 				if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
 				// eslint-disable-next-line no-case-declarations
 				let random;
@@ -213,10 +243,6 @@ export default class PlayerManager {
 	get player() {
 		return this._player;
 	}
-
-	get volume() {
-		return this._player?.volume() || 0.5;
-	}
 	get muted() {
 		return this._player?.mute() || false;
 	}
@@ -229,25 +255,28 @@ export default class PlayerManager {
 	get playing() {
 		return this._playing || false;
 	}
+	get volume() {
+		return this._volume || 0.5;
+	}
 
 	set mode(mode: 'list' | 'single' | 'random') {
 		this._mode = mode;
-		this.playerStore.mode = mode;
 		usePlayerStore.setState({ mode: mode });
 	}
 	set seek(seek: number) {
 		if (!this._player) return;
 		this._player.seek(seek);
 	}
-	set volume(volume: number) {
-		if (!this._player) return;
-		this._player.volume(volume);
-		this.playerStore.volume = volume;
-	}
 	set muted(muted: boolean) {
 		if (!this._player) return;
 		this._player.mute(muted);
-		this.playerStore.muted = muted;
+		usePlayerStore.setState({ muted: muted });
+	}
+	set volume(volume: number) {
+		this._volume = volume;
+		if (!this._player) return;
+		this._player.volume(volume);
+		usePlayerStore.setState({ volume: volume });
 	}
 
 	public pushToSTMC() {

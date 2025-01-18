@@ -28,11 +28,12 @@
 		appearance: none;
 		width: 2.5rem;
 		height: 1.5rem;
-		background: var(--hr-color);
+		background: var(--button-bg-color);
 		border-radius: 4px;
 		position: relative;
 		outline: none;
 		cursor: pointer;
+		box-shadow: var(--shadow);
 		transition: all 0.3s ease-in-out;
 
 		&:checked {
@@ -44,7 +45,7 @@
 			position: absolute;
 			width: 1.5rem;
 			height: 1.5rem;
-			background: var(--text-color);
+			background: var(--button-focus-bg-color);
 			border-radius: 4px;
 			top: 0;
 			left: 0;
@@ -61,7 +62,7 @@
 .select {
 	width: 100%;
 	padding: 0.5rem;
-	background: var(--hr-color);
+	background: var(--button-bg-color);
 	color: var(--text-color);
 	border: none;
 	min-width: 8rem;
@@ -71,6 +72,8 @@
 	transition: box-shadow 0.3s;
 
 	& > option {
+		background: var(--button-bg-color);
+		color: var(--text-color);
 	}
 
 	&:hover {
@@ -81,10 +84,28 @@
 .textInput {
 	background: var(--hr-color);
 	color: var(--text-color);
+	box-shadow: var(--shadow);
 	padding: 0.5rem;
 	border: none;
 	border-radius: 6px;
 	outline: none;
-    border: none;
-    outline: none;
+}
+
+.button {
+	padding: 0.5rem 1rem;
+	background: var(--button-bg-color);
+	color: var(--text-color);
+	border: none;
+	border-radius: 6px;
+	outline: none;
+	box-shadow: var(--shadow);
+	transition: background 0.1s ease-in-out;
+
+	&:hover {
+		background: var(--button-hover-bg-color);
+	}
+
+	&:focus {
+		background: var(--button-focus-bg-color);
+	}
 }

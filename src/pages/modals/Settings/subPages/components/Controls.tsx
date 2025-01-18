@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import styles from './Controls.module.scss';
 
 interface ControlProps {
@@ -82,6 +81,20 @@ export const Input: React.FC<InputProps> = ({ value, title, allowType, onChange 
 			title={title}
 			inputMode={allowType}
 		/>
+	);
+};
+
+interface ButtonProps {
+	title?: string;
+	children: React.ReactNode;
+	onClick: () => void;
+}
+
+export const Button: React.FC<ButtonProps> = ({ title, children, onClick }) => {
+	return (
+		<button className={styles.button} title={title} onClick={onClick}>
+			{children}
+		</button>
 	);
 };
 

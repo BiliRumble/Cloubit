@@ -1,5 +1,5 @@
-import styles from './Sidebar.module.scss';
 import { useNavigate } from 'react-router-dom';
+import styles from './Sidebar.module.scss';
 
 interface SideBarProps {
 	className?: string;

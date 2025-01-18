@@ -6,22 +6,33 @@ interface ModalProps {
 	hasCard?: boolean;
 	onClose: () => void;
 	children: React.ReactNode;
+	style?: React.CSSProperties;
+	className?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, hasCard = true, onClose, children }) => {
-	if (!isOpen) return null;
-
+const Modal: React.FC<ModalProps> = ({
+	isOpen,
+	hasCard = true,
+	onClose,
+	style = {},
+	className = '',
+	children,
+}) => {
 	return (
-		<div className={styles.modal} onClick={onClose}>
+		<div
+			className={styles.modal + (isOpen ? ' ' + styles.modal__open : '' + ' ' + className)}
+			style={style}
+		>
+			<div className={styles.modal__mask} onClick={onClose} />
 			{hasCard ? (
 				<div className={styles.modal__content} onClick={(e) => e.stopPropagation()}>
 					<button className={styles.closeButton} onClick={onClose}>
 						&times;
 					</button>
-					{children}
+					{isOpen ? children : null}
 				</div>
 			) : (
-				<>{children}</>
+				<>{isOpen ? children : null}</>
 			)}
 		</div>
 	);
