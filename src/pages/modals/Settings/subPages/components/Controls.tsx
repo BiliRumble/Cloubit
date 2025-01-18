@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Controls.module.scss';
 
 interface ControlProps {
@@ -51,6 +51,37 @@ export const Select: React.FC<SelectProps> = ({ options, value, title, onChange 
 				</option>
 			))}
 		</select>
+	);
+};
+
+interface InputProps {
+	value: string;
+	title?: string;
+	// inputmode
+	allowType?:
+		| 'none'
+		| 'text'
+		| 'tel'
+		| 'url'
+		| 'email'
+		| 'numeric'
+		| 'decimal'
+		| 'search'
+		| undefined;
+	lazyPush?: boolean; // 如果为true，用户停止输入后才更新值
+	onChange: (value: string) => void;
+}
+
+export const Input: React.FC<InputProps> = ({ value, title, allowType, onChange }) => {
+	return (
+		<input
+			className={styles.textInput}
+			type="text"
+			value={value}
+			onChange={(e) => onChange(e.target.value)}
+			title={title}
+			inputMode={allowType}
+		/>
 	);
 };
 

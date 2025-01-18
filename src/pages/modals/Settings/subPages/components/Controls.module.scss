@@ -77,3 +77,14 @@
 		box-shadow: var(--shadow-hover);
 	}
 }
+
+.textInput {
+	background: var(--hr-color);
+	color: var(--text-color);
+	padding: 0.5rem;
+	border: none;
+	border-radius: 6px;
+	outline: none;
+    border: none;
+    outline: none;
+}

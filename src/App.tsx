@@ -10,8 +10,8 @@ import styles from './styles/layout.module.scss';
 const App = () => {
 	const isWindowPath = location.pathname.startsWith('/windows/');
 	useTheme();
-
-	usePlayerManager().init();
+	const usePlayer = usePlayerManager();
+	if (!isWindowPath) usePlayer.init();
 
 	return (
 		<BrowserRouter>

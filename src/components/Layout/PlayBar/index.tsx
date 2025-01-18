@@ -1,7 +1,9 @@
 import { event } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
 import { usePlayerManager } from '../../../context/PlayerContext';
+import { usePlayerStore } from '../../../store/player';
 import styles from './PlayBar.module.scss';
+import { useSettingStore } from '../../../store/setting';
 
 interface PlayBarProps {
 	className?: string;
@@ -37,6 +39,8 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 
 		updateState();
 
+		usePlayerStore.setState({ seek: seek });
+
 		const interval = setInterval(updateState, 250); // 每秒更新一次状态
 
 		return () => clearInterval(interval);
@@ -45,10 +49,24 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 	useEffect(() => {
 		const lazyAsync = async () => {
 			await event.emitTo('main', 'player-update-duration', duration);
-			await event.emitTo('main', 'player-update-playing', playing);
+			await event.emitTo('main', 'player-update-current-song', currentSong);
 		};
-		lazyAsync();
-	}, [currentSong, duration, playing, playing]);
+		const interval = setInterval(lazyAsync, 1500);
+		const STMC = () => {
+			if (useSettingStore.getState().pushToSMTC) usePlayer.pushToSTMC();
+		};
+		const interval2 = setInterval(STMC, 15000);
+		return () => {
+			clearInterval(interval);
+			clearInterval(interval2);
+		};
+	}, [duration]);
+
+	useEffect(() => {
+		event.emitTo('main', 'player-update-current-song', currentSong);
+		event.emitTo('main', 'player-update-duration', duration);
+		if (useSettingStore.getState().pushToSMTC) usePlayer.pushToSTMC();
+	}, [currentSong]);
 
 	useEffect(() => {
 		const async = async () => {
@@ -88,6 +106,16 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 			play.then((f) => f());
 		};
 	}, [playing]);
+
+	useEffect(() => {
+		const pipRequest = event.listen('pip-request', () => {
+			event.emitTo('main', 'player-update-current-song', currentSong);
+			event.emitTo('main', 'player-update-duration', duration);
+		});
+		return () => {
+			pipRequest.then((f) => f());
+		};
+	}, []);
 
 	return (
 		<div className={`${className || ''} ${styles.playbar}`.trim()}>

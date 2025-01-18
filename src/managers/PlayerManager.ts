@@ -3,38 +3,42 @@ import { Howl } from 'howler';
 import { getSongURL } from '../api/song';
 import { PlayList, PlayListItem } from '../models/main';
 import { usePlayerStore } from '../store/player';
+import { useSettingStore } from '../store/setting';
+import { invoke } from 'lodash-es';
 
 export default class PlayerManager {
+	private static instance: PlayerManager;
 	private playerStore = usePlayerStore();
 	private _playlist: PlayList = { count: 0, data: [] };
 	private _currentSong: PlayListItem | null = null;
 	private _mode: 'list' | 'single' | 'random' = 'list';
-	private _player: Howl | null = null;
+	private _player: Howl | null = new Howl({
+		src: [''],
+		format: ['mp3', 'wav', 'ogg'],
+		volume: this.playerStore.volume,
+		mute: this.playerStore.muted,
+		autoplay: false,
+		loop: this._mode === 'single',
+	});
 	private isChangingSong: boolean = false;
+	private isFadingOut: boolean = false;
+	private _playing: boolean = false;
 
 	constructor() {
 		console.debug('🎵 Player Manager Init');
 		this._playlist = this.playerStore.playlist;
 		this._currentSong = this.playerStore.currentSong;
 		this._mode = this.playerStore.mode;
-		if (!this._player)
-			this._player = new Howl({
-				src: [''],
-				format: ['mp3', 'wav', 'ogg'],
-				volume: this.playerStore.volume,
-				mute: this.playerStore.muted,
-				autoplay: false,
-				loop: this._mode === 'single',
-			});
 	}
 
 	public init() {
 		if (!this._currentSong || !this._playlist.data.length) return;
-		this.setCurrentSong(this._currentSong.id, false);
+		this.setCurrentSong(this._currentSong.id, useSettingStore().autoPlay, true);
 		console.debug('🎵 Player Manager Init Complete');
 	}
 
-	public async setCurrentSong(id: number, play: boolean = true) {
+	public async setCurrentSong(id: number, play: boolean = true, init: boolean = false) {
+		if (!init) usePlayerStore.setState({ seek: 0 });
 		if (this.isChangingSong) return;
 		this.isChangingSong = true;
 
@@ -67,10 +71,18 @@ export default class PlayerManager {
 				onend: () => {
 					this.next();
 				},
+				onpause: () => {
+					event.emit('player-update-playing', false);
+				},
+				onplay: () => {
+					event.emit('player-update-playing', false);
+				},
 			});
 
 			this._currentSong = target;
+			this._playing = play;
 			usePlayerStore.setState({ currentSong: target });
+			if (init) this._player?.seek(this.playerStore.seek);
 			console.debug('🎵 Set Current Song:', this._currentSong);
 		} catch (error) {
 			console.error('Error setting current song:', error);
@@ -96,18 +108,35 @@ export default class PlayerManager {
 	}
 
 	public play() {
-		if (!this._player) return;
+		if (!this._player || this._playing || this.isFadingOut) return;
+		this.isFadingOut = true;
 		this._player.play();
+		this._playing = true;
+		if (useSettingStore.getState().fadeInOut) {
+			this._player.fade(0, this.playerStore.volume, useSettingStore.getState().fadeTime);
+			setTimeout(() => {
+				this.isFadingOut = false;
+			}, useSettingStore.getState().fadeTime);
+		}
 		event.emit('player-play');
 	}
 
 	public pause() {
-		if (!this._player) return;
-		this._player.pause();
+		if (!this._player || !this._playing || this.isFadingOut) return;
+		this.isFadingOut = true;
+		if (useSettingStore.getState().fadeInOut)
+			this._player.fade(this.playerStore.volume, 0, useSettingStore.getState().fadeTime);
+		this._playing = false;
+		setTimeout(() => {
+			if (!this._player?.playing) return;
+			this._player.pause();
+			this.isFadingOut = false;
+		}, useSettingStore.getState().fadeTime);
 		event.emit('player-pause');
 	}
 
 	public next() {
+		usePlayerStore.setState({ seek: 0 });
 		switch (this._mode) {
 			case 'single':
 				if (!this._player?.playing) this._player?.play();
@@ -137,6 +166,7 @@ export default class PlayerManager {
 	}
 
 	public prev() {
+		usePlayerStore.setState({ seek: 0 });
 		switch (this._mode) {
 			case 'single':
 				if (!this._player?.playing) this._player?.play();
@@ -197,7 +227,7 @@ export default class PlayerManager {
 		return this._player?.seek() || 0;
 	}
 	get playing() {
-		return this._player?.playing() || false;
+		return this._playing || false;
 	}
 
 	set mode(mode: 'list' | 'single' | 'random') {
@@ -218,5 +248,23 @@ export default class PlayerManager {
 		if (!this._player) return;
 		this._player.mute(muted);
 		this.playerStore.muted = muted;
+	}
+
+	public pushToSTMC() {
+		if (!this._player || !useSettingStore.getState().pushToSMTC) return;
+		invoke('push_to_stmc', {
+			name: this._currentSong?.name || 'None',
+			artist: this._currentSong?.artists || 'None',
+			cover:
+				this._currentSong?.cover ||
+				'https://cdn.discordapp.com/attachments/929847977705945610/929848029813848478/unknown.png',
+		});
+	}
+
+	public static getInstance(): PlayerManager {
+		if (!PlayerManager.instance) {
+			PlayerManager.instance = new PlayerManager();
+		}
+		return PlayerManager.instance;
 	}
 }

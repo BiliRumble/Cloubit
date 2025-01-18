@@ -1,13 +1,13 @@
+import { event } from '@tauri-apps/api';
 import React, { createContext, useContext, useState } from 'react';
 import PlayerManager from '../managers/PlayerManager';
-import { event } from '@tauri-apps/api';
 
 // 创建 Context
 const PlayerContext = createContext<PlayerManager | null>(null);
 
 // 创建一个 Provider 组件
 export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [playerManager] = useState(new PlayerManager());
+	const playerManager = PlayerManager.getInstance();
 
 	return <PlayerContext.Provider value={playerManager}>{children}</PlayerContext.Provider>;
 };

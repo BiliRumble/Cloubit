@@ -36,6 +36,8 @@ const Pip = () => {
 			setDuration(data);
 		});
 
+		event.emitTo('main', 'pip-request-current-song');
+
 		return () => {
 			ucs.then((f) => f());
 			up.then((f) => f());

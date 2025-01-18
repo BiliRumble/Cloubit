@@ -65,13 +65,12 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 		getHotSearch().then((data) => {
 			setHotSearch(data);
 		});
-		// 间隔一分钟获取一次
 		const autocompleteInterval = setInterval(() => {
 			if (!settingStore.searchAutoComplete) return setDefaultSearch(null);
 			getDefaultKey().then((data) => {
 				setDefaultSearch(data);
 			});
-		}, 60000);
+		}, 120000);
 		autocompleteInterval;
 	}, []);
 
@@ -100,6 +99,7 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 	return (
 		<div className={styles.search + ' ' + className}>
 			<input
+				id="searchInput"
 				className={styles.search__input + ` ${isFocus ? styles.search__input__focus : ''}`}
 				type="search"
 				placeholder={
@@ -157,6 +157,13 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 												key={item.time}
 												text={item.name}
 												onClick={() => {
+													// 修改input的内容
+													(
+														document.getElementById(
+															'searchInput'
+														) as HTMLInputElement
+													).value = item.name;
+													setInputValue(item.name);
 													navigate(`/search/${item.name}`);
 													setIsFocus(false);
 												}}

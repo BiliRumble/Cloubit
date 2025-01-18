@@ -2,9 +2,10 @@ import { useState } from 'react';
 import About from './subPages/About';
 import GeneralSettings from './subPages/General';
 import styles from './Settings.module.scss';
+import PlayerSettings from './subPages/Player';
 
 const Settings = () => {
-	const [page, setPage] = useState<'general' | 'cache' | 'about'>('general');
+	const [page, setPage] = useState<'general' | 'player' | 'cache' | 'about'>('general');
 
 	return (
 		<div className={styles.settings}>
@@ -18,6 +19,12 @@ const Settings = () => {
 						onClick={() => setPage('general')}
 					>
 						通用设置
+					</button>
+					<button
+						className={styles.settings__sidebar__list__item}
+						onClick={() => setPage('player')}
+					>
+						播放器设置
 					</button>
 					<button
 						className={styles.settings__sidebar__list__item}
@@ -35,6 +42,7 @@ const Settings = () => {
 			</div>
 			<div className={styles.settings__content}>
 				{page === 'general' && <GeneralSettings />}
+				{page === 'player' && <PlayerSettings />}
 				{page === 'about' && <About />}
 			</div>
 		</div>
