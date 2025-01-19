@@ -43,8 +43,11 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
 
+      - name: Install pnpm
+        run: npm install -g pnpm
+
       - name: Build the app
-        run: npm run build
+        run: pnpm build
 
       - name: Release
         uses: softprops/action-gh-release@v2
