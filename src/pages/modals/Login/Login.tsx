@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { checkQR, createQR, getLoginStatus } from '../../../apis/login';
-import styles from './Login.module.scss';
 //import { useAuthStore } from '../../../store/auth';
 import { getCookie, setCookies } from '../../../utils/cookie';
+import styles from './Login.module.scss';
 
 interface QrInfo {
 	avatarUrl: string;

@@ -1,3 +1,4 @@
+import { debounce } from 'lodash-es';
 import { useEffect, useState } from 'react';
 import { usePlayerManager } from '../../../../context/PlayerContext';
 import { PlayList } from '../../../../models/main';
@@ -47,7 +48,9 @@ const PlayListModal: React.FC<PlayListProps> = ({ onClose, className = '' }) => 
 						<div
 							className={styles.playlist__list__item__info}
 							onClick={() => {
-								usePlayer.setCurrentSong(item.id, true);
+								debounce(() => {
+									usePlayer.setCurrentSong(item.id, true);
+								}, 300)();
 								onClose();
 							}}
 						>

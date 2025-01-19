@@ -1,10 +1,11 @@
+import { debounce } from 'lodash-es';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getSearchResult } from '../../apis/search';
+import notFoundImg from '../../assets/nodata.png';
 import { usePlayerManager } from '../../context/PlayerContext';
 import { Artist, SearchResult, searchType } from '../../models/main';
 import styles from './Search.module.scss';
-import notFoundImg from '../../assets/nodata.png';
 
 const search = () => {
 	const [searchResult, setSearchResult] = useState<SearchResult['result'] | null>(null);
@@ -64,7 +65,10 @@ const search = () => {
 							<div
 								className={styles.search__result__song__item}
 								key={song.id}
-								onClick={play(song.id, song.name, song.al.picUrl, song.ar)}
+								onClick={debounce(
+									() => play(song.id, song.name, song.al.picUrl, song.ar),
+									300
+								)()}
 							>
 								<div className={styles.search__result__song__item__title}>
 									<img src={song.al.picUrl} alt={song.name} />

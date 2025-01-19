@@ -58,7 +58,7 @@ export default class PlayerManager {
 		}
 
 		if (this._player) {
-			this._player.pause();
+			this._player.stop();
 			this._player.unload();
 		}
 
@@ -73,6 +73,7 @@ export default class PlayerManager {
 
 			this._player = new Howl({
 				src: [data.url],
+				html5: true,
 				format: ['mp3', 'wav', 'ogg'],
 				volume: this._volume,
 				mute: usePlayerStore.getState().muted,
@@ -86,6 +87,15 @@ export default class PlayerManager {
 				},
 				onplay: () => {
 					event.emit('player-update-playing', false);
+				},
+				onplayerror: (error) => {
+					console.error('🎵 Error playing audio:', error);
+					if (error === 4) {
+						this._player?.pause();
+						setTimeout(() => {
+							this._player?.play();
+						}, 1000);
+					}
 				},
 			});
 

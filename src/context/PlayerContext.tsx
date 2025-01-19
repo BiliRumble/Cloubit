@@ -17,6 +17,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 };
 
 // 自定义 Hook 来使用 Context
+// eslint-disable-next-line react-refresh/only-export-components
 export const usePlayerManager = () => {
 	const context = useContext(PlayerContext);
 	if (!context) {

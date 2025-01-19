@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../../store/auth';
 import styles from './Sidebar.module.scss';
 
 interface SideBarProps {
@@ -24,13 +25,15 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 			</div>
 			<div className={styles.item}>
 				<h1>我的</h1>
-				<button
-					className={url === '/playlist/like' ? styles.active : ''}
-					onClick={() => navigate('/playlist/like')}
-				>
-					<span className={`${styles.icon} i-solar-heart-linear`} />
-					收藏
-				</button>
+				{useAuthStore.getState().isLogin && (
+					<button
+						className={url === '/playlist/like' ? styles.active : ''}
+						onClick={() => navigate('/playlist/like')}
+					>
+						<span className={`${styles.icon} i-solar-heart-linear`} />
+						收藏
+					</button>
+				)}
 				<button
 					className={url === '/history' ? styles.active : ''}
 					onClick={() => navigate('/history')}
@@ -46,10 +49,12 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 					下载
 				</button>
 			</div>
-			<div className={styles.item}>
-				<h1>歌单</h1>
-				{/* todo... */}
-			</div>
+			{useAuthStore.getState().isLogin && (
+				<div className={styles.item}>
+					<h1>歌单</h1>
+					{/* todo... */}
+				</div>
+			)}
 		</nav>
 	);
 };
