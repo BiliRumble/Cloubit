@@ -57,7 +57,9 @@
 		overflow-y: auto;
 		height: 100%;
 		width: 100%;
+		max-width: 100%;
 		padding: 1rem 0;
+		overflow-x: hidden;
 
 		&__item {
 			display: flex;
