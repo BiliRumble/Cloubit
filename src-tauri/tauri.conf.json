@@ -28,7 +28,7 @@
 	},
 	"bundle": {
 		"active": true,
-		"targets": ["nsis", "deb"],
+		"targets": ["nsis"],
 		"licenseFile": "LICENSE.txt",
 		"copyright": "Copyright © 2025 rumble",
 		"windows": {
