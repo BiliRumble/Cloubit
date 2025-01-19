@@ -25,6 +25,20 @@ export interface settingsStoreType {
 	setFadeTime: (value: number) => void;
 	pushToSMTC: boolean;
 	setPushToSMTC: (value: boolean) => void;
+
+	// 热键
+	enableGlobalShortcut: boolean;
+	setEnableGlobalShortcut: (value: boolean) => void;
+	playShortcut: string[];
+	setPlayShortcut: (value: string[]) => void;
+	prevShortcut: string[];
+	setPrevShortcut: (value: string[]) => void;
+	nextShortcut: string[];
+	setNextShortcut: (value: string[]) => void;
+	volumeUpShortcut: string[];
+	setVolumeUpShortcut: (value: string[]) => void;
+	volumeDownShortcut: string[];
+	setVolumeDownShortcut: (value: string[]) => void;
 }
 
 export const useSettingStore = create(
@@ -46,6 +60,18 @@ export const useSettingStore = create(
 			setFadeTime: (value) => set(() => ({ fadeTime: value })),
 			pushToSMTC: true,
 			setPushToSMTC: (value) => set(() => ({ pushToSMTC: value })),
+			enableGlobalShortcut: true,
+			setEnableGlobalShortcut: (value) => set(() => ({ enableGlobalShortcut: value })),
+			playShortcut: ['Ctrl', 'Shift', 'Space'],
+			setPlayShortcut: (value) => set(() => ({ playShortcut: value })),
+			prevShortcut: ['Ctrl', 'Shift', 'Left'],
+			setPrevShortcut: (value) => set(() => ({ prevShortcut: value })),
+			nextShortcut: ['Ctrl', 'Shift', 'Right'],
+			setNextShortcut: (value) => set(() => ({ nextShortcut: value })),
+			volumeUpShortcut: ['Ctrl', 'Shift', 'Up'],
+			setVolumeUpShortcut: (value) => set(() => ({ volumeUpShortcut: value })),
+			volumeDownShortcut: ['Ctrl', 'Shift', 'Down'],
+			setVolumeDownShortcut: (value) => set(() => ({ volumeDownShortcut: value })),
 		}),
 		{
 			name: 'settings-storage',

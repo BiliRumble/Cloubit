@@ -36,12 +36,14 @@ export default class PlayerManager {
 		this._currentSong = usePlayerStore.getState().currentSong;
 		this._mode = usePlayerStore.getState().mode;
 		this._volume = usePlayerStore.getState().volume;
+		this.init();
 	}
 
 	public init() {
 		if (!this._currentSong || !this._playlist.data.length) return;
-		this.setCurrentSong(this._currentSong.id, useSettingStore().autoPlay, true);
-		console.debug('🎵 Player Manager Init Complete');
+		this.setCurrentSong(this._currentSong.id, useSettingStore.getState().autoPlay, true).then(
+			() => this._player?.seek(usePlayerStore.getState().seek)
+		);
 	}
 
 	public async setCurrentSong(id: number, play: boolean = true, init: boolean = false) {
@@ -63,8 +65,9 @@ export default class PlayerManager {
 		try {
 			const url = await getSongURL(target.id);
 			const data = url?.data[0];
-			if (!data) {
+			if (!data?.url) {
 				this.isChangingSong = false;
+				this.next();
 				return;
 			}
 
@@ -90,9 +93,8 @@ export default class PlayerManager {
 			this._playing = play;
 			usePlayerStore.setState({ currentSong: target });
 			if (init) this._player?.seek(usePlayerStore.getState().seek);
-			console.debug('🎵 Set Current Song:', this._currentSong);
 		} catch (error) {
-			console.error('Error setting current song:', error);
+			console.error('🎵 Error setting current song:', error);
 		} finally {
 			this.isChangingSong = false;
 		}
@@ -134,14 +136,14 @@ export default class PlayerManager {
 	}
 
 	public play() {
-		if (!this._player || this._currentSong.index === -1) return;
+		if (!this._player || this._currentSong.index === -1 || this._player.playing()) return;
 		this._player.play();
 		this._playing = true;
 		event.emit('player-play');
 	}
 
 	public pause() {
-		if (!this._player || this._currentSong.index === -1) return;
+		if (!this._player || this._currentSong.index === -1 || !this._player.playing()) return;
 		this._playing = false;
 		this._player.pause();
 		event.emit('player-pause');

@@ -77,7 +77,6 @@ use crate::api::{dj_toplist, dj_toplist_pay,dj_program_toplist_hours,mv_detail_i
 
 use actix_web::web;
 
-use self::register_anonimous::register_anonimous;
 
 // 路由配置函数，集中管理不同模块的路由配置
 pub fn configure_routes(cfg: &mut web::ServiceConfig) {

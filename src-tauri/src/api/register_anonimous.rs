@@ -5,8 +5,7 @@ use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 use serde_json::{json, Value};
 use crate::util::cache::{get_cached_data, set_cached_data, AppState};
-use crate::util::request::{create_request_option};
-use crate::{cache_handler, define_request_struct, extract_headers};
+use crate::{cache_handler, define_request_struct};
 use actix_web::http::StatusCode;
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use serde::Deserialize;
@@ -21,10 +20,12 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
 }
 
 // 入参
-define_request_struct!(REGISTER_ANOIMOUS_HTTP, {});
+define_request_struct!(RegisterAnoimousHttp, {});
 
-impl REGISTER_ANOIMOUS_HTTP {
-	async fn requests(req: HttpRequest, query: Query<REGISTER_ANOIMOUS_HTTP>) -> Result<Response, Value> {
+impl RegisterAnoimousHttp {
+	async fn requests(req: HttpRequest, query: Query<RegisterAnoimousHttp>) -> Result<Response, Value> {
+    let _ = query;
+    let _ = req;
 		let option = RequestOption {
 			crypto: Some("weapi".to_string()),
 			cookie: None,
@@ -74,7 +75,7 @@ impl REGISTER_ANOIMOUS_HTTP {
 	}
 }
 
-cache_handler!(register_anonimous_http, REGISTER_ANOIMOUS_HTTP);
+cache_handler!(register_anonimous_http, RegisterAnoimousHttp);
 
 pub async fn register_anonimous() -> Result<Response, Value> {
     let option = RequestOption {

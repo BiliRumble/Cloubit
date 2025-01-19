@@ -14,7 +14,8 @@ async fn push_to_stmc(
     cover: String,
 ) {
     // 调用 update_system_media_info 函数
-    stmc::update_system_media_info(&title, &artist, &cover);
+    stmc::update_system_media_info(&title, &artist, &cover)
+		.await;
 }
 
 
@@ -23,7 +24,7 @@ mod tray;
 
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
 			let _ = app.get_webview_window("main")
 				.expect("no main window")
 				.set_focus();

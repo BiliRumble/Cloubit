@@ -59,7 +59,6 @@ macro_rules! define_request_struct {
             // 通用字段
             #[serde(flatten)]
             pub common: QueryOption,
-
         }
     };
 }

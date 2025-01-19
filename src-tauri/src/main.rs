@@ -1,7 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
-extern crate core;
+#![allow(non_snake_case, unused_extern_crates, dead_code, unused_variables)]
 
 use crate::api::register_anonimous::register_anonimous;
 use crate::util::text::cookie_string_to_json;
@@ -9,7 +8,7 @@ use actix_cors::Cors;
 use actix_web::http::{header, StatusCode};
 use actix_web::middleware::{ErrorHandlerResponse, ErrorHandlers, Logger};
 use actix_web::{dev, web, App, HttpResponse, HttpServer, Responder, Result};
-use cached::{TimedCache};
+use cached::TimedCache;
 use lazy_static::lazy_static;
 use rand::Rng;
 use serde_json::{from_str, Value};

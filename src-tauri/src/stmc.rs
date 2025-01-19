@@ -1,3 +1,6 @@
+// 禁用全部警告
+#![allow(dead_code, unused_variables)]
+
 use windows::Media::Playback::MediaPlayer;
 use windows::Media::MediaPlaybackType;
 

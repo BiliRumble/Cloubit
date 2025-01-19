@@ -26,8 +26,6 @@ export async function createPip(init: boolean = false) {
 		pipWindow.once('tauri://created', () => {
 			pipWindow.setSize(new LogicalSize(325, 90));
 			if (!init) appWindow.hide();
-			// debug: 设置位置屏幕中心
-			pipWindow.center();
 			localStorage.setItem('isPip', 'true');
 		});
 		pipWindow.once('tauri://close-requested', () => {

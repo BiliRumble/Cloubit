@@ -1,4 +1,5 @@
 import { event } from '@tauri-apps/api';
+import { debounce } from 'lodash-es';
 import { useEffect, useRef, useState } from 'react';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { usePlayerStore } from '../../../store/player';
@@ -34,7 +35,6 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 		const updateState = () => {
 			setCurrentSong(usePlayer.currentSong);
 			setMode(usePlayer.mode);
-			setPlaying(usePlayer.playing);
 			setMuted(usePlayer.muted);
 			setVolume(usePlayer.volume);
 			if (!seekDragging) {
@@ -42,6 +42,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 			}
 			setDuration(usePlayer.duration);
 			setPlaylist(usePlayer.playlist);
+			setPlaying(usePlayer.playing);
 		};
 
 		updateState();
@@ -82,27 +83,29 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 		const async = async () => {
 			await event.emit('player-update-seek', seek);
 		};
+		setPlaying(usePlayer.playing);
 		async();
 	}, [seek]);
 
 	useEffect(() => {
 		// 注册事件
 		const prev = event.listen('pip-prev', () => {
-			usePlayer.prev();
+			debounce(() => {
+				usePlayer.prev();
+			}, 300)();
 		});
 
 		const next = event.listen('pip-next', () => {
-			usePlayer.next();
+			debounce(() => {
+				usePlayer.next();
+			}, 300)();
 		});
 
 		const play = event.listen('pip-play', () => {
-			if (playing) {
-				console.log('暂停');
-				return usePlayer.pause();
-			} else {
-				console.log('播放');
-				return usePlayer.play();
-			}
+			debounce(() => {
+				if (playing) return usePlayer.pause();
+				else return usePlayer.play();
+			}, 300)();
 		});
 
 		event.emit('player-update-current-song', currentSong);
@@ -117,10 +120,50 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 		};
 	}, [playing]);
 
+	// 注册快捷键事件
+	useEffect(() => {
+		const play = event.listen('shortcut-play', () => {
+			debounce(() => {
+				if (playing) return usePlayer.pause();
+				else return usePlayer.play();
+			}, 300)();
+		});
+		const prev = event.listen('shortcut-prev', () => {
+			debounce(() => {
+				usePlayer.prev();
+			}, 300)();
+		});
+		const next = event.listen('shortcut-next', () => {
+			debounce(() => {
+				console.log('next');
+				usePlayer.next();
+			}, 300)();
+		});
+		const volumeUp = event.listen('shortcut-volume-up', () => {
+			if (volume < 1) {
+				usePlayer.volume = volume + 0.1;
+			}
+		});
+		const volumeDown = event.listen('shortcut-volume-down', () => {
+			if (volume > 0) {
+				usePlayer.volume = volume - 0.1;
+			}
+		});
+		return () => {
+			play.then((f) => f());
+			prev.then((f) => f());
+			next.then((f) => f());
+			volumeUp.then((f) => f());
+			volumeDown.then((f) => f());
+		};
+	}, [playing, volume]);
+
 	useEffect(() => {
 		const pipRequest = event.listen('pip-request', () => {
-			event.emit('player-update-current-song', currentSong);
-			event.emit('player-update-duration', duration);
+			debounce(() => {
+				event.emit('player-update-current-song', currentSong);
+				event.emit('player-update-duration', duration);
+			}, 300)();
 		});
 		return () => {
 			pipRequest.then((f) => f());

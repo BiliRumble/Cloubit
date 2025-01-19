@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import PlayerManager from '../managers/PlayerManager';
 
 // 创建 Context
@@ -6,7 +6,12 @@ const PlayerContext = createContext<PlayerManager | null>(null);
 
 // 创建一个 Provider 组件
 export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const playerManager = PlayerManager.getInstance();
+	const playerManager = useMemo(() => {
+		if (location.pathname.startsWith('/windows/')) {
+			return null;
+		}
+		return PlayerManager.getInstance();
+	}, [location.pathname]);
 
 	return <PlayerContext.Provider value={playerManager}>{children}</PlayerContext.Provider>;
 };

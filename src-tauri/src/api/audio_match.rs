@@ -24,6 +24,7 @@ define_request_struct!(AudioMatch, {
 
 impl AudioMatch {
     async fn requests(req: HttpRequest, query: Query<AudioMatch>) -> Result<Response, Value> {
+        let _ = req;
         let client_builder = ClientBuilder::new()
             .timeout(Duration::from_secs(10)) // 请求超时
             .connect_timeout(Duration::from_secs(5)) // 连接超时
@@ -51,7 +52,7 @@ cache_handler!(audio_match, AudioMatch);
 
 
 // const { default: axios } = require('axios')
-// 
+//
 // const createOption = require('../util/option.js')
 // module.exports = async (query, request) => {
 //   const res = await axios({

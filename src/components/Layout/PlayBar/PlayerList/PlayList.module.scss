@@ -65,6 +65,7 @@
 			display: flex;
 			align-items: center;
 			width: 100%;
+			max-width: 100%;
 			padding: 8px 8px;
 			border-radius: 8px;
 			cursor: pointer;
@@ -85,13 +86,20 @@
 				flex-direction: column;
 				align-items: flex-start;
 				flex-wrap: nowrap;
+				padding-right: 0.8rem;
 
 				// 溢出显示省略号
 				h3,
 				span {
+					max-width: 100%;
+					white-space: normal;
 					overflow: hidden;
 					text-overflow: ellipsis;
-					white-space: nowrap;
+					display: -webkit-box;
+					-webkit-line-clamp: 1;
+					line-clamp: 1;
+					-webkit-box-orient: vertical;
+					word-break: break-all;
 				}
 
 				span {
