@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
-	"productName": "qtmusic",
+	"productName": "QTMusic",
 	"version": "0.1.7",
 	"identifier": "top.rumble.qtmusic",
 	"build": {
@@ -28,7 +28,17 @@
 	},
 	"bundle": {
 		"active": true,
-		"targets": ["msi", "deb"],
+		"targets": ["nsis", "deb"],
+		"licenseFile": "LICENSE.txt",
+		"copyright": "Copyright © 2025 rumble",
+		"windows": {
+			"nsis": {
+			    "compression": "zlib",
+				"displayLanguageSelector": true,
+				"languages": ["English", "SimpChinese"],
+				"installerIcon": "icons/icon.ico"
+			}
+		},
 		"icon": [
 			"icons/32x32.png",
 			"icons/128x128.png",
@@ -38,7 +48,11 @@
 		],
 		"resources": {
 			"config.json": "config.json",
-			"deviceid.txt": "deviceid.txt"
+			"deviceid.txt": "deviceid.txt",
+			"libs/libcrypto-3-x64.dll": "libcrypto-3-x64.dll",
+			"libs/libssl-3-x64.dll": "libssl-3-x64.dll",
+			"libs/vcruntime140.dll": "vcruntime140.dll",
+			"LICENSE.txt": "LICENSE.txt"
 		}
 	}
 }
