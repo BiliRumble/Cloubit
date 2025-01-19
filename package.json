@@ -10,6 +10,7 @@
 		"vdev": "vite",
 		"preview": "vite preview",
 		"tauri": "tauri",
+		"commit": "git-cz",
 		"lint:lint-staged": "lint-staged",
 		"lint:eslint": "eslint --max-warnings 0 \"src/**/*.{js,jsx,ts,tsx}\" --fix",
 		"lint:prettier": "prettier --write --log-level warn \"src/**/*.{js,ts,json,jsx,tsx,css,scss,vue,html,md}\"",
