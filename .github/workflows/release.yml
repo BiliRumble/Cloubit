@@ -38,19 +38,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
-          cache: 'pnpm'
+          cache: 'npm'
 
       - name: Install frontend dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Build the app
-        uses: tauri-apps/tauri-action@v0
+        run: npm run build
 
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'QTMusic v__VERSION__'
-          releaseBody: 'todo 使用动态生成的body'
-          releaseDraft: true
-          prerelease: false
+          files: |
+            src-tauri/target/release/bundle/**/*.exe
+            src-tauri/target/release/bundle/**/*.deb
