@@ -112,17 +112,14 @@ const Popover: React.FC<PopoverProps> = ({
 	}, [onClose]);
 
 	return (
-		<>
-			{visible && (
-				<div
-					ref={popoverRef}
-					style={{ display: visible ? 'block' : 'none', position: 'absolute', ...style }}
-					className={styles.popover + ' ' + className}
-				>
-					{children}
-				</div>
-			)}
-		</>
+		<div
+			ref={popoverRef}
+			style={style}
+			// className={styles.popovera + ' ' + visible ? styles.visible : ' ' + ' ' + className}
+			className={styles.popover + ' ' + (visible ? styles.open : '') + ` ${className}`}
+		>
+			{children}
+		</div>
 	);
 };
 

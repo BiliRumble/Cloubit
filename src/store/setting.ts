@@ -19,6 +19,10 @@ export interface settingsStoreType {
 	setAutoPlay: (value: boolean) => void;
 	savePlaySeek: boolean;
 	setSavePlaySeek: (value: boolean) => void;
+	showLyrics: boolean;
+	setShowLyrics: (value: boolean) => void;
+	lyricsType: 'raw' | 'translate';
+	setLyricsType: (value: 'raw' | 'translate') => void;
 	fadeInOut: boolean;
 	setFadeInOut: (value: boolean) => void;
 	fadeTime: number;
@@ -54,6 +58,10 @@ export const useSettingStore = create(
 			setAutoPlay: (value) => set(() => ({ autoPlay: value })),
 			savePlaySeek: true,
 			setSavePlaySeek: (value) => set(() => ({ savePlaySeek: value })),
+			showLyrics: true,
+			setShowLyrics: (value) => set(() => ({ showLyrics: value })),
+			lyricsType: 'raw',
+			setLyricsType: (value) => set(() => ({ lyricsType: value })),
 			fadeInOut: true,
 			setFadeInOut: (value) => set(() => ({ fadeInOut: value })),
 			fadeTime: 1500,

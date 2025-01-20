@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getSearchResult } from '../../apis/search';
 import notFoundImg from '../../assets/nodata.png';
 import { usePlayerManager } from '../../context/PlayerContext';
-import { Artist, SearchResult, searchType } from '../../models/main';
+import { Artist, SearchResult, searchType } from '../../models/search';
 import styles from './Search.module.scss';
 
 const search = () => {
@@ -29,7 +29,7 @@ const search = () => {
 		});
 	}, [keyword, searchType]);
 
-	const play = (id: number, name: string, cover: string, artist: Artist[]) => () => {
+	const play = (id: number, name: string, cover: string, artist: Artist[]) => {
 		// 获取歌手名字列表
 		const artistNames: string[] = artist.map((a) => a.name);
 		usePlayer.addToPlaylist({
@@ -65,10 +65,12 @@ const search = () => {
 							<div
 								className={styles.search__result__song__item}
 								key={song.id}
-								onClick={debounce(
-									() => play(song.id, song.name, song.al.picUrl, song.ar),
-									300
-								)()}
+								onClick={() =>
+									debounce(
+										() => play(song.id, song.name, song.al.picUrl, song.ar),
+										300
+									)()
+								}
 							>
 								<div className={styles.search__result__song__item__title}>
 									<img src={song.al.picUrl} alt={song.name} />

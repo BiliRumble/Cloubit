@@ -4,11 +4,16 @@ import {
 	SearchResult,
 	searchType,
 	SuggestSearchResult,
-} from '../models/main';
+} from '../models/search';
 import request from '../utils/request';
 
 const { get, post } = request;
 
+/**
+ * 获取热搜列表
+ *
+ * @returns HotSearchResult | null
+ */
 export async function getHotSearch(): Promise<HotSearchResult['data'] | null> {
 	const response = (await get('search/hot/detail')).data as HotSearchResult;
 	if (response.code === 200) {
@@ -19,6 +24,12 @@ export async function getHotSearch(): Promise<HotSearchResult['data'] | null> {
 	return null;
 }
 
+/**
+ * 获取搜索建议
+ *
+ * @param keyword 关键词
+ * @returns SuggestSearchResult['result'] | null
+ */
 export async function getSuggestSearch(
 	keyword: string
 ): Promise<SuggestSearchResult['result'] | null> {
@@ -32,6 +43,11 @@ export async function getSuggestSearch(
 	return null;
 }
 
+/**
+ * 获取默认搜索关键词
+ *
+ * @returns DefaultSearchResult['data'] | null
+ */
 export async function getDefaultKey(): Promise<DefaultSearchResult['data'] | null> {
 	const response = (await get('search/default')).data as DefaultSearchResult;
 	if (response.code === 200) {
@@ -42,6 +58,11 @@ export async function getDefaultKey(): Promise<DefaultSearchResult['data'] | nul
 	return null;
 }
 
+/**
+ * 获取搜索结果
+ *
+ * @returns SearchResult['result'] | null
+ * */
 export async function getSearchResult(
 	keyWord: string,
 	type: searchType = 'song',

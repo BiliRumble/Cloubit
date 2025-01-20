@@ -1,8 +1,13 @@
-import { LoginCheckQRResult, LoginCreateQRResult, LoginQRKeyResult } from '../models/main';
+import { LoginCheckQRResult, LoginCreateQRResult, LoginQRKeyResult } from '../models/auth';
 import request from '../utils/request';
 
 const { get } = request;
 
+/**
+ * 获取二维码key
+ *
+ * @returns LoginQRKeyResult | null
+ */
 async function createQRKey(): Promise<LoginQRKeyResult | null> {
 	const response = (await get('login/qr/key', { key: Math.random().toString(36).substr(2, 15) }))
 		.data as LoginQRKeyResult;
@@ -15,6 +20,11 @@ async function createQRKey(): Promise<LoginQRKeyResult | null> {
 	return null;
 }
 
+/**
+ * 获取二维码
+ *
+ * @returns LoginCreateQRResult | null
+ */
 export async function createQR(): Promise<LoginCreateQRResult | null> {
 	const code = await createQRKey();
 	if (code === null) {
@@ -35,6 +45,11 @@ export async function createQR(): Promise<LoginCreateQRResult | null> {
 	return null;
 }
 
+/**
+ * 检查二维码
+ *
+ * @returns LoginCheckQRResult | null
+ */
 export async function checkQR(): Promise<LoginCheckQRResult | null> {
 	const unikey = sessionStorage.getItem('unikey');
 	if (unikey === null) {
@@ -54,6 +69,13 @@ export async function checkQR(): Promise<LoginCheckQRResult | null> {
 	return null;
 }
 
+/**
+ * 获取登录状态
+ *
+ * @todo 实现
+ *
+ * @returns any | null
+ * */
 export async function getLoginStatus(): Promise<any | null> {
 	const response = (await get('login/status')).data;
 	console.debug(response);

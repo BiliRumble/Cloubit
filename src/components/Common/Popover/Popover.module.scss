@@ -1,9 +1,18 @@
 .popover {
-	position: relative;
+	position: absolute;
 	background-color: var(--background-color);
 	border: 1px solid var(--hr-color);
 	border-radius: 4px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 	padding: 8px;
-	z-index: 5000;
+	z-index: -5000;
+	opacity: 0;
+	transition:
+		opacity 0.1s ease-in-out,
+		z-index 0.2s ease-in-out;
+
+	&.open {
+		opacity: 1 !important;
+		z-index: 5000 !important;
+	}
 }

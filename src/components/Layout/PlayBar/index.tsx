@@ -2,7 +2,6 @@ import { event } from '@tauri-apps/api';
 import { debounce } from 'lodash-es';
 import { useEffect, useRef, useState } from 'react';
 import { usePlayerManager } from '../../../context/PlayerContext';
-import { usePlayerStore } from '../../../store/player';
 import { useSettingStore } from '../../../store/setting';
 import Modal from '../../Common/Modal';
 import Popover from '../../Common/Popover';
@@ -25,6 +24,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 	const [seek, setSeek] = useState(usePlayer.seek);
 	const [duration, setDuration] = useState(usePlayer.duration);
 	const [playlist, setPlaylist] = useState(usePlayer.playlist);
+	const [lyrics, setLyrics] = useState<string | null>(null);
 
 	const volumeRef = useRef<HTMLSpanElement>(null);
 
@@ -52,9 +52,13 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 		return () => clearInterval(interval);
 	}, [usePlayer, seekDragging]);
 
+	// 更新歌词
 	useEffect(() => {
-		if (useSettingStore.getState().savePlaySeek) usePlayerStore.setState({ seek: seek });
-	}, [seek]);
+		if (useSettingStore.getState().showLyrics) {
+			return setLyrics(usePlayer.currentLyric(useSettingStore.getState().lyricsType));
+		}
+		setLyrics(null);
+	}, [currentSong, useSettingStore.getState().showLyrics, seek]);
 
 	useEffect(() => {
 		const lazyAsync = async () => {
@@ -179,8 +183,9 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 						<div className={styles.info__text}>
 							<h1 id="title">{currentSong?.name}</h1>
 							<h2>
-								{currentSong?.artists?.map((artist) => artist).join('/') ||
-									'未知艺术家'}
+								{!lyrics
+									? currentSong.artists?.map((artist) => artist).join('/')
+									: lyrics}
 							</h2>
 						</div>
 					</div>

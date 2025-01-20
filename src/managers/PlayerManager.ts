@@ -1,8 +1,9 @@
 import { event } from '@tauri-apps/api';
 import { invoke } from '@tauri-apps/api/core';
 import { Howl } from 'howler';
-import { getSongURL } from '../apis/song';
-import { PlayList, PlayListItem } from '../models/main';
+import { debounce } from 'lodash-es';
+import { getLyric, getSongURL } from '../apis/song';
+import { Lyric, LyricContent, PlayList, PlayListItem } from '../models/song';
 import { usePlayerStore } from '../store/player';
 import { useSettingStore } from '../store/setting';
 
@@ -29,20 +30,30 @@ export default class PlayerManager {
 	private isChangingSong: boolean = false;
 	private _playing: boolean = false;
 	private _volume: number = 0.5;
+	private _lyric: Lyric = {
+		code: 200,
+		lrc: {
+			lyric: '[00:00.00]暂无歌词',
+			version: 0,
+		} as LyricContent,
+	} as Lyric;
 
 	constructor() {
-		console.debug('🎵 Player Manager Init');
 		this._playlist = usePlayerStore.getState().playlist;
 		this._currentSong = usePlayerStore.getState().currentSong;
 		this._mode = usePlayerStore.getState().mode;
 		this._volume = usePlayerStore.getState().volume;
 		this.init();
+		console.debug('🎵 Player Manager Initialized.', this);
 	}
 
 	public init() {
 		if (!this._currentSong || !this._playlist.data.length) return;
 		this.setCurrentSong(this._currentSong.id, useSettingStore.getState().autoPlay, true).then(
-			() => this._player?.seek(usePlayerStore.getState().seek)
+			() => {
+				if (useSettingStore.getState().savePlaySeek)
+					this._player?.seek(usePlayerStore.getState().seek);
+			}
 		);
 	}
 
@@ -88,21 +99,34 @@ export default class PlayerManager {
 				onplay: () => {
 					event.emit('player-update-playing', false);
 				},
+				onseek: (seek) => {
+					if (useSettingStore.getState().savePlaySeek) usePlayerStore.setState({ seek });
+				},
 				onplayerror: (error) => {
 					console.error('🎵 Error playing audio:', error);
 					if (error === 4) {
 						this._player?.pause();
-						setTimeout(() => {
-							this._player?.play();
-						}, 1000);
+						debounce(() => {
+							this.setCurrentSong(id, play, init);
+						}, 1000)();
 					}
 				},
 			});
-
+			if (init) this._player?.seek(usePlayerStore.getState().seek);
+			this._lyric = await getLyric(data.id).then(
+				(res) =>
+					res ||
+					({
+						code: 200,
+						lrc: {
+							lyric: '[00:00.00]暂无歌词',
+							version: 0,
+						} as LyricContent,
+					} as Lyric)
+			);
 			this._currentSong = target;
 			this._playing = play;
 			usePlayerStore.setState({ currentSong: target });
-			if (init) this._player?.seek(usePlayerStore.getState().seek);
 		} catch (error) {
 			console.error('🎵 Error setting current song:', error);
 		} finally {
@@ -255,6 +279,42 @@ export default class PlayerManager {
 	get player() {
 		return this._player;
 	}
+	get lyric() {
+		return (
+			this._lyric ||
+			({
+				code: 200,
+				lrc: {
+					lyric: '[00:00.00]暂无歌词',
+					version: 0,
+				} as LyricContent,
+			} as Lyric)
+		);
+	}
+	public currentLyric(type: 'raw' | 'translate' = 'raw') {
+		if (!this._lyric) return '';
+		let lyricLines;
+		if (type === 'raw') {
+			lyricLines = this._lyric.lrc.lyric.split('\n');
+		} else if (type === 'translate') {
+			if (!this._lyric.tlyric) return '';
+			lyricLines = this._lyric.tlyric.lyric.split('\n');
+		} else {
+			return '';
+		}
+
+		const seekTime = this._player?.seek() || 0;
+		const lyricMap = this.parseLyric(lyricLines);
+
+		// 查找当前歌词
+		let currentLyric = '';
+		for (const [time, lyric] of lyricMap) {
+			if (time > seekTime) break;
+			currentLyric = lyric;
+		}
+
+		return currentLyric;
+	}
 	get muted() {
 		return this._player?.mute() || false;
 	}
@@ -307,5 +367,24 @@ export default class PlayerManager {
 			PlayerManager.instance = new PlayerManager();
 		}
 		return PlayerManager.instance;
+	}
+
+	// 解析歌词
+	private parseLyric(lyricLines: string[]): Map<number, string> {
+		const lyricMap = new Map<number, string>();
+		const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+		for (const line of lyricLines) {
+			const match = line.match(timeRegex);
+			if (match) {
+				const minutes = parseInt(match[1], 10);
+				const seconds = parseInt(match[2], 10);
+				const milliseconds = parseInt(match[3], 10);
+				const time =
+					minutes * 60 + seconds + milliseconds / (match[3].length === 3 ? 1000 : 100);
+				const lyricText = line.replace(timeRegex, '').trim();
+				lyricMap.set(time, lyricText);
+			}
+		}
+		return lyricMap;
 	}
 }

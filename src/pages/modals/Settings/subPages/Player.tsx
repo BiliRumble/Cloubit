@@ -1,5 +1,5 @@
 import { useSettingStore } from '../../../../store/setting';
-import Control, { Checkbox, Input } from './components/Controls';
+import Control, { Checkbox, Input, Select } from './components/Controls';
 
 const PlayerSettings: React.FC = () => {
 	const settingStore = useSettingStore();
@@ -19,6 +19,30 @@ const PlayerSettings: React.FC = () => {
 					value={settingStore.savePlaySeek}
 					title="关了后关闭程序播放进度不会保存"
 					onChange={() => settingStore.setSavePlaySeek(!settingStore.savePlaySeek)}
+				/>
+			</Control>
+			<Control label="底栏显示歌词">
+				<Checkbox
+					value={settingStore.showLyrics}
+					title="在底栏显示歌词, 代替歌手信息"
+					onChange={() => settingStore.setShowLyrics(!settingStore.showLyrics)}
+				/>
+			</Control>
+			<Control label="底栏歌词类型">
+				<Select
+					value={settingStore.lyricsType}
+					title="底栏歌词类型"
+					options={[
+						{
+							label: '原词',
+							value: 'raw',
+						},
+						{
+							label: '简中翻译',
+							value: 'translate',
+						},
+					]}
+					onChange={(v) => settingStore.setLyricsType(v as 'raw' | 'translate')}
 				/>
 			</Control>
 			<Control label="渐入渐出">
