@@ -1,6 +1,6 @@
 import { event } from '@tauri-apps/api';
 import { debounce } from 'lodash-es';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { useSettingStore } from '../../../store/setting';
 import Modal from '../../Common/Modal';
@@ -14,10 +14,14 @@ interface PlayBarProps {
 }
 
 const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
+	const usePlayer = usePlayerManager();
+
 	const [playerListModalOpen, setPlayerListModalOpen] = useState(false);
 	const [lyricModalOpen, setLyricModalOpen] = useState(false);
 
-	const usePlayer = usePlayerManager();
+	const volumeRef = useRef<HTMLSpanElement>(null);
+	const [seekDragging, setSeekDragging] = useState(false);
+
 	const [currentSong, setCurrentSong] = useState(usePlayer.currentSong);
 	const [mode, setMode] = useState(usePlayer.mode);
 	const [playing, setPlaying] = useState(usePlayer.playing);
@@ -25,122 +29,107 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 	const [volume, setVolume] = useState(usePlayer.volume);
 	const [seek, setSeek] = useState(usePlayer.seek);
 	const [duration, setDuration] = useState(usePlayer.duration);
-	const [playlist, setPlaylist] = useState(usePlayer.playlist);
 	const [lyrics, setLyrics] = useState<string | null>(null);
 
-	const volumeRef = useRef<HTMLSpanElement>(null);
-
-	const [seekDragging, setSeekDragging] = useState(false);
-
-	// 同步播放器状态
 	useEffect(() => {
-		const updateState = () => {
-			setCurrentSong(usePlayer.currentSong);
-			setMode(usePlayer.mode);
-			setMuted(usePlayer.muted);
-			setVolume(usePlayer.volume);
-			if (!seekDragging) {
-				setSeek(usePlayer.seek);
-			}
-			setDuration(usePlayer.duration);
-			setPlaylist(usePlayer.playlist);
-			setPlaying(usePlayer.playing);
-		};
+		usePlayer.resetPlaylistIndices();
+	}, []);
 
-		updateState();
-
-		const interval = setInterval(updateState, 250); // 每秒更新一次状态
-
-		return () => clearInterval(interval);
+	const updateState = useCallback(() => {
+		setCurrentSong(usePlayer.currentSong);
+		setMode(usePlayer.mode);
+		setMuted(usePlayer.muted);
+		setVolume(usePlayer.volume);
+		if (!seekDragging) {
+			setSeek(usePlayer.seek);
+		}
+		setDuration(usePlayer.duration);
+		setPlaying(usePlayer.playing);
 	}, [usePlayer, seekDragging]);
 
-	// 更新歌词
 	useEffect(() => {
+		updateState();
+		const interval = setInterval(updateState, 250);
+		return () => clearInterval(interval);
+	}, [updateState]);
+
+	const handleLyricsUpdate = useCallback(() => {
 		if (useSettingStore.getState().showLyrics) {
 			event.emit(
 				'player-update-lyric',
 				usePlayer.currentLyric(useSettingStore.getState().lyricsType)
 			);
-			return setLyrics(usePlayer.currentLyric(useSettingStore.getState().lyricsType));
+			setLyrics(usePlayer.currentLyric(useSettingStore.getState().lyricsType));
+		} else {
+			setLyrics(null);
+			event.emit('player-update-lyric', lyrics);
 		}
-		setLyrics(null);
-		event.emit('player-update-lyric', lyrics);
 	}, [currentSong, useSettingStore.getState().showLyrics, seek]);
 
 	useEffect(() => {
-		const lazyAsync = async () => {
+		handleLyricsUpdate();
+	}, [handleLyricsUpdate]);
+
+	const lazyAsync = useMemo(
+		() => async () => {
 			await event.emit('player-update-duration', duration);
 			await event.emit('player-update-current-song', currentSong);
-		};
-		const interval = setInterval(lazyAsync, 1500);
-		const STMC = () => {
 			if (useSettingStore.getState().pushToSMTC) usePlayer.pushToSTMC();
-		};
-		const interval2 = setInterval(STMC, 15000);
-		return () => {
-			clearInterval(interval);
-			clearInterval(interval2);
-		};
-	}, [duration, currentSong]);
+		},
+		[duration, currentSong, usePlayer, useSettingStore]
+	);
+
+	useEffect(() => {
+		const interval = setInterval(lazyAsync, 1500);
+		return () => clearInterval(interval);
+	}, [lazyAsync]);
 
 	useEffect(() => {
 		event.emit('player-update-current-song', currentSong);
 		event.emit('player-update-duration', duration);
 		if (useSettingStore.getState().pushToSMTC) usePlayer.pushToSTMC();
 		if (useSettingStore.getState().autoPlay) event.emit('player-play');
-	}, [currentSong]);
+	}, [currentSong, duration, usePlayer, useSettingStore]);
 
-	useEffect(() => {
-		const async = async () => {
-			await event.emit('player-update-seek', seek);
-		};
+	const updateSeek = useCallback(async () => {
+		await event.emit('player-update-seek', seek);
 		setPlaying(usePlayer.playing);
-		async();
-	}, [seek]);
+	}, [seek, usePlayer]);
 
 	useEffect(() => {
-		// 注册事件
+		updateSeek();
+	}, [updateSeek]);
+
+	const registerEvents = useCallback(async () => {
 		const prev = event.listen('pip-prev', () => usePlayer.prev());
-
-		const next = event.listen('pip-next', () => {
-			debounce(() => {
-				usePlayer.next();
-			}, 300)();
-		});
-
-		const play = event.listen('pip-play', () => {
+		const next = event.listen('pip-next', () => debounce(() => usePlayer.next(), 300));
+		const play = event.listen('pip-play', () =>
 			debounce(() => {
 				if (playing) return usePlayer.pause();
 				else return usePlayer.play();
-			}, 300)();
-		});
+			}, 300)
+		);
 
 		event.emit('player-update-current-song', currentSong);
 		event.emit('player-update-duration', duration);
 		event.emit('player-update-playing', playing);
 
 		return () => {
-			// 取消事件监听
 			prev.then((f) => f());
 			next.then((f) => f());
 			play.then((f) => f());
 		};
-	}, [playing, duration, currentSong]);
+	}, [playing, duration, currentSong, usePlayer]);
 
-	// 注册快捷键事件
-	useEffect(() => {
-		const play = event.listen('shortcut-play', () => {
+	const registerShortcuts = useCallback(async () => {
+		const play = event.listen('shortcut-play', () =>
 			debounce(() => {
 				if (playing) return usePlayer.pause();
 				else return usePlayer.play();
-			}, 300)();
-		});
+			}, 300)
+		);
 		const prev = event.listen('shortcut-prev', () => usePlayer.prev());
-		const next = event.listen('shortcut-next', () => {
-			debounce(() => {
-				usePlayer.next();
-			}, 300)();
-		});
+		const next = event.listen('shortcut-next', () => debounce(() => usePlayer.next(), 300));
 		const volumeUp = event.listen('shortcut-volume-up', () => {
 			if (volume < 1) {
 				usePlayer.volume = volume + 0.1;
@@ -151,6 +140,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 				usePlayer.volume = volume - 0.1;
 			}
 		});
+
 		return () => {
 			play.then((f) => f());
 			prev.then((f) => f());
@@ -158,19 +148,23 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 			volumeUp.then((f) => f());
 			volumeDown.then((f) => f());
 		};
-	}, [playing, volume]);
+	}, [playing, volume, usePlayer]);
 
 	useEffect(() => {
-		const pipRequest = event.listen('pip-request', () => {
+		const pipRequest = event.listen('pip-request', () =>
 			debounce(() => {
 				event.emit('player-update-current-song', currentSong);
 				event.emit('player-update-duration', duration);
-			}, 300)();
-		});
+			}, 300)
+		);
+
+		registerEvents();
+		registerShortcuts();
+
 		return () => {
 			pipRequest.then((f) => f());
 		};
-	}, [currentSong, duration, playlist, playing]);
+	}, [registerEvents, registerShortcuts, currentSong, duration]);
 
 	return (
 		<>
