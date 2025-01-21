@@ -25,6 +25,7 @@
 		"core:event:allow-listen",
 		"core:event:allow-unlisten",
 		"core:window:allow-center",
-		"core:window:allow-set-position"
+		"core:window:allow-set-position",
+		"core:window:allow-set-fullscreen"
 	]
 }

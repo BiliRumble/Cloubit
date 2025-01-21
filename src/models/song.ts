@@ -77,6 +77,6 @@ export interface Lyric {
 
 // lyric内容
 export interface LyricContent {
-	lyric: string;
+	lyric: string; // [00:00.000] 内容
 	version: number;
 }

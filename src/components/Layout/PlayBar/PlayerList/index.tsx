@@ -1,7 +1,7 @@
 import { debounce } from 'lodash-es';
 import { useEffect, useState } from 'react';
 import { usePlayerManager } from '../../../../context/PlayerContext';
-import { PlayList } from '../../../../models/main';
+import { PlayList } from '../../../../models/song';
 import styles from './PlayList.module.scss';
 
 interface PlayListProps {

@@ -2,7 +2,7 @@ import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
 import React, { useEffect, useState } from 'react';
 import { closePip } from '../../managers/PIPWindowManager';
-import { PlayListItem } from '../../models/main';
+import { PlayListItem } from '../../models/song';
 import styles from './pip.module.scss';
 
 const Pip = () => {
@@ -15,6 +15,7 @@ const Pip = () => {
 	const [playing, setPlaying] = useState(false);
 	const [seek, setSeek] = useState(0);
 	const [duration, setDuration] = useState(1);
+	const [lyric, setLyric] = useState<string | null>(null);
 
 	useEffect(() => {
 		// 监听
@@ -31,6 +32,9 @@ const Pip = () => {
 			const data = event.payload as number;
 			setSeek(data);
 		});
+		const ul = event.listen('player-update-lyric', (event) => {
+			setLyric(event.payload as string);
+		});
 		const ud = event.listen('player-update-duration', (event) => {
 			const data = event.payload as number;
 			setDuration(data);
@@ -42,6 +46,7 @@ const Pip = () => {
 			ucs.then((f) => f());
 			up.then((f) => f());
 			us.then((f) => f());
+			ul.then((f) => f());
 			ud.then((f) => f());
 		};
 	}, []);
@@ -63,7 +68,7 @@ const Pip = () => {
 					<img src={currentSong?.cover || 'https://'} alt="" />
 				</div>
 				<div data-tauri-drag-region className={styles.pip__info}>
-					<h1>{currentSong?.name.substring(0, 18)}</h1>
+					<h1>{lyric ? lyric : currentSong?.name || '等待SYNC'}</h1>
 				</div>
 				<div data-tauri-drag-region className={styles.pip__control}>
 					<div data-tauri-drag-region className={styles.control__buttons}>

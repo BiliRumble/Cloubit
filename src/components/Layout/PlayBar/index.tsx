@@ -5,6 +5,7 @@ import { usePlayerManager } from '../../../context/PlayerContext';
 import { useSettingStore } from '../../../store/setting';
 import Modal from '../../Common/Modal';
 import Popover from '../../Common/Popover';
+import LryicModal from './Lyric';
 import PlayList from './PlayerList';
 import styles from './PlayBar.module.scss';
 
@@ -14,6 +15,7 @@ interface PlayBarProps {
 
 const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 	const [playerListModalOpen, setPlayerListModalOpen] = useState(false);
+	const [lyricModalOpen, setLyricModalOpen] = useState(false);
 
 	const usePlayer = usePlayerManager();
 	const [currentSong, setCurrentSong] = useState(usePlayer.currentSong);
@@ -55,9 +57,14 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 	// 更新歌词
 	useEffect(() => {
 		if (useSettingStore.getState().showLyrics) {
+			event.emit(
+				'player-update-lyric',
+				usePlayer.currentLyric(useSettingStore.getState().lyricsType)
+			);
 			return setLyrics(usePlayer.currentLyric(useSettingStore.getState().lyricsType));
 		}
 		setLyrics(null);
+		event.emit('player-update-lyric', lyrics);
 	}, [currentSong, useSettingStore.getState().showLyrics, seek]);
 
 	useEffect(() => {
@@ -74,7 +81,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 			clearInterval(interval);
 			clearInterval(interval2);
 		};
-	}, [duration]);
+	}, [duration, currentSong]);
 
 	useEffect(() => {
 		event.emit('player-update-current-song', currentSong);
@@ -93,11 +100,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 
 	useEffect(() => {
 		// 注册事件
-		const prev = event.listen('pip-prev', () => {
-			debounce(() => {
-				usePlayer.prev();
-			}, 300)();
-		});
+		const prev = event.listen('pip-prev', () => usePlayer.prev());
 
 		const next = event.listen('pip-next', () => {
 			debounce(() => {
@@ -122,7 +125,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 			next.then((f) => f());
 			play.then((f) => f());
 		};
-	}, [playing]);
+	}, [playing, duration, currentSong]);
 
 	// 注册快捷键事件
 	useEffect(() => {
@@ -132,14 +135,9 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 				else return usePlayer.play();
 			}, 300)();
 		});
-		const prev = event.listen('shortcut-prev', () => {
-			debounce(() => {
-				usePlayer.prev();
-			}, 300)();
-		});
+		const prev = event.listen('shortcut-prev', () => usePlayer.prev());
 		const next = event.listen('shortcut-next', () => {
 			debounce(() => {
-				console.log('next');
 				usePlayer.next();
 			}, 300)();
 		});
@@ -172,15 +170,23 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 		return () => {
 			pipRequest.then((f) => f());
 		};
-	}, []);
+	}, [currentSong, duration, playlist, playing]);
 
 	return (
 		<>
 			<div className={`${className || ''} ${styles.playbar}`.trim()}>
 				<div className={styles.playbar__left}>
-					<div className={styles.info}>
-						<img src={currentSong?.cover} alt={`${currentSong?.name}的封面`} />
-						<div className={styles.info__text}>
+					<div className={styles.playbar__left__info}>
+						<div className={styles.playbar__left__info__cover}>
+							<img src={currentSong?.cover} alt={`${currentSong?.name}的封面`} />
+							<div
+								className={styles.playbar__left__info__cover__mask}
+								onClick={() => setLyricModalOpen(true)}
+							>
+								<span className="i-solar-maximize-linear" />
+							</div>
+						</div>
+						<div className={styles.playbar__left__info__text}>
 							<h1 id="title">{currentSong?.name}</h1>
 							<h2>
 								{!lyrics
@@ -206,15 +212,17 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 								${mode === 'random' ? 'i-solar-shuffle-line-duotone' : ''}
 								${mode === 'single' ? 'i-solar-repeat-one-line-duotone' : ''}
 							`}
-							onClick={() => {
-								const newMode =
-									mode === 'list'
-										? 'random'
-										: mode === 'random'
-											? 'single'
-											: 'list';
-								usePlayer.mode = newMode;
-							}}
+							onClick={() =>
+								debounce(() => {
+									const newMode =
+										mode === 'list'
+											? 'random'
+											: mode === 'random'
+												? 'single'
+												: 'list';
+									usePlayer.mode = newMode;
+								}, 300)()
+							}
 						/>
 						<span
 							className="i-solar-rewind-back-line-duotone"
@@ -227,22 +235,15 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 							onClick={() => {
 								if (playing) return usePlayer.pause();
 								usePlayer.play();
-								// deubg
-								console.debug({
-									currentSong,
-									playlist,
-									mode,
-									playing,
-									muted,
-									volume,
-									seek,
-									duration,
-								});
 							}}
 						/>
 						<span
 							className="i-solar-rewind-forward-line-duotone"
-							onClick={() => usePlayer.next()}
+							onClick={() =>
+								debounce(() => {
+									usePlayer.next();
+								}, 300)()
+							}
 						/>
 						<span
 							className={`
@@ -251,9 +252,11 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 								${volume < 0.75 ? 'i-solar-volume-small-line-duotone' : ''}
 								${volume >= 0.75 ? 'i-solar-volume-loud-line-duotone' : ''}
 							`}
-							onClick={() => {
-								usePlayer.muted = !usePlayer.muted;
-							}}
+							onClick={() =>
+								debounce(() => {
+									usePlayer.muted = !usePlayer.muted;
+								}, 300)()
+							}
 							ref={volumeRef}
 							title={'当前音量：' + volume * 100 + '%，点击静音/取消静音'}
 						/>
@@ -295,7 +298,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 				<div className={styles.playbar__list}>
 					<span
 						className="i-solar-hamburger-menu-line-duotone"
-						onClick={() => setPlayerListModalOpen(true)}
+						onClick={() => debounce(() => setPlayerListModalOpen(true), 300)()}
 					/>
 				</div>
 			</div>
@@ -330,6 +333,15 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 				style={{ flexDirection: 'row-reverse', justifyContent: 'space-between' }}
 			>
 				<PlayList onClose={() => setPlayerListModalOpen(false)} />
+			</Modal>
+			<Modal
+				isOpen={lyricModalOpen}
+				hasCard={false}
+				onClose={() => setLyricModalOpen(false)}
+				className={styles.lyric__modal}
+				style={{ background: `url(${currentSong?.cover})` }}
+			>
+				<LryicModal onClose={() => setLyricModalOpen(false)} />
 			</Modal>
 		</>
 	);

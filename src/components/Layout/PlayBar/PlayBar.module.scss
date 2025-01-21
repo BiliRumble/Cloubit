@@ -14,21 +14,58 @@
 		align-items: center;
 		justify-content: flex-start;
 
-		.info {
+		&__info {
 			display: flex;
 			flex: 1;
 			flex-direction: row;
 			flex-wrap: nowrap;
 			align-items: center;
 			justify-content: flex-start;
-			max-width: 165px;
+			width: 165px;
 			margin-right: 1rem;
 
-			img {
+			&__cover {
 				height: 48px;
-				width: 48px;
-				border-radius: var(--border-radius);
+				max-width: 48px;
+				width: 48px !important;
 				margin-right: 0.5rem;
+				position: relative;
+				overflow: hidden;
+				border-radius: var(--border-radius);
+
+				img {
+					height: 100%;
+					width: 100%;
+				}
+
+				&__mask {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					z-index: -1;
+					opacity: 0;
+					background-color: rgba(0, 0, 0, 0.5);
+					backdrop-filter: blur(8px);
+					transition:
+						opacity 0.2s ease-in-out,
+						z-index 0.4s ease-out;
+
+					span {
+						position: absolute;
+						top: 50%;
+						left: 50%;
+						font-size: 1.5rem;
+						transform: translate(-50%, -50%);
+						color: #fff;
+					}
+				}
+
+				&:hover &__mask {
+					opacity: 1;
+					z-index: 1;
+				}
 			}
 
 			&__text {
@@ -216,4 +253,13 @@
 		font-size: 0.8rem;
 		color: var(--second-text-color);
 	}
+}
+
+.lyric__modal {
+	background-size: cover !important;
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+	background-attachment: fixed !important;
+	backdrop-filter: blur(1.5rem) !important;
+	transition: background 0.3s ease-in-out !important;
 }

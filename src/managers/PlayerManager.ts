@@ -33,7 +33,7 @@ export default class PlayerManager {
 	private _lyric: Lyric = {
 		code: 200,
 		lrc: {
-			lyric: '[00:00.00]暂无歌词',
+			lyric: '',
 			version: 0,
 		} as LyricContent,
 	} as Lyric;
@@ -44,7 +44,6 @@ export default class PlayerManager {
 		this._mode = usePlayerStore.getState().mode;
 		this._volume = usePlayerStore.getState().volume;
 		this.init();
-		console.debug('🎵 Player Manager Initialized.', this);
 	}
 
 	public init() {
@@ -58,88 +57,88 @@ export default class PlayerManager {
 	}
 
 	public async setCurrentSong(id: number, play: boolean = true, init: boolean = false) {
-		if (!init) usePlayerStore.setState({ seek: 0 });
-		if (this.isChangingSong) return;
-		this.isChangingSong = true;
+		debounce(async () => {
+			if (!init) usePlayerStore.setState({ seek: 0 });
+			if (this.isChangingSong) return;
+			this.isChangingSong = true;
 
-		const target = this._playlist.data.find((item) => item.id === id);
-		if (!target) {
-			this.isChangingSong = false;
-			return;
-		}
-
-		if (this._player) {
-			this._player.stop();
-			this._player.unload();
-		}
-
-		try {
-			const url = await getSongURL(target.id);
-			const data = url?.data[0];
-			if (!data?.url) {
+			const target = this._playlist.data.find((item) => item.id === id);
+			if (!target) {
 				this.isChangingSong = false;
-				this.next();
 				return;
 			}
 
-			this._player = new Howl({
-				src: [data.url],
-				html5: true,
-				format: ['mp3', 'wav', 'ogg'],
-				volume: this._volume,
-				mute: usePlayerStore.getState().muted,
-				autoplay: play,
-				loop: this._mode === 'single',
-				onend: () => {
-					this.next();
-				},
-				onpause: () => {
-					event.emit('player-update-playing', false);
-				},
-				onplay: () => {
-					event.emit('player-update-playing', false);
-				},
-				onseek: (seek) => {
-					if (useSettingStore.getState().savePlaySeek) usePlayerStore.setState({ seek });
-				},
-				onplayerror: (error) => {
-					console.error('🎵 Error playing audio:', error);
-					if (error === 4) {
-						this._player?.pause();
-						debounce(() => {
-							this.setCurrentSong(id, play, init);
-						}, 1000)();
-					}
-				},
-			});
-			if (init) this._player?.seek(usePlayerStore.getState().seek);
-			this._lyric = await getLyric(data.id).then(
-				(res) =>
-					res ||
-					({
-						code: 200,
-						lrc: {
-							lyric: '[00:00.00]暂无歌词',
-							version: 0,
-						} as LyricContent,
-					} as Lyric)
-			);
-			this._currentSong = target;
-			this._playing = play;
-			usePlayerStore.setState({ currentSong: target });
-		} catch (error) {
-			console.error('🎵 Error setting current song:', error);
-		} finally {
-			this.isChangingSong = false;
-		}
+			if (this._player) {
+				this._player.stop();
+				this._player.unload();
+			}
+
+			try {
+				const url = await getSongURL(target.id);
+				const data = url?.data[0];
+				if (!data?.url) {
+					this.isChangingSong = false;
+					alert('歌曲无法播放');
+					return;
+				}
+
+				this._player = new Howl({
+					src: [data.url],
+					html5: true,
+					format: ['mp3', 'wav', 'ogg'],
+					volume: this._volume,
+					mute: usePlayerStore.getState().muted,
+					autoplay: play,
+					loop: this._mode === 'single',
+					onend: () => {
+						this.next();
+					},
+					onpause: () => {
+						event.emit('player-update-playing', false);
+					},
+					onplay: () => {
+						event.emit('player-update-playing', false);
+					},
+					onseek: (seek) => {
+						if (useSettingStore.getState().savePlaySeek)
+							usePlayerStore.setState({ seek });
+					},
+					onplayerror: (error) => {
+						console.error('🎵 Error playing audio:', error);
+						alert('歌曲无法播放');
+					},
+				});
+				if (init) this._player?.seek(usePlayerStore.getState().seek);
+				this._lyric = await getLyric(data.id).then(
+					(res) =>
+						res ||
+						({
+							code: 200,
+							lrc: {
+								lyric: '[00:00.00]暂无歌词',
+								version: 0,
+							} as LyricContent,
+						} as Lyric)
+				);
+				this._currentSong = target;
+				this._playing = play;
+				await event.emit('player-update-current-song', this._currentSong);
+				usePlayerStore.setState({ currentSong: target });
+			} catch (error) {
+				console.error('🎵 Error setting current song:', error);
+			} finally {
+				this.isChangingSong = false;
+			}
+		}, 300)();
 	}
 
 	public addToPlaylist(song: PlayListItem) {
-		if (this._playlist.data.find((item) => item.id === song.id)) return;
-		this._playlist.data.push(song);
-		this._playlist.count++;
-		usePlayerStore.setState({ playlist: this._playlist });
-		console.log(this._playlist);
+		debounce(() => {
+			if (this._playlist.data.find((item) => item.id === song.id)) return;
+			this._playlist.data.push(song);
+			this._playlist.count++;
+			usePlayerStore.setState({ playlist: this._playlist });
+		}, 300)();
 	}
 
 	public removeFromPlaylist(id: number) {
@@ -279,7 +278,8 @@ export default class PlayerManager {
 	get player() {
 		return this._player;
 	}
-	get lyric() {
+	// 歌词列表
+	get lyric(): Lyric {
 		return (
 			this._lyric ||
 			({
@@ -370,7 +370,7 @@ export default class PlayerManager {
 	}
 
 	// 解析歌词
-	private parseLyric(lyricLines: string[]): Map<number, string> {
+	public parseLyric(lyricLines: string[]): Map<number, string> {
 		const lyricMap = new Map<number, string>();
 		const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
 		for (const line of lyricLines) {
@@ -382,7 +382,9 @@ export default class PlayerManager {
 				const time =
 					minutes * 60 + seconds + milliseconds / (match[3].length === 3 ? 1000 : 100);
 				const lyricText = line.replace(timeRegex, '').trim();
-				lyricMap.set(time, lyricText);
+				if (lyricText) {
+					lyricMap.set(time, lyricText);
+				}
 			}
 		}
 		return lyricMap;

@@ -1,6 +1,6 @@
 [package]
 name = "qtmusic"
-version = "0.1.0"
+version = "0.1.9"
 description = "网易云音乐的客户端代替方案"
 authors = ["rumble"]
 edition = "2021"

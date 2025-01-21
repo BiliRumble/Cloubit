@@ -20,7 +20,7 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
 	return (
 		<div
-			className={styles.modal + (isOpen ? ' ' + styles.modal__open : '' + ' ' + className)}
+			className={styles.modal + (isOpen ? ' ' + styles.modal__open : '') + ' ' + className}
 			style={style}
 		>
 			<div className={styles.modal__mask} onClick={onClose} />
