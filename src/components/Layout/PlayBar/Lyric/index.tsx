@@ -2,6 +2,8 @@ import { Window } from '@tauri-apps/api/window';
 import { debounce } from 'lodash-es';
 import { useEffect, useRef, useState } from 'react';
 import { usePlayerManager } from '../../../../context/PlayerContext';
+import { LyricContent, PlayListItem } from '../../../../models/song';
+import { useSettingStore } from '../../../../store/setting';
 import Popover from '../../../Common/Popover';
 import styles from './Lyric.module.scss';
 
@@ -10,21 +12,63 @@ interface LryicProps {
 	className?: string;
 }
 
+function parseLyric(
+	lyric: LyricContent,
+	translated?: LyricContent
+): { index: number; text: string; translatedText?: string }[] {
+	let data;
+	if (!translated || useSettingStore.getState().lyricsType === 'raw')
+		data = lyric.lyric.split('\n').map((item) => {
+			const [time, text] = item.split(']');
+			const [minute, second] = time.slice(1).split(':');
+			const index = Number(minute) * 60 + Number(second);
+			return {
+				index,
+				text,
+			};
+		});
+	else
+		data = translated.lyric.split('\n').map((item) => {
+			const [time, text] = item.split(']');
+			const [minute, second] = time.slice(1).split(':');
+			const index = Number(minute) * 60 + Number(second);
+			return {
+				index,
+				text,
+				translatedText: lyric.lyric
+					.split('\n')
+					.find((line) => line.startsWith(time))
+					?.split(']')[1],
+			};
+		});
+
+	return data;
+}
+
 const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 	const usePlayer = usePlayerManager();
-	const window = new Window('main');
+	const appWindow = new Window('main');
 
 	const [isFullScreen, setIsFullScreen] = useState(false);
 	const [seekDragging, setSeekDragging] = useState(false);
 	const volumeRef = useRef<HTMLSpanElement>(null);
+	const lyricRef = useRef<HTMLDivElement>(null);
+	const lastInteractionRef = useRef<number>(Date.now() - 1.5 * 1000);
+
+	const [lyricType, setLyricType] = useState<'raw' | 'translate'>(
+		useSettingStore.getState().lyricsType
+	);
 
 	const [mode, setMode] = useState<'list' | 'random' | 'single'>(usePlayer.mode);
-	const [currentSong, setCurrentSong] = useState(usePlayer.currentSong);
-	const [playing, setPlaying] = useState(usePlayer.playing);
-	const [duration, setDuration] = useState(usePlayer.duration);
-	const [seek, setSeek] = useState(usePlayer.seek);
-	const [volume, setVolume] = useState(usePlayer.volume);
-	const [muted, setMuted] = useState(usePlayer.muted);
+	const [currentSong, setCurrentSong] = useState<PlayListItem>(usePlayer.currentSong);
+	const [playing, setPlaying] = useState<boolean>(usePlayer.playing);
+	const [duration, setDuration] = useState<number>(usePlayer.duration);
+	const [seek, setSeek] = useState<number>(usePlayer.seek);
+	const [volume, setVolume] = useState<number>(usePlayer.volume);
+	const [muted, setMuted] = useState<boolean>(usePlayer.muted);
+	const [lyrics, setLryics] = useState<
+		{ index: number; text: string; translatedText?: string }[]
+	>(parseLyric(usePlayer.lyric.lrc, usePlayer.lyric.tlyric));
 
 	useEffect(() => {
 		// 删除 data-tauri-drag-region 属性
@@ -36,14 +80,41 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 		}
 	}, [isFullScreen]);
 
+	// 监听滚动事件
+	useEffect(() => {
+		const handleScroll = () => {
+			lastInteractionRef.current = Date.now();
+		};
+
+		window.addEventListener('scroll', handleScroll);
+
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
+		};
+	}, []);
+	useEffect(() => {
+		const timer = setInterval(() => {
+			const currentTime = Date.now();
+			if (currentTime - lastInteractionRef.current >= 3000) {
+				lyricRef.current?.scrollIntoView({ behavior: 'smooth' });
+				clearInterval(timer);
+			}
+		}, 150);
+
+		return () => clearInterval(timer);
+	}, [lyricRef.current]);
+
 	// 慢更新
 	useEffect(() => {
+		setCurrentSong(usePlayer.currentSong);
 		setMode(usePlayer.mode);
 		setDuration(usePlayer.duration);
 		setPlaying(usePlayer.playing);
 		setVolume(usePlayer.volume);
 		setMuted(usePlayer.muted);
+		setLryics(parseLyric(usePlayer.lyric.lrc, usePlayer.lyric.tlyric));
 	}, [
+		usePlayer.currentSong,
 		usePlayer.playing,
 		usePlayer.duration,
 		usePlayer.mode,
@@ -55,16 +126,21 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 	// 快更新
 	useEffect(() => {
 		if (!seekDragging) setSeek(usePlayer.seek);
-	}, [usePlayer.seek]);
+	}, [usePlayer.seek, seekDragging, lastInteractionRef.current]);
+
+	// 更新设置
+	useEffect(() => {
+		setLyricType(useSettingStore.getState().lyricsType);
+	}, [useSettingStore.getState().lyricsType]);
 
 	const fullScreen = async () => {
-		const isFullScreen = await window.isFullscreen();
-		await window.setFullscreen(!isFullScreen).then(() => setIsFullScreen(!isFullScreen));
+		const isFullScreen = await appWindow.isFullscreen();
+		await appWindow.setFullscreen(!isFullScreen).then(() => setIsFullScreen(!isFullScreen));
 	};
 	const close = async () => {
-		const isFullScreen = await window.isFullscreen();
+		const isFullScreen = await appWindow.isFullscreen();
 		if (isFullScreen) {
-			await window.setFullscreen(false).then(() => setIsFullScreen(false));
+			await appWindow.setFullscreen(false).then(() => setIsFullScreen(false));
 		}
 		onClose();
 	};
@@ -76,33 +152,66 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 					className={styles.lyric__header__button}
 					onClick={() => debounce(close, 300)()}
 				>
-					<span className=" i-solar-minimize-bold" />
+					<span className="i-solar-minimize-bold" />
 				</button>
 				<button
 					className={styles.lyric__header__button}
 					onClick={() => debounce(fullScreen, 300)()}
 				>
 					{isFullScreen ? (
-						<span className=" i-solar-quit-full-screen-bold" />
+						<span className="i-solar-quit-full-screen-bold" />
 					) : (
-						<span className=" i-solar-full-screen-bold" />
+						<span className="i-solar-full-screen-bold" />
 					)}
 				</button>
 			</div>
 			<div className={styles.lyric__body}>
 				<div className={styles.lyric__body__info}>
 					<div className={styles.lyric__body__info__inner}>
-						<img src={usePlayer.currentSong.cover} alt={usePlayer.currentSong.name} />
+						<img src={currentSong.cover} alt={currentSong.name} />
 						<div className={styles.lyric__body__info__text}>
 							<h1 className={styles.lyric__body__info__text__title}>
-								{usePlayer.currentSong.name}
+								{currentSong.name}
 							</h1>
 							<p>{currentSong.artists?.map((artist) => artist).join('/')}</p>
 						</div>
 					</div>
 				</div>
 				<div className={styles.lyric__body__lyric}>
-					{/* todo: 渲染歌词列表 & 标出当前播放内容 & 点击跳转 */}
+					{lyrics.map((item, index) => {
+						const isCurrent =
+							item.index <= seek &&
+							(lyrics[index + 1]?.index > seek || index === lyrics.length - 1);
+						const nextIsCurrent =
+							lyrics[index + 1]?.index <= seek &&
+							(lyrics[index + 2]?.index > seek || index === lyrics.length - 2);
+						return (
+							<div
+								key={item.index}
+								onClick={() => (usePlayer.seek = item.index)}
+								className={
+									styles.lyric__body__lyric__item +
+									(isCurrent ? ` ${styles.lyric__body__lyric__item__now}` : '')
+								}
+								style={{
+									display: item.text != '' ? 'block' : 'none',
+								}}
+								ref={nextIsCurrent ? lyricRef : null}
+							>
+								{lyricType === 'raw' && item.text != '' ? (
+									<>
+										<h1>{item.text}</h1>
+										<h2>{item.translatedText}</h2>
+									</>
+								) : (
+									<>
+										<h1>{item.translatedText}</h1>
+										<h2>{item.text}</h2>
+									</>
+								)}
+							</div>
+						);
+					})}
 				</div>
 			</div>
 			<div className={styles.lyric__bottom}>
