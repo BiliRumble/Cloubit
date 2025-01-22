@@ -7,17 +7,15 @@ async fn close_webview_window(window_label: String, app_handle: AppHandle) {
 }
 
 mod stmc;
+
 #[tauri::command]
 async fn push_to_stmc(
     title: String,
     artist: String,
     cover: String,
 ) {
-    // 调用 update_system_media_info 函数
-    stmc::update_system_media_info(&title, &artist, &cover)
-		.await;
+    stmc::update_system_media_info(&title, &artist, &cover);
 }
-
 
 #[cfg(desktop)]
 mod tray;

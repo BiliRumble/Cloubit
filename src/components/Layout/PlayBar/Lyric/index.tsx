@@ -18,29 +18,41 @@ function parseLyric(
 ): { index: number; text: string; translatedText?: string }[] {
 	let data;
 	if (!translated || useSettingStore.getState().lyricsType === 'raw')
-		data = lyric.lyric.split('\n').map((item) => {
-			const [time, text] = item.split(']');
-			const [minute, second] = time.slice(1).split(':');
-			const index = Number(minute) * 60 + Number(second);
-			return {
-				index,
-				text,
-			};
-		});
+		data = lyric.lyric
+			.split('\n')
+			.map((item) => {
+				const [time, text] = item.split(']');
+				const [minute, second] = time.slice(1).split(':');
+				const index = Number(minute) * 60 + Number(second);
+				if (isNaN(index)) {
+					return null;
+				}
+				return {
+					index,
+					text,
+				};
+			})
+			.filter((item) => item !== null);
 	else
-		data = translated.lyric.split('\n').map((item) => {
-			const [time, text] = item.split(']');
-			const [minute, second] = time.slice(1).split(':');
-			const index = Number(minute) * 60 + Number(second);
-			return {
-				index,
-				text,
-				translatedText: lyric.lyric
-					.split('\n')
-					.find((line) => line.startsWith(time))
-					?.split(']')[1],
-			};
-		});
+		data = translated.lyric
+			.split('\n')
+			.map((item) => {
+				const [time, text] = item.split(']');
+				const [minute, second] = time.slice(1).split(':');
+				const index = Number(minute) * 60 + Number(second);
+				if (isNaN(index)) {
+					return null;
+				}
+				return {
+					index,
+					text,
+					translatedText: lyric.lyric
+						.split('\n')
+						.find((line) => line.startsWith(time))
+						?.split(']')[1],
+				};
+			})
+			.filter((item) => item !== null);
 
 	return data;
 }
@@ -87,11 +99,23 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 		};
 
 		window.addEventListener('scroll', handleScroll);
+		// 监听esc
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+		window.addEventListener('keydown', handleKeyDown);
+
+		lyricRef.current?.scrollIntoView({ behavior: 'smooth' });
+		lastInteractionRef.current = Date.now() - 1.5 * 1000;
 
 		return () => {
 			window.removeEventListener('scroll', handleScroll);
+			window.removeEventListener('keydown', handleKeyDown);
 		};
 	}, []);
+
 	useEffect(() => {
 		const timer = setInterval(() => {
 			const currentTime = Date.now();

@@ -2,6 +2,7 @@ import { event } from '@tauri-apps/api';
 import { debounce } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePlayerManager } from '../../../context/PlayerContext';
+import { usePlayerStore } from '../../../store/player';
 import { useSettingStore } from '../../../store/setting';
 import Modal from '../../Common/Modal';
 import Popover from '../../Common/Popover';
@@ -91,6 +92,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 
 	const updateSeek = useCallback(async () => {
 		await event.emit('player-update-seek', seek);
+		if (useSettingStore.getState().savePlaySeek) usePlayerStore.setState({ seek });
 		setPlaying(usePlayer.playing);
 	}, [seek, usePlayer]);
 
@@ -124,10 +126,10 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 			debounce(() => {
 				if (playing) return usePlayer.pause();
 				else return usePlayer.play();
-			}, 300)
+			}, 50)
 		);
 		const prev = event.listen('shortcut-prev', () => usePlayer.prev());
-		const next = event.listen('shortcut-next', () => debounce(() => usePlayer.next(), 300));
+		const next = event.listen('shortcut-next', () => usePlayer.next());
 		const volumeUp = event.listen('shortcut-volume-up', () => {
 			if (volume < 1) {
 				usePlayer.volume = volume + 0.1;

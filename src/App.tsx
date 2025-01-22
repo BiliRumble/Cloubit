@@ -14,25 +14,30 @@ const App = () => {
 	const isWindowPath = location.pathname.startsWith('/windows/');
 	useTheme();
 
-	const setting = useSettingStore.getState();
-
 	useEffect(() => {
 		unregisterAllShortcuts();
+		if (!useSettingStore.getState().enableGlobalShortcut) return;
 		// 注册快捷键
-		registerShortcuts(setting.playShortcut.join('+'), () => event.emit('shortcut-play'));
-		registerShortcuts(setting.prevShortcut.join('+'), () => event.emit('shortcut-prev'));
-		registerShortcuts(setting.nextShortcut.join('+'), () => event.emit('shortcut-next'));
-		registerShortcuts(setting.volumeUpShortcut.join('+'), () =>
+		registerShortcuts(useSettingStore.getState().playShortcut.join('+'), () =>
+			event.emit('shortcut-play')
+		);
+		registerShortcuts(useSettingStore.getState().prevShortcut.join('+'), () =>
+			event.emit('shortcut-prev')
+		);
+		registerShortcuts(useSettingStore.getState().nextShortcut.join('+'), () =>
+			event.emit('shortcut-next')
+		);
+		registerShortcuts(useSettingStore.getState().volumeUpShortcut.join('+'), () =>
 			event.emit('shortcut-volumeUp')
 		);
-		registerShortcuts(setting.volumeDownShortcut.join('+'), () =>
+		registerShortcuts(useSettingStore.getState().volumeDownShortcut.join('+'), () =>
 			event.emit('shortcut-volumeDown')
 		);
 
 		return () => {
 			unregisterAllShortcuts();
 		};
-	}, [setting]);
+	}, [useSettingStore.getState().enableGlobalShortcut]);
 
 	return (
 		<BrowserRouter>

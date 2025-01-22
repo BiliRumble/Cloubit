@@ -85,9 +85,6 @@ export default class PlayerManager {
 				onend: () => this.next(),
 				onpause: () => event.emit('player-update-playing', false),
 				onplay: () => event.emit('player-update-playing', true),
-				onseek: (seek) => {
-					if (useSettingStore.getState().savePlaySeek) usePlayerStore.setState({ seek });
-				},
 				onplayerror: (error) => {
 					console.error('🎵 Error playing audio:', error);
 					alert('歌曲无法播放');
@@ -107,6 +104,7 @@ export default class PlayerManager {
 			);
 			this._currentSong = target;
 			this._playing = play;
+			document.title = `${this._currentSong.name} - ${this._currentSong.artists?.join('/')}`;
 			event.emit('player-update-current-song', this._currentSong);
 			usePlayerStore.setState({ currentSong: target });
 			if (useSettingStore.getState().pushToSMTC) this.pushToSTMC();
@@ -134,6 +132,7 @@ export default class PlayerManager {
 		// 如果当前播放的歌曲被移除，则播放下一首
 		if (this._currentSong.id === id) {
 			this._player?.unload();
+			document.title = 'QTMusic';
 			this.next();
 		}
 		this._playlist.data.splice(index, 1);
@@ -153,6 +152,7 @@ export default class PlayerManager {
 		usePlayerStore.setState({ playlist: this._playlist });
 		this._currentSong = PLACEHOLDER_SONG;
 		usePlayerStore.setState({ currentSong: PLACEHOLDER_SONG });
+		document.title = 'QTMusic';
 
 		// 清空播放器
 		if (this._player) {
