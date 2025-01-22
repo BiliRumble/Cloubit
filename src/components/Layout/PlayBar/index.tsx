@@ -74,9 +74,8 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 		() => async () => {
 			await event.emit('player-update-duration', duration);
 			await event.emit('player-update-current-song', currentSong);
-			if (useSettingStore.getState().pushToSMTC) usePlayer.pushToSTMC();
 		},
-		[duration, currentSong, usePlayer, useSettingStore]
+		[duration, currentSong, useSettingStore]
 	);
 
 	useEffect(() => {
@@ -87,7 +86,6 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 	useEffect(() => {
 		event.emit('player-update-current-song', currentSong);
 		event.emit('player-update-duration', duration);
-		if (useSettingStore.getState().pushToSMTC) usePlayer.pushToSTMC();
 		if (useSettingStore.getState().autoPlay) event.emit('player-play');
 	}, [currentSong, duration, usePlayer, useSettingStore]);
 

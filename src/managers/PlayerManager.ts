@@ -109,6 +109,7 @@ export default class PlayerManager {
 			this._playing = play;
 			event.emit('player-update-current-song', this._currentSong);
 			usePlayerStore.setState({ currentSong: target });
+			if (useSettingStore.getState().pushToSMTC) this.pushToSTMC();
 		} catch (error) {
 			console.error('🎵 Error setting current song:', error);
 		} finally {
@@ -346,8 +347,8 @@ export default class PlayerManager {
 	public pushToSTMC() {
 		if (!this._player || !useSettingStore.getState().pushToSMTC) return;
 		invoke('push_to_stmc', {
-			name: this._currentSong?.name || 'None',
-			artist: this._currentSong?.artists || 'None',
+			title: this._currentSong?.name || 'None',
+			artist: this._currentSong?.artists?.join('/') || 'None',
 			cover:
 				this._currentSong?.cover ||
 				'https://cdn.discordapp.com/attachments/929847977705945610/929848029813848478/unknown.png',
