@@ -37,7 +37,14 @@ pub struct QueryOption {
 pub fn create_request_option(header: HeaderMap, option: &QueryOption, cypto: &str) -> RequestOption {
     RequestOption {
         crypto: option.crypto.clone().or(Some(cypto.to_string())),
-        cookie: option.cookie.clone().and_then(|v| serde_json::from_str(&v).ok()),
+        cookie: option.cookie.clone().and_then(|v| {
+            // 尝试解码 Base64 字符串
+            let decoded = base64::decode(&v).ok()?;
+            // 将解码后的字节转换为字符串
+            let decoded_str = String::from_utf8(decoded).ok()?;
+            // 尝试将字符串解析为 JSON
+            serde_json::from_str(&decoded_str).ok()
+        }),
         ua: option.ua.clone().or(Some("".to_string())),
         ip: None,
         real_ip: option.real_ip.clone().or(None),
@@ -46,7 +53,6 @@ pub fn create_request_option(header: HeaderMap, option: &QueryOption, cypto: &st
         e_r: option.e_r.or(None),
     }
 }
-
 
 #[macro_export]
 macro_rules! define_request_struct {
@@ -95,7 +101,7 @@ pub async fn create_request(uri: &str, mut data: Value, option: RequestOption) -
         headers.insert("X-Forwarded-For", ip.parse().map_err(|e| format!("Invalid IP: {}", e))?);
     }
 
-    let cookie: Value = option.cookie.unwrap_or_else(|| Value::Object(serde_json::Map::new()));
+    let cookie: Value = option.cookie.clone().unwrap_or_else(|| Value::Object(serde_json::Map::new()));
     headers.insert(COOKIE, get_cookie_string(&uri, &cookie)?.parse().map_err(|e| format!("Invalid Cookie: {}", e))?);
 
     let mut url;

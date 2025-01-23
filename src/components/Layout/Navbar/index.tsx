@@ -1,11 +1,13 @@
 import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { closePip, createPip } from '../../../managers/PIPWindowManager';
+import { UserAccountResult } from '../../../models/user';
 import Login from '../../../pages/modals/Login/Login';
 import Settings from '../../../pages/modals/Settings/Settings';
+import { useAuthStore } from '../../../store/auth';
 import Modal from '../../Common/Modal';
 import Search from './Search';
 import styles from './Navbar.module.scss';
@@ -19,7 +21,6 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 	const [maximized, setMaximized] = useState(false);
 	const [isSettingModalOpen, setSettingModalOpen] = useState(false);
 	const [isLoginModalOpen, setLoginModalOpen] = useState(false);
-
 	const currentSong = usePlayerManager().currentSong;
 
 	const toggleMaximize = async () => {
@@ -60,7 +61,22 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					<Search />
 				</div>
 				<div data-tauri-drag-region className={styles.navbar__right}>
-					<button id="Login" onClick={() => setLoginModalOpen(true)}></button>
+					<button className={styles.navbar__right__login}>
+						{useAuthStore.getState().isLogin ? (
+							<div className={styles.navbar__right__login__info}>
+								<img
+									src={useAuthStore.getState().userData?.profile.avatarUrl}
+									alt="avatar"
+								/>
+								<span>{useAuthStore.getState().userData?.profile.nickname}</span>
+							</div>
+						) : (
+							<span
+								onClick={() => setLoginModalOpen(true)}
+								className="i-solar-user-plus-rounded-linear"
+							/>
+						)}
+					</button>
 					<button id="Setting" onClick={() => setSettingModalOpen(true)}>
 						<span className={`${styles.icon} i-solar-settings-linear`} />
 					</button>

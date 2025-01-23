@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { PlayList, PlayListItem } from '../models/main';
+import { PlayList, PlayListItem } from '../models/song';
 
 /**
  * 播放器store类型

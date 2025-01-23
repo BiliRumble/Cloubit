@@ -1,11 +1,23 @@
+import { useEffect, useState } from 'react';
+import { getUserDailySongs } from '../apis/user';
 import Card from '../components/Common/Card';
+import { DailySongsResult } from '../models/song';
+import { useAuthStore } from '../store/auth';
 import styles from './index.module.scss';
 
 const Home = () => {
-	const data = {
-		userName: 'rumble',
-		id: '123456789',
-	};
+	const isLogin = useAuthStore.getState().isLogin;
+	const userAccount = useAuthStore.getState().userData;
+
+	const [userDailySongs, setUserDailySongs] = useState<DailySongsResult | null>(null);
+
+	useEffect(() => {
+		if (isLogin) {
+			getUserDailySongs().then((res) => {
+				setUserDailySongs(res);
+			});
+		}
+	}, [isLogin]);
 
 	const hour = new Date().getHours();
 	const welcome =
@@ -70,34 +82,39 @@ const Home = () => {
 	return (
 		<div className={styles.recommends}>
 			<h1 className={styles.title}>
-				{welcome}, {data.userName}
+				{welcome + (isLogin ? ', ' + userAccount?.profile.nickname + '!' : '!')}
 			</h1>
-			<div className={styles.permanent}>
-				<div className={styles.permanent__left}>
-					<div className={styles.daily + ' ' + styles.card}>
-						<img src="https://via.placeholder.com/100" alt="每日30封面" />
-						<div className={styles.info}>
-							<h2 className={styles.daily__title}>每日推荐</h2>
-							<p>根据你的口味生成 · 每天6:00更新</p>
+			{isLogin && (
+				<div className={styles.permanent}>
+					<div className={styles.permanent__left}>
+						<div className={styles.daily + ' ' + styles.card}>
+							<img
+								src={userDailySongs?.data.dailySongs[0].al.picUrl}
+								alt="每日30封面"
+							/>
+							<div className={styles.info}>
+								<h2 className={styles.daily__title}>每日推荐</h2>
+								<p>根据你的口味生成 · 每天6:00更新</p>
+							</div>
+						</div>
+						<div className={styles.favorites + ' ' + styles.card}>
+							<div className={styles.info}>
+								<h2 className={styles.favorites__title}>Favorites</h2>
+								<p>Recommend for you</p>
+							</div>
 						</div>
 					</div>
-					<div className={styles.favorites + ' ' + styles.card}>
-						<div className={styles.info}>
-							<h2 className={styles.favorites__title}>Favorites</h2>
-							<p>Recommend for you</p>
+					<div className={styles.permanent__right}>
+						<div className={styles.fm + ' ' + styles.card}>
+							<img src="https://via.placeholder.com/100" alt="私人FM封面" />
+							<div className={styles.info}>
+								<h2 className={styles.fm__title}>FM</h2>
+								<p>Your private FM</p>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div className={styles.permanent__right}>
-					<div className={styles.fm + ' ' + styles.card}>
-						<img src="https://via.placeholder.com/100" alt="私人FM封面" />
-						<div className={styles.info}>
-							<h2 className={styles.fm__title}>FM</h2>
-							<p>Your private FM</p>
-						</div>
-					</div>
-				</div>
-			</div>
+			)}
 			<h2 className={styles.title}>歌单</h2>
 			<div className={styles.playlist}>
 				{playlist.map((list) => {

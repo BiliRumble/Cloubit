@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { UserAccountResult } from '../models/user';
 
 /**
  * 系统设置store类型
@@ -7,10 +8,10 @@ import { persist } from 'zustand/middleware';
 export interface authStoreType {
 	isLogin: boolean;
 	setIsLogin: (isLogin: boolean) => void;
-	cookie: string;
-	setCookie: (cookie: string) => void;
-	userData: any;
-	setUserData: (userData: any) => void;
+	cookie: { [key: string]: string } | null;
+	setCookie: (cookie: { [key: string]: string } | null) => void;
+	userData: UserAccountResult | null;
+	setUserData: (userData: UserAccountResult | null) => void;
 }
 
 export const useAuthStore = create(
@@ -18,13 +19,13 @@ export const useAuthStore = create(
 		(set) => ({
 			isLogin: false,
 			setIsLogin: (isLogin) => set({ isLogin }),
-			cookie: '',
+			cookie: null,
 			setCookie: (cookie) => set({ cookie }),
-			userData: {},
+			userData: null,
 			setUserData: (userData) => set({ userData }),
 		}),
 		{
-			name: 'settings-storage',
+			name: 'auth-storage',
 		}
 	)
 );

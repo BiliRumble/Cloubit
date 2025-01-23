@@ -7,12 +7,17 @@ import Sidebar from './components/Layout/Sidebar';
 import { useTheme } from './hooks/useTheme';
 import { registerShortcuts, unregisterAllShortcuts } from './managers/ShortcutManager';
 import { useSettingStore } from './store/setting';
+import { init } from './utils/init';
 import Router from './routers';
 import styles from './styles/layout.module.scss';
 
 const App = () => {
 	const isWindowPath = location.pathname.startsWith('/windows/');
 	useTheme();
+
+	useEffect(() => {
+		init();
+	}, []);
 
 	useEffect(() => {
 		unregisterAllShortcuts();

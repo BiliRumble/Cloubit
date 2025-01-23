@@ -167,7 +167,7 @@ async fn main() -> io::Result<()> {
             // 添加缓存中间件
             .app_data(web::Data::new(app_state.clone()))
             // 添加日志中间件，默认会记录请求和响应
-            .wrap(Logger::default())
+            .wrap(Logger::new("%a %t \"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %{Cookie}i"))
 			// 配置CORS中间件
 			.wrap(Cors::default().allow_any_origin().allow_any_method().allow_any_header().supports_credentials())
             // 配置路由

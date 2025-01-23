@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { checkQR, createQR, getLoginStatus } from '../../../apis/login';
-//import { useAuthStore } from '../../../store/auth';
-import { getCookie, setCookies } from '../../../utils/cookie';
+import { getUserAccount } from '../../../apis/user';
+import { useAuthStore } from '../../../store/auth';
+import { setCookies } from '../../../utils/cookie';
 import styles from './Login.module.scss';
 
 interface QrInfo {
@@ -15,7 +16,15 @@ const Login = () => {
 	const [qrStatus, setQrStatus] = useState(0);
 	const [qrInfo, setQrInfo] = useState<QrInfo | null>(null);
 
-	//const authStore = useAuthStore();
+	// 解析cookie字符串的函数
+	const parseCookies = (cookieString: string): { [key: string]: string } => {
+		const cookies: { [key: string]: string } = {};
+		cookieString.split(';').forEach((cookie) => {
+			const [key, value] = cookie.split('=').map((x) => x.trim());
+			cookies[key] = value;
+		});
+		return cookies;
+	};
 
 	useEffect(() => {
 		createQR().then((res) => {
@@ -24,7 +33,7 @@ const Login = () => {
 		// 轮询 - 4s
 		const timer = setInterval(() => {
 			// 添加标记
-			checkQR().then((res) => {
+			checkQR().then(async (res) => {
 				switch (res?.data.code) {
 					case 800:
 						// 更新qr
@@ -44,8 +53,18 @@ const Login = () => {
 						setQrStatus(2);
 						clearInterval(timer);
 						if (res.data.cookie && res.data.cookie.includes('MUSIC_U')) {
+							const parsedCookie = parseCookies(res.data.cookie);
+							useAuthStore.setState({
+								isLogin: true,
+								cookie: parsedCookie,
+							});
 							setCookies(res.data.cookie);
-							console.log(getCookie('MUSIC_U'));
+
+							if (useAuthStore.getState().isLogin) {
+								await getUserAccount().then((res) => {
+									useAuthStore.setState({ userData: res });
+								});
+							}
 						} else {
 							console.error('登录失败，未获取到cookie');
 						}

@@ -61,7 +61,7 @@
 			padding: 0;
 			cursor: pointer;
 			color: var(--third-text-color);
-			transition: all 0.1s ease-in-out;
+			transition: color 0.1s ease-in-out;
 
 			span {
 				font-size: 1.3rem;
@@ -78,6 +78,25 @@
 
 			&:focus {
 				outline: none;
+			}
+		}
+
+		&__login__info {
+			display: flex !important;
+			align-items: center !important;
+			justify-content: center !important;
+			flex-direction: row !important;
+			flex-wrap: nowrap !important;
+			margin-right: 0.5rem !important;
+
+			img {
+				width: 2rem;
+				height: 2rem;
+				border-radius: 50%;
+				margin-right: 0.4rem;
+			}
+			span {
+				font-size: 1.2rem !important;
 			}
 		}
 	}

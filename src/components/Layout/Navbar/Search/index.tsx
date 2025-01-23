@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDefaultKey, getHotSearch, getSuggestSearch } from '../../../../apis/search';
-import { DefaultSearchResult, HotSearchResult, SuggestSearchResult } from '../../../../models/main';
+import {
+	DefaultSearchResult,
+	HotSearchResult,
+	SuggestSearchResult,
+} from '../../../../models/search';
 import { useSettingStore } from '../../../../store/setting';
 import Chip from '../../../Common/Chip';
 import styles from './Search.module.scss';
