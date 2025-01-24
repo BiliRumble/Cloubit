@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '../../store/auth';
+import { useSettingStore } from '../../store/setting';
 
 // 创建新的axios实例
 const service = axios.create({
@@ -8,7 +9,6 @@ const service = axios.create({
 	withCredentials: true,
 });
 
-// 添加real_ip param
 service.interceptors.request.use((config) => {
 	const isLogin = useAuthStore.getState().isLogin;
 	const authCookieRaw = isLogin
@@ -17,7 +17,7 @@ service.interceptors.request.use((config) => {
 	const cookie = isLogin ? btoa(JSON.stringify({ MUSIC_U: authCookieRaw })) : null;
 	config.params = {
 		...config.params,
-		real_ip: '116.25.146.177',
+		real_ip: useSettingStore.getState().realIP,
 		cookie,
 	};
 	return config;

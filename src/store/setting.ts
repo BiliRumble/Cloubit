@@ -14,6 +14,10 @@ export interface settingsStoreType {
 	searchHistoryRecord: boolean;
 	setSearchHistoryRecord: (value: boolean) => void;
 
+	// 数据请求相关
+	realIP: string;
+	setRealIP: (value: string) => void;
+
 	// 播放器相关
 	autoPlay: boolean;
 	setAutoPlay: (value: boolean) => void;
@@ -54,6 +58,8 @@ export const useSettingStore = create(
 			setSearchAutoComplete: (value) => set(() => ({ searchAutoComplete: value })),
 			searchHistoryRecord: true,
 			setSearchHistoryRecord: (value) => set(() => ({ searchHistoryRecord: value })),
+			realIP: '116.25.146.177',
+			setRealIP: (value) => set(() => ({ realIP: value })),
 			autoPlay: false,
 			setAutoPlay: (value) => set(() => ({ autoPlay: value })),
 			savePlaySeek: true,

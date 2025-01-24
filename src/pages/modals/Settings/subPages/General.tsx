@@ -1,6 +1,6 @@
 import { useTheme } from '../../../../hooks/useTheme';
 import { useSettingStore } from '../../../../store/setting';
-import Control, { Button, Checkbox, Select } from './components/Controls';
+import Control, { Button, Checkbox, Input, Select } from './components/Controls';
 
 const GeneralSettings: React.FC = () => {
 	const [themeOption, setThemeOption] = useSettingStore((state) => [state.theme, state.setTheme]);
@@ -101,6 +101,14 @@ const GeneralSettings: React.FC = () => {
 					onChange={() =>
 						settingStore.setSearchHistoryRecord(!settingStore.searchHistoryRecord)
 					}
+				/>
+			</Control>
+			<h2>网络</h2>
+			<Control label="IP">
+				<Input
+					value={settingStore.realIP}
+					title="设置请求的IP地址"
+					onChange={(v) => settingStore.setRealIP(v)}
 				/>
 			</Control>
 			<h2>杂项</h2>

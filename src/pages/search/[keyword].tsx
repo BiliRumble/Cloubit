@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getSearchResult } from '../../apis/search';
 import notFoundImg from '../../assets/nodata.png';
+import Card from '../../components/Common/Card';
 import { usePlayerManager } from '../../context/PlayerContext';
 import { Artist, SearchResult, searchType } from '../../models/search';
 import styles from './Search.module.scss';
@@ -98,11 +99,33 @@ const search = () => {
 					</div>
 				);
 			case 'playlist':
-				return searchResult.playlists?.map((playlist) => (
-					<div key={playlist.id}>{playlist.name}</div>
-				));
+				return (
+					<div className={styles.search__result__playlist}>
+						{searchResult.playlists?.map((playlist) => (
+							<Card
+								key={playlist.id}
+								cover={playlist.coverImgUrl}
+								text={playlist.name}
+								className={styles.search__result__playlist__card}
+								onClick={() => navigate(`/playlist/${playlist.id}`)}
+							/>
+						))}
+					</div>
+				);
 			case 'album':
-				return searchResult.albums?.map((album) => <div key={album.id}>{album.name}</div>);
+				return (
+					<div className={styles.search__result__album}>
+						{searchResult.albums?.map((album) => (
+							<Card
+								key={album.id}
+								cover={album.picUrl}
+								text={album.name}
+								className={styles.search__result__album__card}
+								onClick={() => navigate(`/album/${album.id}`)}
+							/>
+						))}
+					</div>
+				);
 			case 'artist':
 				return searchResult.artists?.map((artist) => (
 					<div key={artist.id}>{artist.name}</div>

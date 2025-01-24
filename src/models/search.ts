@@ -34,6 +34,7 @@ export interface Album {
 	mark: number;
 	name: string;
 	picId: number;
+	picUrl: string;
 	publishTime: number;
 	size: number;
 	status: number;
