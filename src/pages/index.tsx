@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getUserDailySongs } from '../apis/user';
 import Card from '../components/Common/Card';
 import { DailySongsResult } from '../models/song';
@@ -8,6 +9,7 @@ import styles from './index.module.scss';
 const Home = () => {
 	const isLogin = useAuthStore.getState().isLogin;
 	const userAccount = useAuthStore.getState().userData;
+	const navigate = useNavigate();
 
 	const [userDailySongs, setUserDailySongs] = useState<DailySongsResult | null>(null);
 
@@ -87,10 +89,11 @@ const Home = () => {
 			{isLogin && (
 				<div className={styles.permanent}>
 					<div className={styles.permanent__left}>
-						<div className={styles.daily + ' ' + styles.card}>
+						<div className={styles.permanent__left__daily + ' ' + styles.card}>
 							<img
 								src={userDailySongs?.data.dailySongs[0].al.picUrl}
 								alt="每日30封面"
+								onClick={() => navigate('/playlist/daily')}
 							/>
 							<div className={styles.info}>
 								<h2 className={styles.daily__title}>每日推荐</h2>

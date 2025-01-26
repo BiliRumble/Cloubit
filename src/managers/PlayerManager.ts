@@ -89,6 +89,12 @@ export default class PlayerManager {
 					console.error('🎵 Error playing audio:', error);
 					alert('歌曲无法播放');
 				},
+				xhr: {
+					withCredentials: true,
+					headers: {
+						referer: 'https://music.163.com/',
+					},
+				},
 			});
 
 			if (init) this._player.seek(usePlayerStore.getState().seek);

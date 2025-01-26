@@ -5,7 +5,7 @@ export default defineConfig({
 		presetIcons({
 			extraProperties: {
 				display: 'inline-block',
-				verticalAlign: 'middle',
+				'vertical-align': 'middle',
 				fill: 'currentColor',
 			},
 		}),
