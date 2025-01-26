@@ -1,6 +1,11 @@
+import Control, {
+	Button,
+	Checkbox,
+	Input,
+	Select,
+} from '../../../../components/Common/Controls/Controls';
 import { useTheme } from '../../../../hooks/useTheme';
 import { useSettingStore } from '../../../../store/setting';
-import Control, { Button, Checkbox, Input, Select } from './components/Controls';
 
 const GeneralSettings: React.FC = () => {
 	const [themeOption, setThemeOption] = useSettingStore((state) => [state.theme, state.setTheme]);

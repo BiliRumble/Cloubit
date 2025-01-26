@@ -83,7 +83,9 @@ const search = () => {
 									</div>
 								</div>
 								<div className={styles.search__result__song__item__album}>
-									<h3>{song.al.name}</h3>
+									<h3 onClick={() => navigate(`/album/${song.al.id}`)}>
+										{song.al.name}
+									</h3>
 								</div>
 								<div className={styles.search__result__song__item__operation}>
 									<span className={`i-solar-heart-angle-line-duotone`} />

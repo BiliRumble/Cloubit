@@ -193,7 +193,8 @@
 			}
 		}
 
-		&__playlist, &__album {
+		&__playlist,
+		&__album {
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
@@ -216,8 +217,8 @@
 				}
 
 				// 添加行间距
-				&:nth-child(n+6) {
-					margin-top: .4rem;
+				&:nth-child(n + 6) {
+					margin-top: 0.4rem;
 				}
 			}
 

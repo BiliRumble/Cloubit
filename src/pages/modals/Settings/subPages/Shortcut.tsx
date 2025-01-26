@@ -1,8 +1,8 @@
 import { event } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
+import Control, { Checkbox, KeyBinder } from '../../../../components/Common/Controls/Controls';
 import { registerShortcuts, unregisterShortcuts } from '../../../../managers/ShortcutManager';
 import { useSettingStore } from '../../../../store/setting';
-import Control, { Checkbox, KeyBinder } from './components/Controls';
 
 const Shortcut: React.FC = () => {
 	const settings = useSettingStore.getState();

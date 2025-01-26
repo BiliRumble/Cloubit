@@ -1,4 +1,4 @@
-import Control from './components/Controls';
+import Control from '../../../../components/Common/Controls/Controls';
 
 const About: React.FC = () => {
 	return (

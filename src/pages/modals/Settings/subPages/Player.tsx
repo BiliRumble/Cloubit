@@ -1,5 +1,5 @@
+import Control, { Checkbox, Input, Select } from '../../../../components/Common/Controls/Controls';
 import { useSettingStore } from '../../../../store/setting';
-import Control, { Checkbox, Input, Select } from './components/Controls';
 
 const PlayerSettings: React.FC = () => {
 	const settingStore = useSettingStore();
