@@ -37,13 +37,13 @@
 				height: 100%;
 				padding: 0.6rem;
 				background: var(--third-background-color);
-				border-radius: var(--border-radius);
+				border-radius: 8px;
 
 				img {
 					width: 100px;
 					height: 100px;
 					object-fit: cover;
-					border-radius: var(--border-radius);
+					border-radius: 8px;
 					margin-right: 0.8rem;
 				}
 
@@ -75,6 +75,50 @@
 
 				&:not(:last-child) {
 					margin-bottom: 1rem;
+				}
+			}
+
+			&__daily {
+				&__cover {
+					width: 100px;
+					height: 100px;
+					background: var(--third-background-color);
+					margin-right: 0.8rem;
+					position: relative;
+					cursor: pointer;
+
+					&:hover > .mask {
+						opacity: 1;
+						z-index: 1;
+					}
+
+					img {
+						object-fit: cover;
+						background: transparent;
+					}
+
+					.mask {
+						width: 100%;
+						height: 100%;
+						background: rgba($color: #000000, $alpha: 0.5);
+						backdrop-filter: blur(10px);
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						justify-content: center;
+						position: absolute;
+						top: 0;
+						left: 0;
+						opacity: 0;
+						z-index: -1;
+						border-radius: 8px;
+						transition: opacity 0.3s ease-in-out, z-index 0.3s ease-out;
+
+						i {
+							font-size: 2rem;
+							color: #fff;
+						}
+					}
 				}
 			}
 		}

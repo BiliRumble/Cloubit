@@ -90,11 +90,16 @@ const Home = () => {
 				<div className={styles.permanent}>
 					<div className={styles.permanent__left}>
 						<div className={styles.permanent__left__daily + ' ' + styles.card}>
-							<img
-								src={userDailySongs?.data.dailySongs[0].al.picUrl}
-								alt="每日30封面"
-								onClick={() => navigate('/playlist/daily')}
-							/>
+							<div className={styles.permanent__left__daily__cover}>
+								<img
+									src={userDailySongs?.data.dailySongs[0].al.picUrl}
+									alt="每日30封面"
+									onClick={() => navigate('/playlist/daily')}
+								/>
+								<div className={styles.mask}>
+									<i className="i-solar-play-linear" />
+								</div>
+							</div>
 							<div className={styles.info}>
 								<h2 className={styles.daily__title}>每日推荐</h2>
 								<p>根据你的口味生成 · 每天6:00更新</p>
@@ -127,7 +132,7 @@ const Home = () => {
 							className={styles.card}
 							text={list.title}
 							cover={list.cover}
-							url={list.url}
+							onClick={() => navigate('/playlist/' + list.url)}
 						/>
 					);
 				})}
