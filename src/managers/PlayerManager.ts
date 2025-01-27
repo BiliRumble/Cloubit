@@ -293,13 +293,12 @@ export default class PlayerManager {
 	public currentLyric(type: 'raw' | 'translate' = 'raw') {
 		if (!this._lyric) return '';
 		let lyricLines;
-		if (type === 'raw') {
-			lyricLines = this._lyric.lrc.lyric.split('\n');
-		} else if (type === 'translate') {
+		if (type === 'translate' && this._lyric.tlyric?.lyric !== '') {
 			if (!this._lyric.tlyric) return '';
 			lyricLines = this._lyric.tlyric.lyric.split('\n');
 		} else {
-			return '';
+			if (!this._lyric.lrc) return '';
+			lyricLines = this._lyric.lrc.lyric.split('\n');
 		}
 
 		const seekTime = this._player?.seek() || 0;

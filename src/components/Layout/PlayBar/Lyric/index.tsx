@@ -17,7 +17,7 @@ function parseLyric(
 	translated?: LyricContent
 ): { index: number; text: string; translatedText?: string }[] {
 	let data;
-	if (!translated || useSettingStore.getState().lyricsType === 'raw')
+	if (!translated || translated.lyric == '' || useSettingStore.getState().lyricsType === 'raw')
 		data = lyric.lyric
 			.split('\n')
 			.map((item) => {
@@ -222,7 +222,8 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 								}}
 								ref={nextIsCurrent ? lyricRef : null}
 							>
-								{lyricType === 'raw' && item.text != '' ? (
+								{(lyricType === 'raw' && item.text != '') ||
+								usePlayer.lyric.tlyric?.lyric == '' ? (
 									<>
 										<h1>{item.text}</h1>
 										<h2>{item.translatedText}</h2>
