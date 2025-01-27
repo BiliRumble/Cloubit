@@ -23,10 +23,10 @@ define_request_struct!(LikeList, {
 impl LikeList {
     async fn requests(req: HttpRequest, query: Query<LikeList>) -> Result<Response, Value> {
         let data = json!({
-        "uid": query.uid, 
+        "uid": query.uid,
     });
         create_request(
-            "/api/song/likelist/get",
+            "/api/song/like/get",
             data,
             create_request_option(extract_headers!(req), &query.common, "weapi"),
         ).await
@@ -36,7 +36,7 @@ cache_handler!(likelist, LikeList);
 
 
 // // 喜欢的歌曲(无序)
-// 
+//
 // const createOption = require('../util/option.js')
 // module.exports = (query, request) => {
 //   const data = {

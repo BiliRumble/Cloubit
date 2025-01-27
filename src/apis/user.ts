@@ -1,3 +1,4 @@
+import idMeta from '../assets/data/idMeta.json';
 import { DailySongsResult, recommendPlaylist } from '../models/song';
 import { UserAccountResult, UserDetailResult } from '../models/user';
 import { useAuthStore } from '../store/auth';
@@ -114,12 +115,48 @@ export async function getUserPlaylist(
 	return null;
 }
 
+export async function getRadarPlaylist() {
+	const allRadar = idMeta.radarPlaylist.map(async (playlist) => {
+		return (
+			await get('/playlist/detail', {
+				id: playlist.id,
+			})
+		).data as any;
+	});
+	const result = await Promise.allSettled(allRadar);
+	return result.map((res: any) => res?.value.playlist);
+}
+
+export async function getLikeList(
+	id: number = useAuthStore.getState().userData?.account.id as number
+) {
+	const lastLikeList = useUserStore.getState().userLikeData;
+	if (lastLikeList.timestamp + 5 * 1000 > Date.now()) {
+		console.debug('🌐 Get User Daily Resource From Cache: ', lastLikeList);
+		return lastLikeList?.likelist;
+	}
+	console.debug(lastLikeList);
+	const response = (
+		await get('likelist', {
+			timestamp: Date.now(),
+			uid: id,
+		})
+	).data as any;
+	if (response.code === 200) {
+		useUserStore.getState().setUserLikeData({ timestamp: Date.now(), likelist: response.ids });
+		return response;
+	}
+	console.error('🌐 Get User Like List Failed!');
+	return null;
+}
+
 export async function scrobble(id: number, sourceId: number, time: number): Promise<boolean> {
 	const response = (
 		await get('scrobble', {
 			id,
 			sourceid: sourceId,
 			time,
+			timestamp: Date.now(),
 		})
 	).data as any;
 	if (response.code === 200) {

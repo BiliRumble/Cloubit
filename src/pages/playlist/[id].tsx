@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getPlayListDetail } from '../../apis/song';
+import { getPlayListDetail } from '../../apis/playlist';
 import Chip from '../../components/Common/Chip';
 import { usePlayerManager } from '../../context/PlayerContext';
 import { Artist } from '../../models/search';

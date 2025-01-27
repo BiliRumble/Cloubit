@@ -52,16 +52,6 @@ export async function getLyric(id: number): Promise<Lyric | null> {
 	return response;
 }
 
-export async function getPlayListDetail(id: number): Promise<any> {
-	const response = (await get('playlist/detail', { id: id })).data as any;
-	if (response.code === 200) {
-		console.debug('🌐 Get PlayList Detail Success: ', response);
-		return response;
-	}
-	console.error('🌐 Cannot Get PlayList Detail!');
-	return null;
-}
-
 export async function getAlbumDetail(id: number): Promise<any> {
 	const response = (await get('album', { id: id })).data as any;
 	if (response.code === 200) {

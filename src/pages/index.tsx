@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserDailyPlaylist, getUserDailySongs } from '../apis/user';
+import { getRadarPlaylist, getUserDailyPlaylist, getUserDailySongs } from '../apis/user';
 import Card from '../components/Common/Card';
 import { DailySongsResult, recommendPlaylist } from '../models/song';
 import { useAuthStore } from '../store/auth';
@@ -12,6 +12,7 @@ const Home = () => {
 	const navigate = useNavigate();
 
 	const [playlist, setPlaylist] = useState<recommendPlaylist | null>(null);
+	const [radarPlaylist, setRadarPlaylist] = useState<any>(null);
 	const [userDailySongs, setUserDailySongs] = useState<DailySongsResult | null>(null);
 
 	useEffect(() => {
@@ -21,6 +22,9 @@ const Home = () => {
 			});
 			getUserDailyPlaylist().then((res) => {
 				setPlaylist(res);
+			});
+			getRadarPlaylist().then((res) => {
+				setRadarPlaylist(res);
 			});
 		}
 	}, [isLogin]);
@@ -81,7 +85,7 @@ const Home = () => {
 					</div>
 				</div>
 			)}
-			<h2 className={styles.title}>歌单</h2>
+			<h2 className={styles.title}>专属歌单</h2>
 			<div className={styles.recommends__playlist}>
 				{playlist?.result.map((list: any, index: number) => {
 					return (
@@ -90,6 +94,20 @@ const Home = () => {
 							className={styles.recommends__playlist__card}
 							text={list.name}
 							cover={list.picUrl}
+							onClick={() => navigate('/playlist/' + list.id)}
+						/>
+					);
+				})}
+			</div>
+			<h2 className={styles.title}>雷达歌单</h2>
+			<div className={styles.recommends__playlist}>
+				{radarPlaylist?.map((list: any, index: number) => {
+					return (
+						<Card
+							key={index}
+							className={styles.recommends__playlist__card}
+							text={list.name}
+							cover={list.coverImgUrl}
 							onClick={() => navigate('/playlist/' + list.id)}
 						/>
 					);
