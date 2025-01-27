@@ -33,7 +33,7 @@
 		"copyright": "Copyright © 2025 rumble",
 		"windows": {
 			"nsis": {
-			    "compression": "zlib",
+				"compression": "zlib",
 				"displayLanguageSelector": true,
 				"languages": ["English", "SimpChinese"],
 				"installerIcon": "icons/icon.ico"

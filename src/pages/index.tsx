@@ -83,10 +83,10 @@ const Home = () => {
 			)}
 			<h2 className={styles.title}>歌单</h2>
 			<div className={styles.recommends__playlist}>
-				{playlist?.result.map((list) => {
+				{playlist?.result.map((list: any, index: number) => {
 					return (
 						<Card
-							key={list.id}
+							key={index}
 							className={styles.recommends__playlist__card}
 							text={list.name}
 							cover={list.picUrl}

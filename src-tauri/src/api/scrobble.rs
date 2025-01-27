@@ -36,9 +36,9 @@ impl Scrobble {
                     "time": query.time,
                     "type": "song",
                     "wifi": 0,
-                    "source": "list",
-                    "mainsite": 1,
-                    "content": "",
+					"source": "list",
+					"mainsite": 1,
+					"content": "",
                 },
             }]),
         });
@@ -54,7 +54,7 @@ cache_handler!(scrobble, Scrobble);
 
 
 // // 听歌打卡
-// 
+//
 // const createOption = require('../util/option.js')
 // module.exports = (query, request) => {
 //   const data = {
@@ -76,6 +76,6 @@ cache_handler!(scrobble, Scrobble);
 //       },
 //     ]),
 //   }
-// 
+//
 //   return request(`/api/feedback/weblog`, data, createOption(query, 'weapi'))
 // }
