@@ -1,4 +1,3 @@
-import { RecommendReason } from './song';
 export interface MusicFile {
 	br: number;
 	canExtend: boolean;
@@ -59,6 +58,7 @@ export interface PlayList {
 export interface PlayListItem {
 	index: number;
 	id: number;
+	source: number;
 	name: string;
 	cover?: string;
 	artists?: string[];

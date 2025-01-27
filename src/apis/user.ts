@@ -112,3 +112,19 @@ export async function getUserPlaylist(
 	console.error('🌐 Get User Playlist Failed!');
 	return null;
 }
+
+export async function scrobble(id: number, sourceId: number, time: number): Promise<boolean> {
+	const response = (
+		await get('scrobble', {
+			id,
+			sourceid: sourceId,
+			time,
+		})
+	).data as any;
+	if (response.code === 200) {
+		console.debug('🌐 Scrobble Success: ', response);
+		return true;
+	}
+	console.error('🌐 Scrobble Failed!');
+	return false;
+}

@@ -38,6 +38,7 @@ const search = () => {
 			id,
 			name,
 			cover,
+			source: -2, // -2 表示搜索结果
 			artists: artistNames,
 		});
 		usePlayer.setCurrentSong(id, true);

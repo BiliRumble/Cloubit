@@ -23,6 +23,8 @@ export interface settingsStoreType {
 	setAutoPlay: (value: boolean) => void;
 	savePlaySeek: boolean;
 	setSavePlaySeek: (value: boolean) => void;
+	scrobble: boolean;
+	setScrobble: (value: boolean) => void;
 	showLyrics: boolean;
 	setShowLyrics: (value: boolean) => void;
 	lyricsType: 'raw' | 'translate';
@@ -64,6 +66,8 @@ export const useSettingStore = create(
 			setAutoPlay: (value) => set(() => ({ autoPlay: value })),
 			savePlaySeek: true,
 			setSavePlaySeek: (value) => set(() => ({ savePlaySeek: value })),
+			scrobble: true,
+			setScrobble: (value) => set(() => ({ scrobble: value })),
 			showLyrics: true,
 			setShowLyrics: (value) => set(() => ({ showLyrics: value })),
 			lyricsType: 'raw',

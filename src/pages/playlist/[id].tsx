@@ -33,6 +33,7 @@ const Playlist = () => {
 			name,
 			cover,
 			artists: artistNames,
+			source: playlistTracks.id,
 		});
 		usePlayer.setCurrentSong(id, true);
 	};
@@ -47,6 +48,7 @@ const Playlist = () => {
 				id: track.id,
 				name: track.name,
 				cover: track.al.picUrl,
+				source: playlistTracks.id,
 				artists: track.ar.map((a: any) => a.name),
 			});
 			index++;

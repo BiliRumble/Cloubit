@@ -32,6 +32,7 @@ const Album = () => {
 		usePlayer.addToPlaylist({
 			index: usePlayer.playlist.count,
 			id,
+			source: albumInfo.id,
 			name,
 			cover,
 			artists: artistNames,
@@ -50,6 +51,7 @@ const Album = () => {
 				name: track.name,
 				cover: albumInfo.picUrl,
 				artists: track.ar.map((a: any) => a.name),
+				source: albumInfo.id,
 			});
 			index++;
 			if (!isPlayed)

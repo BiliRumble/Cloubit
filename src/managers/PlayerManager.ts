@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { Howl } from 'howler';
 import { debounce } from 'lodash-es';
 import { getLyric, getSongURL } from '../apis/song';
+import { scrobble } from '../apis/user';
 import { Lyric, LyricContent, PlayList, PlayListItem } from '../models/song';
 import { usePlayerStore } from '../store/player';
 import { useSettingStore } from '../store/setting';
@@ -11,6 +12,7 @@ const DEFAULT_VOLUME = 0.5;
 const PLACEHOLDER_SONG: PlayListItem = {
 	index: -1,
 	id: 0,
+	source: 0,
 	name: '暂无歌曲',
 };
 
@@ -62,6 +64,9 @@ export default class PlayerManager {
 		}
 
 		if (this._player) {
+			const seek = this._player.seek();
+			if (useSettingStore.getState().scrobble)
+				scrobble(this._currentSong.id, this._currentSong.source, seek);
 			this._player.stop();
 			this._player.unload();
 		}
@@ -264,12 +269,7 @@ export default class PlayerManager {
 	}
 	get currentSong(): PlayListItem {
 		if (this._currentSong) return this._currentSong;
-		return {
-			index: -1,
-			id: -1,
-			name: 'QTMusic',
-			cover: 'https://cdn.discordapp.com/attachments/929847977705945610/929848029813848478/unknown.png',
-		};
+		return PLACEHOLDER_SONG;
 	}
 	get mode() {
 		return this._mode;

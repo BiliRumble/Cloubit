@@ -29,6 +29,7 @@ const Playlist = () => {
 			index: usePlayer.playlist.count,
 			id,
 			name,
+			source: -1, // 每日推荐
 			cover,
 			artists: artistNames,
 		});
@@ -45,6 +46,7 @@ const Playlist = () => {
 				id: track.id,
 				name: track.name,
 				cover: track.al.picUrl,
+				source: -1, // 每日推荐
 				artists: track.ar.map((a: any) => a.name),
 			});
 			index++;

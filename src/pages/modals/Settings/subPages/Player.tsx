@@ -21,6 +21,13 @@ const PlayerSettings: React.FC = () => {
 					onChange={() => settingStore.setSavePlaySeek(!settingStore.savePlaySeek)}
 				/>
 			</Control>
+			<Control label="启用听歌打卡">
+				<Checkbox
+					value={settingStore.scrobble}
+					title="向网易云音乐推送听歌打卡信息"
+					onChange={() => settingStore.setScrobble(!settingStore.scrobble)}
+				/>
+			</Control>
 			<Control label="底栏显示歌词">
 				<Checkbox
 					value={settingStore.showLyrics}
