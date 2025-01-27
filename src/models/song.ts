@@ -250,7 +250,11 @@ export interface DailySongsResult {
 interface RecommendItem {
 	alg: string;
 	copywriter: string;
+	canDislike: boolean;
+	highQuality: boolean;
 	createTime: number;
+	playCount: number;
+	trackNumberUpdateTime: number;
 	creator: {
 		avatarImgId: number;
 		avatarImgIdStr: string;
@@ -280,7 +284,7 @@ interface RecommendItem {
 
 export interface recommendPlaylist {
 	code: number;
-	featureFirst: boolean;
-	haveRcmdSongs: boolean;
-	recommend: RecommendItem[];
+	category: number;
+	hasTaste: boolean;
+	result: RecommendItem[];
 }

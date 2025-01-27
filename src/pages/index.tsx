@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserDailyResource, getUserDailySongs } from '../apis/user';
+import { getUserDailyPlaylist, getUserDailySongs } from '../apis/user';
 import Card from '../components/Common/Card';
 import { DailySongsResult, recommendPlaylist } from '../models/song';
 import { useAuthStore } from '../store/auth';
@@ -19,7 +19,7 @@ const Home = () => {
 			getUserDailySongs().then((res) => {
 				setUserDailySongs(res);
 			});
-			getUserDailyResource().then((res) => {
+			getUserDailyPlaylist().then((res) => {
 				setPlaylist(res);
 			});
 		}
@@ -83,7 +83,7 @@ const Home = () => {
 			)}
 			<h2 className={styles.title}>歌单</h2>
 			<div className={styles.recommends__playlist}>
-				{playlist?.recommend.map((list) => {
+				{playlist?.result.map((list) => {
 					return (
 						<Card
 							key={list.id}

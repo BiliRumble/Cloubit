@@ -69,24 +69,25 @@ export async function getUserDailySongs(): Promise<DailySongsResult | null> {
 		return useUserStore.getState().dailySong.tracks;
 	}
 	const response = await getUserDailyRecord('songs');
-	if (response) {
+	if (response?.code === 200) {
 		useUserStore
 			.getState()
 			.setDailySong({ timestamp: Date.now(), tracks: response as DailySongsResult });
+		console.debug('🌐 Get User Daily Songs Success: ', response);
 		return response as DailySongsResult;
 	}
 	return null;
 }
 
 // 推荐歌单的封装
-export async function getUserDailyResource(): Promise<recommendPlaylist | null> {
+export async function getUserDailyPlaylist(limit?: number): Promise<recommendPlaylist | null> {
 	const lastRecommendPlaylist = useUserStore.getState().recommendPlaylist;
 	if (lastRecommendPlaylist.timestamp + 2 * 60 * 60 * 1000 > Date.now()) {
 		console.debug('🌐 Get User Daily Resource From Cache: ', lastRecommendPlaylist);
 		return lastRecommendPlaylist?.playlists;
 	}
-	const response = await getUserDailyRecord('resource');
-	if (response) {
+	const response = (await get('personalized/playlist', { limit })).data as recommendPlaylist;
+	if (response.code == 200) {
 		useUserStore.getState().setRecommendPlaylist({
 			timestamp: Date.now(),
 			playlists: response as recommendPlaylist,

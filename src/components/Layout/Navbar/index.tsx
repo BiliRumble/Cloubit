@@ -1,10 +1,9 @@
 import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { closePip, createPip } from '../../../managers/PIPWindowManager';
-import { UserAccountResult } from '../../../models/user';
 import Login from '../../../pages/modals/Login/Login';
 import Settings from '../../../pages/modals/Settings/Settings';
 import { useAuthStore } from '../../../store/auth';
