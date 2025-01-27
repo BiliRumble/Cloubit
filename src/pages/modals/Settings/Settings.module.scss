@@ -1,5 +1,6 @@
 .settings {
 	display: flex;
+	max-height: 60dvh;
 
 	&__sidebar {
 		margin: -0.5rem -0.8rem;
@@ -63,10 +64,17 @@
 		flex-grow: 1;
 		margin: 0 1rem;
 		padding: 1rem;
+		padding-right: 0;
 		border-radius: var(--border-radius);
 		min-width: 500px;
 		min-height: 300px;
+		max-height: 60dvh;
 		display: flex;
 		flex-direction: column;
+
+		&__item {
+			overflow-y: auto;
+			max-height: 100%;
+		}
 	}
 }

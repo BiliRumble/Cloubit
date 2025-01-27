@@ -50,10 +50,12 @@ const Settings = () => {
 				</div>
 			</div>
 			<div className={styles.settings__content}>
-				{page === 'general' && <GeneralSettings />}
-				{page === 'player' && <PlayerSettings />}
-				{page === 'shortcut' && <Shortcut />}
-				{page === 'about' && <About />}
+				{page === 'general' && (
+					<GeneralSettings className={styles.settings__content__item} />
+				)}
+				{page === 'player' && <PlayerSettings className={styles.settings__content__item} />}
+				{page === 'shortcut' && <Shortcut className={styles.settings__content__item} />}
+				{page === 'about' && <About className={styles.settings__content__item} />}
 			</div>
 		</div>
 	);

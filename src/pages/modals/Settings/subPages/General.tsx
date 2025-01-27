@@ -7,7 +7,7 @@ import Control, {
 import { useTheme } from '../../../../hooks/useTheme';
 import { useSettingStore } from '../../../../store/setting';
 
-const GeneralSettings: React.FC = () => {
+const GeneralSettings: React.FC<{ className: string }> = ({ className }) => {
 	const [themeOption, setThemeOption] = useSettingStore((state) => [state.theme, state.setTheme]);
 	const { switchMode } = useTheme();
 	const settingStore = useSettingStore();
@@ -79,7 +79,7 @@ const GeneralSettings: React.FC = () => {
 	};
 
 	return (
-		<div>
+		<div className={className}>
 			<h2>主题设置</h2>
 			<Control label="主题">
 				<Select

@@ -4,7 +4,7 @@ import Control, { Checkbox, KeyBinder } from '../../../../components/Common/Cont
 import { registerShortcuts, unregisterShortcuts } from '../../../../managers/ShortcutManager';
 import { useSettingStore } from '../../../../store/setting';
 
-const Shortcut: React.FC = () => {
+const Shortcut: React.FC<{ className: string }> = ({ className }) => {
 	const settings = useSettingStore.getState();
 	const [shortcuts, setShortcuts] = useState({
 		enabled: settings.enableGlobalShortcut,
@@ -38,7 +38,7 @@ const Shortcut: React.FC = () => {
 	}, [settings]);
 
 	return (
-		<div>
+		<div className={className}>
 			<h2>设置</h2>
 			<Control label="启用全局快捷键">
 				<Checkbox

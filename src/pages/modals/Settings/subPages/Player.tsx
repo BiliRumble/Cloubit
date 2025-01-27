@@ -1,11 +1,11 @@
 import Control, { Checkbox, Input, Select } from '../../../../components/Common/Controls/Controls';
 import { useSettingStore } from '../../../../store/setting';
 
-const PlayerSettings: React.FC = () => {
+const PlayerSettings: React.FC<{ className: string }> = ({ className }) => {
 	const settingStore = useSettingStore();
 
 	return (
-		<div>
+		<div className={className}>
 			<h2>播放器设置</h2>
 			<Control label="自动播放">
 				<Checkbox
