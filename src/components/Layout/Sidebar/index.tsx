@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getUserPlaylist } from '../../../apis/user';
 import { useAuthStore } from '../../../store/auth';
 import styles from './Sidebar.module.scss';
 
@@ -9,6 +11,25 @@ interface SideBarProps {
 const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 	const url = window.location.pathname;
 	const navigate = useNavigate();
+
+	const [playlist, setPlaylist] = useState<any[]>([]);
+
+	useEffect(() => {
+		const timer = setInterval(
+			() => {
+				getUserPlaylist().then((res) => {
+					setPlaylist(res.playlist);
+				});
+			},
+			1000 * 60 * 5
+		);
+
+		getUserPlaylist().then((res) => {
+			setPlaylist(res.playlist);
+		});
+
+		return () => clearInterval(timer);
+	}, []);
 
 	return (
 		<nav className={`${className || ''} ${styles.sidebar}`.trim()}>
@@ -52,7 +73,17 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 			{useAuthStore.getState().isLogin && (
 				<div className={styles.item}>
 					<h1>歌单</h1>
-					{/* todo... */}
+					{playlist.map((item: any) => {
+						return (
+							<button
+								className={styles.playlist__item}
+								onClick={() => navigate(`/playlist/${item.id}`)}
+							>
+								<img src={item.coverImgUrl} alt="" />
+								{item.name}
+							</button>
+						);
+					})}
 				</div>
 			)}
 		</nav>

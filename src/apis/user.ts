@@ -1,5 +1,6 @@
-import { DailySongsResult } from '../models/song';
+import { DailySongsResult, recommendPlaylist } from '../models/song';
 import { UserAccountResult, UserDetailResult } from '../models/user';
+import { useAuthStore } from '../store/auth';
 import { useUserStore } from '../store/user';
 import request from '../utils/request';
 
@@ -47,12 +48,14 @@ export async function getUserDetail(): Promise<UserDetailResult | null> {
  */
 export async function getUserDailyRecord(
 	type: 'songs' | 'resource'
-): Promise<DailySongsResult | null> {
-	const response = (await get('/recommend/' + type, { timestamp: Date.now() }))
-		.data as DailySongsResult;
+): Promise<DailySongsResult | recommendPlaylist | null> {
+	const response = (await get('/recommend/' + type, { timestamp: Date.now() })).data as
+		| DailySongsResult
+		| recommendPlaylist;
 	if (response.code === 200) {
 		console.debug('🌐 Get User Daily Record Success: ', response);
-		return response;
+		if (type === 'songs') return response as DailySongsResult;
+		return response as recommendPlaylist;
 	}
 	console.error('🌐 Get User Daily Record Failed!');
 	return null;
@@ -67,8 +70,45 @@ export async function getUserDailySongs(): Promise<DailySongsResult | null> {
 	}
 	const response = await getUserDailyRecord('songs');
 	if (response) {
-		useUserStore.getState().setDailySong({ timestamp: Date.now(), tracks: response });
+		useUserStore
+			.getState()
+			.setDailySong({ timestamp: Date.now(), tracks: response as DailySongsResult });
+		return response as DailySongsResult;
+	}
+	return null;
+}
+
+// 推荐歌单的封装
+export async function getUserDailyResource(): Promise<recommendPlaylist | null> {
+	const lastRecommendPlaylist = useUserStore.getState().recommendPlaylist;
+	if (lastRecommendPlaylist.timestamp + 2 * 60 * 60 * 1000 > Date.now()) {
+		console.debug('🌐 Get User Daily Resource From Cache: ', lastRecommendPlaylist);
+		return lastRecommendPlaylist?.playlists;
+	}
+	const response = await getUserDailyRecord('resource');
+	if (response) {
+		useUserStore.getState().setRecommendPlaylist({
+			timestamp: Date.now(),
+			playlists: response as recommendPlaylist,
+		});
+		return response as recommendPlaylist;
+	}
+	return null;
+}
+
+export async function getUserPlaylist(
+	id: number = useAuthStore.getState().userData?.account.id as number
+): Promise<any> {
+	const response = (
+		await get('user/playlist', {
+			timestamp: Date.now(),
+			uid: id,
+		})
+	).data as any;
+	if (response.code === 200) {
+		console.debug('🌐 Get User Playlist Success: ', response);
 		return response;
 	}
+	console.error('🌐 Get User Playlist Failed!');
 	return null;
 }

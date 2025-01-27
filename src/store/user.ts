@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { DailySongsResult } from '../models/song';
+import { DailySongsResult, recommendPlaylist } from '../models/song';
 
 /**
  * 系统设置store类型
@@ -8,6 +8,11 @@ import { DailySongsResult } from '../models/song';
 export interface userStoreType {
 	dailySong: { timestamp: number; tracks: DailySongsResult | null };
 	setDailySong: (dailySong: { timestamp: number; tracks: DailySongsResult }) => void;
+	recommendPlaylist: { timestamp: number; playlists: recommendPlaylist | null };
+	setRecommendPlaylist: (recommendPlaylist: {
+		timestamp: number;
+		playlists: recommendPlaylist;
+	}) => void;
 }
 
 export const useUserStore = create(
@@ -15,6 +20,8 @@ export const useUserStore = create(
 		(set) => ({
 			dailySong: { timestamp: 0, tracks: null },
 			setDailySong: (dailySong) => set(() => ({ dailySong })),
+			recommendPlaylist: { timestamp: 0, playlists: null },
+			setRecommendPlaylist: (recommendPlaylist) => set(() => ({ recommendPlaylist })),
 		}),
 		{
 			name: 'user-storage',

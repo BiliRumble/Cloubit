@@ -99,7 +99,7 @@ const Playlist = () => {
 										<img src={track.al.picUrl} alt={track.name} />
 										<div
 											className={
-												styles.playlist__content__tracks__track__info
+												styles.playlist__content__tracks__track__title__info
 											}
 										>
 											<h3>{track.name}</h3>

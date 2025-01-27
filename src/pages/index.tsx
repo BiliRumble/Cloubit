@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserDailySongs } from '../apis/user';
+import { getUserDailyResource, getUserDailySongs } from '../apis/user';
 import Card from '../components/Common/Card';
-import { DailySongsResult } from '../models/song';
+import { DailySongsResult, recommendPlaylist } from '../models/song';
 import { useAuthStore } from '../store/auth';
 import styles from './index.module.scss';
 
@@ -11,12 +11,16 @@ const Home = () => {
 	const userAccount = useAuthStore.getState().userData;
 	const navigate = useNavigate();
 
+	const [playlist, setPlaylist] = useState<recommendPlaylist | null>(null);
 	const [userDailySongs, setUserDailySongs] = useState<DailySongsResult | null>(null);
 
 	useEffect(() => {
 		if (isLogin) {
 			getUserDailySongs().then((res) => {
 				setUserDailySongs(res);
+			});
+			getUserDailyResource().then((res) => {
+				setPlaylist(res);
 			});
 		}
 	}, [isLogin]);
@@ -33,54 +37,6 @@ const Home = () => {
 						? '下午好'
 						: '晚上好';
 
-	const playlist = [
-		{
-			title: 'Card 1',
-			cover: 'https://via.placeholder.com/100',
-			url: '#',
-		},
-		{
-			title: 'Card 2',
-			cover: 'https://via.placeholder.com/100',
-			url: '#',
-		},
-		{
-			title: 'Card 3bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-			cover: 'https://via.placeholder.com/100',
-			url: '#',
-		},
-		{
-			title: 'Card 4',
-			cover: 'https://via.placeholder.com/100',
-			url: '#',
-		},
-		{
-			title: 'Card 5',
-			cover: 'https://via.placeholder.com/100',
-			url: '#',
-		},
-		{
-			title: 'Card 6',
-			cover: 'https://via.placeholder.com/100',
-			url: '#',
-		},
-		{
-			title: 'Card 7',
-			cover: 'https://via.placeholder.com/100',
-			url: '#',
-		},
-		{
-			title: 'Card 8',
-			cover: 'https://via.placeholder.com/100',
-			url: '#',
-		},
-		{
-			title: 'Card 9aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-			cover: 'https://via.placeholder.com/100',
-			url: '#',
-		},
-	];
-
 	return (
 		<div className={styles.recommends}>
 			<h1 className={styles.title}>
@@ -94,9 +50,11 @@ const Home = () => {
 								<img
 									src={userDailySongs?.data.dailySongs[0].al.picUrl}
 									alt="每日30封面"
-									onClick={() => navigate('/playlist/daily')}
 								/>
-								<div className={styles.mask}>
+								<div
+									className={styles.mask}
+									onClick={() => navigate('/playlist/daily')}
+								>
 									<i className="i-solar-play-linear" />
 								</div>
 							</div>
@@ -124,15 +82,15 @@ const Home = () => {
 				</div>
 			)}
 			<h2 className={styles.title}>歌单</h2>
-			<div className={styles.playlist}>
-				{playlist.map((list) => {
+			<div className={styles.recommends__playlist}>
+				{playlist?.recommend.map((list) => {
 					return (
 						<Card
-							key={list.title}
-							className={styles.card}
-							text={list.title}
-							cover={list.cover}
-							onClick={() => navigate('/playlist/' + list.url)}
+							key={list.id}
+							className={styles.recommends__playlist__card}
+							text={list.name}
+							cover={list.picUrl}
+							onClick={() => navigate('/playlist/' + list.id)}
 						/>
 					);
 				})}

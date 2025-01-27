@@ -1,3 +1,4 @@
+import { RecommendReason } from './song';
 export interface MusicFile {
 	br: number;
 	canExtend: boolean;
@@ -244,4 +245,42 @@ export interface DailySongsResult {
 		orderSongs: any[];
 		recommendReasons: RecommendReason[];
 	};
+}
+
+interface RecommendItem {
+	alg: string;
+	copywriter: string;
+	createTime: number;
+	creator: {
+		avatarImgId: number;
+		avatarImgIdStr: string;
+		avatarUrl: string;
+		backgroundImgId: number;
+		backgroundImgIdStr: string;
+		backgroundUrl: string;
+		birthday: number;
+		city: number;
+		defaultAvatar: boolean;
+		description: string;
+		followed: boolean;
+		gender: number;
+		mutual: boolean;
+		nickname: string;
+		signature: string;
+		userId: number;
+	};
+	id: number;
+	name: string;
+	picUrl: string;
+	playcount: number;
+	trackCount: number;
+	type: number;
+	userId: number;
+}
+
+export interface recommendPlaylist {
+	code: number;
+	featureFirst: boolean;
+	haveRcmdSongs: boolean;
+	recommend: RecommendItem[];
 }

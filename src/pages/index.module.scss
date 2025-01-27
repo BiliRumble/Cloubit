@@ -112,7 +112,9 @@
 						opacity: 0;
 						z-index: -1;
 						border-radius: 8px;
-						transition: opacity 0.3s ease-in-out, z-index 0.3s ease-out;
+						transition:
+							opacity 0.3s ease-in-out,
+							z-index 0.3s ease-out;
 
 						i {
 							font-size: 2rem;
@@ -170,7 +172,7 @@
 		}
 	}
 
-	.playlist {
+	&__playlist {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
@@ -179,17 +181,23 @@
 		height: auto;
 		width: 100%;
 
-		.card {
+		&__card {
 			flex: 1;
 			min-width: calc(20% - 1rem);
 			height: 100%;
+
 			&:not(:last-child) {
 				margin-right: 1rem;
 			}
-		}
 
-		.card:nth-child(5n) {
-			margin-right: 0;
+			&:nth-child(5n) {
+				margin-right: 0;
+			}
+
+			// 添加行间距
+			&:nth-child(n + 6) {
+				margin-top: 0.4rem;
+			}
 		}
 
 		&::after {

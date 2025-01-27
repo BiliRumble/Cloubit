@@ -7,6 +7,7 @@
 
 	&__header {
 		display: flex;
+		width: 100%;
 
 		img {
 			width: 20%;
@@ -167,7 +168,7 @@
 				outline: none;
 				color: var(--text-color);
 				border: none;
-				padding: 0.25rem .5rem;
+				padding: 0.25rem 0.5rem;
 				border-radius: 2rem;
 				transition: color 0.15s ease-in-out;
 
@@ -264,6 +265,7 @@
 
 						h3,
 						p {
+							max-width: 100%;
 							display: -webkit-inline-box;
 							-webkit-box-orient: vertical;
 							-webkit-line-clamp: 1;
