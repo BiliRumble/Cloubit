@@ -13,6 +13,8 @@ export interface userStoreType {
 		timestamp: number;
 		playlists: recommendPlaylist;
 	}) => void;
+	likePlaylist: number;
+	setLikePlaylist: (likePlaylist: number) => void;
 }
 
 export const useUserStore = create(
@@ -22,6 +24,8 @@ export const useUserStore = create(
 			setDailySong: (dailySong) => set(() => ({ dailySong })),
 			recommendPlaylist: { timestamp: 0, playlists: null },
 			setRecommendPlaylist: (recommendPlaylist) => set(() => ({ recommendPlaylist })),
+			likePlaylist: 0,
+			setLikePlaylist: (likePlaylist) => set(() => ({ likePlaylist })),
 		}),
 		{
 			name: 'user-storage',

@@ -29,6 +29,23 @@
 			margin: 0 8px;
 			font-size: 0.8rem;
 			color: var(--second-text-color);
+
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+
+			span {
+				display: flex;
+				font-size: 1.2rem;
+				position: relative;
+				top: 1px;
+				margin-left: auto;
+				transition: color 0.1s ease-in-out;
+
+				&:hover {
+					color: var(--primary-color);
+				}
+			}
 		}
 
 		button {

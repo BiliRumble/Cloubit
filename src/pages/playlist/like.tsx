@@ -4,10 +4,11 @@ import { getPlayListDetail } from '../../apis/playlist';
 import Chip from '../../components/Common/Chip';
 import { usePlayerManager } from '../../context/PlayerContext';
 import { Artist } from '../../models/search';
+import { useUserStore } from '../../store/user';
 import styles from './Playlist.module.scss';
 
 const Playlist = () => {
-	const { id } = useParams<{ id: string }>();
+	const id = useUserStore.getState().likePlaylist;
 	const navigate = useNavigate();
 	const usePlayer = usePlayerManager();
 
@@ -17,7 +18,6 @@ const Playlist = () => {
 	const [searchKeyword, setSearchKeyword] = useState<string>('');
 
 	useEffect(() => {
-		if (!id) navigate('/');
 		getPlayListDetail(id as unknown as number).then((res) => {
 			setPlaylistTracks(res.playlist);
 			setFilteredTracks(res.playlist.tracks); // 初始时显示所有歌曲
@@ -137,12 +137,6 @@ const Playlist = () => {
 										' i-solar-play-line-duotone'
 									}
 									onClick={() => setPlaylist(playlistTracks?.tracks)}
-								/>
-								<button
-									className={
-										styles.playlist__header__info__operator__collect +
-										' i-solar-heart-angle-line-duotone'
-									}
 								/>
 								<div className={styles.playlist__header__info__operator__search}>
 									<input

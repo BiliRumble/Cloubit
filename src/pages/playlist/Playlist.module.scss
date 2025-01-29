@@ -35,6 +35,12 @@
 
 				&__title {
 					font-size: 1.5rem;
+					max-width: 100%;
+					display: -webkit-inline-box;
+					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 2;
+					line-clamp: 2;
+					overflow: hidden;
 
 					h3:hover,
 					p:hover {
@@ -44,6 +50,12 @@
 
 				&__description {
 					font-size: 1rem;
+					max-width: 100%;
+					display: -webkit-inline-box;
+					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 3;
+					line-clamp: 3;
+					overflow: hidden;
 				}
 
 				&__details {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUserPlaylist } from '../../../apis/user';
 import { useAuthStore } from '../../../store/auth';
 import styles from './Sidebar.module.scss';
+import { useUserStore } from '../../../store/user';
 
 interface SideBarProps {
 	className?: string;
@@ -72,8 +73,17 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 			</div>
 			{useAuthStore.getState().isLogin && (
 				<div className={styles.item}>
-					<h1>歌单</h1>
+					<h1>
+						歌单 <span className="i-solar-add-circle-linear" title="创建歌单" />
+					</h1>
 					{playlist.map((item: any) => {
+						if (
+							item.name === '我喜欢的音乐' &&
+							item.creator.userId == useAuthStore.getState().userData?.profile.userId
+						) {
+							useUserStore.setState({ likePlaylist: item.id });
+							return null;
+						}
 						return (
 							<button
 								className={styles.playlist__item}
