@@ -34,18 +34,18 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 
 	return (
 		<nav className={`${className || ''} ${styles.sidebar}`.trim()}>
-			<div data-tauri-drag-region className={styles.logo}>
+			<div data-tauri-drag-region className={styles.sidebar__logo}>
 				<img src="/vite.svg" alt="" />
 				<h1>AzusaP</h1>
 			</div>
-			<div className={styles.item}>
+			<div className={styles.sidebar__item}>
 				<h1>推荐</h1>
 				<button className={url === '/' ? styles.active : ''} onClick={() => navigate('/')}>
 					<span className={`${styles.icon} i-solar-home-angle-linear`} />
 					推荐
 				</button>
 			</div>
-			<div className={styles.item}>
+			<div className={styles.sidebar__item}>
 				<h1>我的</h1>
 				{useAuthStore.getState().isLogin && (
 					<button
@@ -72,25 +72,26 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 				</button>
 			</div>
 			{useAuthStore.getState().isLogin && (
-				<div className={styles.item}>
+				<div className={styles.sidebar__item}>
 					<h1>
 						歌单 <span className="i-solar-add-circle-linear" title="创建歌单" />
 					</h1>
-					{playlist.map((item: any) => {
+					{playlist.map((sidebar__item: any) => {
 						if (
-							item.name === '我喜欢的音乐' &&
-							item.creator.userId == useAuthStore.getState().userData?.profile.userId
+							sidebar__item.name === '我喜欢的音乐' &&
+							sidebar__item.creator.userId ==
+								useAuthStore.getState().userData?.profile.userId
 						) {
-							useUserStore.setState({ likePlaylist: item.id });
+							useUserStore.setState({ likePlaylist: sidebar__item.id });
 							return null;
 						}
 						return (
 							<button
-								className={styles.playlist__item}
-								onClick={() => navigate(`/playlist/${item.id}`)}
+								className={styles.playlist__sidebar__item}
+								onClick={() => navigate(`/playlist/${sidebar__item.id}`)}
 							>
-								<img src={item.coverImgUrl} alt="" />
-								{item.name}
+								<img src={sidebar__item.coverImgUrl} alt="" />
+								{sidebar__item.name}
 							</button>
 						);
 					})}

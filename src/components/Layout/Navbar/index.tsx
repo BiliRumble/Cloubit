@@ -1,6 +1,6 @@
 import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { closePip, createPip } from '../../../managers/PIPWindowManager';
@@ -8,6 +8,7 @@ import Login from '../../../pages/modals/Login/Login';
 import Settings from '../../../pages/modals/Settings/Settings';
 import { useAuthStore } from '../../../store/auth';
 import Modal from '../../Common/Modal';
+import Popover from '../../Common/Popover';
 import Search from './Search';
 import styles from './Navbar.module.scss';
 
@@ -21,6 +22,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 	const [isSettingModalOpen, setSettingModalOpen] = useState(false);
 	const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 	const currentSong = usePlayerManager().currentSong;
+
+	const userRef = useRef<HTMLDivElement>(null);
 
 	const toggleMaximize = async () => {
 		try {
@@ -62,7 +65,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 				<div data-tauri-drag-region className={styles.navbar__right}>
 					<button className={styles.navbar__right__login}>
 						{useAuthStore.getState().isLogin ? (
-							<div className={styles.navbar__right__login__info}>
+							<div className={styles.navbar__right__login__info} ref={userRef}>
 								<img
 									src={useAuthStore.getState().userData?.profile.avatarUrl}
 									alt="avatar"
@@ -106,6 +109,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 			<Modal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)}>
 				<Login />
 			</Modal>
+			<Popover listen={userRef} onClose={() => {}} position="bottom">
+				<div>
+					<button>退出登录</button>
+				</div>
+			</Popover>
 		</>
 	);
 };

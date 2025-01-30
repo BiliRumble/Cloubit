@@ -22,7 +22,7 @@ const Popover: React.FC<PopoverProps> = ({
 }) => {
 	const [visible, setVisible] = useState(false);
 	const popoverRef = useRef<HTMLDivElement>(null);
-	let timer: ReturnType<typeof setTimeout>; // 定义一个变量来存储定时器
+	let timer: ReturnType<typeof setTimeout>;
 
 	const calculatePosition = () => {
 		if (!listen.current || !popoverRef.current) return;
@@ -58,14 +58,14 @@ const Popover: React.FC<PopoverProps> = ({
 	useEffect(() => {
 		const handleMouseEnter = () => {
 			setVisible(true);
-			setTimeout(calculatePosition, 0); // 延迟计算位置以确保popoverRect正确
+			setTimeout(calculatePosition, 0);
 		};
 
 		const handleMouseLeave = () => {
 			timer = setTimeout(() => {
 				setVisible(false);
 				onClose();
-			}, 300); // 延迟300毫秒关闭
+			}, 300);
 		};
 
 		const handlePopoverMouseEnter = () => {

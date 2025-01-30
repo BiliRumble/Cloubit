@@ -1,7 +1,7 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
 	"productName": "AzusaP",
-	"version": "0.2.8",
+	"version": "0.2.9",
 	"identifier": "top.rumble.azusap",
 	"build": {
 		"beforeDevCommand": "pnpm vdev",
@@ -13,7 +13,7 @@
 		"windows": [
 			{
 				"label": "main",
-				"title": "QTMusic",
+				"title": "AzusaP",
 				"width": 1050,
 				"height": 590,
 				"minWidth": 1050,

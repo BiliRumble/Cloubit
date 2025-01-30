@@ -1,5 +1,8 @@
+import { event } from '@tauri-apps/api';
 import { getUserAccount } from '../apis/user';
+import { registerShortcuts, unregisterAllShortcuts } from '../managers/ShortcutManager';
 import { useAuthStore } from '../store/auth';
+import { useSettingStore } from '../store/setting';
 
 export async function init() {
 	const isLogin = useAuthStore.getState().isLogin;
@@ -10,10 +13,10 @@ export async function init() {
 		});
 	}
 
-	disableShortcuts();
+	registerShortcut();
 }
 
-function disableShortcuts() {
+export function disableShortcuts() {
 	const shortcuts = [
 		{ key: 'F5', modifiers: [] },
 		{ key: 'r', modifiers: ['Ctrl'] },
@@ -49,4 +52,25 @@ function arraysEqual(a: string[], b: string[]): boolean {
 		if (a[i] !== b[i]) return false;
 	}
 	return true;
+}
+
+function registerShortcut() {
+	unregisterAllShortcuts();
+	if (!useSettingStore.getState().enableGlobalShortcut) return;
+	// 注册快捷键
+	registerShortcuts(useSettingStore.getState().playShortcut.join('+'), () =>
+		event.emit('shortcut-play')
+	);
+	registerShortcuts(useSettingStore.getState().prevShortcut.join('+'), () =>
+		event.emit('shortcut-prev')
+	);
+	registerShortcuts(useSettingStore.getState().nextShortcut.join('+'), () =>
+		event.emit('shortcut-next')
+	);
+	registerShortcuts(useSettingStore.getState().volumeUpShortcut.join('+'), () =>
+		event.emit('shortcut-volumeUp')
+	);
+	registerShortcuts(useSettingStore.getState().volumeDownShortcut.join('+'), () =>
+		event.emit('shortcut-volumeDown')
+	);
 }

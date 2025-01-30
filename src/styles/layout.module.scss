@@ -4,7 +4,7 @@
 	height: 100vh;
 	background-color: var(--background-color);
 
-	.sidebar {
+	&__sidebar {
 		display: flex;
 		flex-direction: column;
 		width: 208px;
@@ -12,7 +12,7 @@
 		height: 100%;
 	}
 
-	.content {
+	&__content {
 		display: flex;
 		flex: 1;
 		flex-direction: column;
@@ -23,7 +23,7 @@
 		border-radius: var(--border-radius);
 		background-color: var(--second-background-color);
 
-		.header {
+		&__header {
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -32,7 +32,7 @@
 			margin-bottom: 30px;
 		}
 
-		.page_content {
+		&__body {
 			max-width: 100%;
 			flex: 1;
 			overflow-y: auto !important;
@@ -40,8 +40,7 @@
 		}
 	}
 
-	/* 固定底部满宽(100vw)的播放器栏 */
-	.bottom_bar {
+	&__playbar {
 		position: fixed;
 		bottom: 0;
 		left: 0;

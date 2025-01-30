@@ -1,6 +1,7 @@
 import { Window } from '@tauri-apps/api/window';
 import { debounce } from 'lodash-es';
 import { useEffect, useRef, useState } from 'react';
+import cover from '../../../../assets/images/song.png';
 import { usePlayerManager } from '../../../../context/PlayerContext';
 import { LyricContent, PlayListItem } from '../../../../models/song';
 import { useSettingStore } from '../../../../store/setting';
@@ -192,7 +193,7 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 			<div className={styles.lyric__body}>
 				<div className={styles.lyric__body__info}>
 					<div className={styles.lyric__body__info__inner}>
-						<img src={currentSong.cover} alt={currentSong.name} />
+						<img src={currentSong.cover || cover} alt={currentSong.name} />
 						<div className={styles.lyric__body__info__text}>
 							<h1 className={styles.lyric__body__info__text__title}>
 								{currentSong.name}

@@ -101,6 +101,7 @@ export async function getUserDailyPlaylist(limit?: number): Promise<recommendPla
 export async function getUserPlaylist(
 	id: number = useAuthStore.getState().userData?.account.id as number
 ): Promise<any> {
+	if (!id) return null;
 	const response = (
 		await get('user/playlist', {
 			timestamp: Date.now(),

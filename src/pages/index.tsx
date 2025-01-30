@@ -20,13 +20,13 @@ const Home = () => {
 			getUserDailySongs().then((res) => {
 				setUserDailySongs(res);
 			});
-			getUserDailyPlaylist().then((res) => {
-				setPlaylist(res);
-			});
-			getRadarPlaylist().then((res) => {
-				setRadarPlaylist(res);
-			});
 		}
+		getUserDailyPlaylist().then((res) => {
+			setPlaylist(res);
+		});
+		getRadarPlaylist().then((res) => {
+			setRadarPlaylist(res);
+		});
 	}, [isLogin]);
 
 	const hour = new Date().getHours();
@@ -43,14 +43,18 @@ const Home = () => {
 
 	return (
 		<div className={styles.recommends}>
-			<h1 className={styles.title}>
+			<h1 className={styles.recommends__title}>
 				{welcome + (isLogin ? ', ' + userAccount?.profile.nickname + '!' : '!')}
 			</h1>
 			{isLogin && (
-				<div className={styles.permanent}>
-					<div className={styles.permanent__left}>
-						<div className={styles.permanent__left__daily + ' ' + styles.card}>
-							<div className={styles.permanent__left__daily__cover}>
+				<div className={styles.recommends__permanent}>
+					<div className={styles.recommends__permanent__left}>
+						<div
+							className={
+								styles.recommends__permanent__left__daily + ' ' + styles.card
+							}
+						>
+							<div className={styles.recommends__permanent__left__daily__cover}>
 								<img
 									src={userDailySongs?.data.dailySongs[0].al.picUrl}
 									alt="每日30封面"
@@ -74,7 +78,7 @@ const Home = () => {
 							</div>
 						</div>
 					</div>
-					<div className={styles.permanent__right}>
+					<div className={styles.recommends__permanent__right}>
 						<div className={styles.fm + ' ' + styles.card}>
 							<img src="https://via.placeholder.com/100" alt="私人FM封面" />
 							<div className={styles.info}>
@@ -85,7 +89,7 @@ const Home = () => {
 					</div>
 				</div>
 			)}
-			<h2 className={styles.title}>专属歌单</h2>
+			<h2 className={styles.title}>{isLogin ? '专属歌单' : '推荐歌单'}</h2>
 			<div className={styles.recommends__playlist}>
 				{playlist?.result.map((list: any, index: number) => {
 					return (

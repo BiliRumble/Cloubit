@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAlbumDetail } from '../../apis/song';
 import Chip from '../../components/Common/Chip';
+import SongList from '../../components/Common/SongList';
 import { usePlayerManager } from '../../context/PlayerContext';
-import { Artist } from '../../models/search';
 import styles from './Album.module.scss';
 
 const Album = () => {
@@ -20,25 +20,16 @@ const Album = () => {
 	useEffect(() => {
 		if (!id) navigate('/');
 		getAlbumDetail(id as unknown as number).then((res) => {
+			res.songs = res.songs.map((song: any) => {
+				song.al.picUrl = res.album.picUrl;
+				return song;
+			});
 			setAlbumTracks(res.songs);
 			setAlbumInfo(res.album);
 			setFilteredTracks(res.songs); // 初始时显示所有歌曲
 			setLoading(false);
 		});
 	}, [id]);
-
-	const play = (id: number, name: string, cover: string, artist: Artist[]) => {
-		const artistNames: string[] = artist.map((a) => a.name);
-		usePlayer.addToPlaylist({
-			index: usePlayer.playlist.count,
-			id,
-			source: albumInfo.id,
-			name,
-			cover,
-			artists: artistNames,
-		});
-		usePlayer.setCurrentSong(id, true);
-	};
 
 	const setPlaylist = async (tracks: any) => {
 		usePlayer.clearPlaylist();
@@ -67,10 +58,10 @@ const Album = () => {
 		const keyword = e.target.value;
 		setSearchKeyword(keyword);
 
-		if (keyword === '') {
-			setFilteredTracks(albumTracks.tracks);
+		if (keyword == '') {
+			setFilteredTracks(albumTracks);
 		} else {
-			const filtered = albumTracks.tracks.filter(
+			const filtered = albumTracks.filter(
 				(track: any) =>
 					track.name.toLowerCase().includes(keyword.toLowerCase()) ||
 					track.ar.some((artist: any) =>
@@ -89,10 +80,16 @@ const Album = () => {
 						<img src={albumInfo?.picUrl} alt="" />
 						<div className={styles.album__header__info}>
 							<div className={styles.album__header__info__data}>
-								<h1 className={styles.album__header__info__data__title}>
+								<h1
+									className={styles.album__header__info__data__title}
+									title={albumInfo?.name}
+								>
 									{albumInfo?.name}
 								</h1>
-								<h3 className={styles.album__header__info__data__description}>
+								<h3
+									className={styles.album__header__info__data__description}
+									title={albumInfo?.description}
+								>
 									{albumInfo?.description}
 								</h3>
 								<div className={styles.album__header__info__data__details}>
@@ -147,53 +144,7 @@ const Album = () => {
 							</div>
 						</div>
 					</div>
-					<div className={styles.album__content}>
-						<div className={styles.album__content__header}>
-							<span className={styles.album__content__header__name}>标题</span>
-							<span className={styles.album__content__header__operator}>操作</span>
-							<span className={styles.album__content__header__duration}>时长</span>
-						</div>
-						<div className={styles.album__content__tracks}>
-							{filteredTracks?.map((track: any, index: number) => (
-								<div
-									key={index}
-									className={styles.album__content__tracks__track}
-									onClick={() =>
-										play(track.id, track.name, track.al.picUrl, track.ar)
-									}
-								>
-									<div className={styles.album__content__tracks__track__title}>
-										<img src={albumInfo.picUrl} alt={track.name} />
-										<div className={styles.album__content__tracks__track__info}>
-											<h3>{track.name}</h3>
-											<p>
-												{track.ar
-													.map((artist: any) => artist.name)
-													.join(' / ')}
-											</p>
-										</div>
-									</div>
-									<div
-										className={styles.album__content__tracks__track__operation}
-									>
-										<span
-											className={
-												track.subscribed
-													? 'i-solar-heart-broken-line-duotone'
-													: 'i-solar-heart-angle-line-duotone'
-											}
-										/>
-									</div>
-									<div className={styles.album__content__tracks__track__duration}>
-										{track.dt / 1000 / 60 < 10 ? '0' : ''}
-										{Math.floor(track.dt / 1000 / 60)}:
-										{(track.dt / 1000) % 60 < 10 ? '0' : ''}
-										{Math.floor((track.dt / 1000) % 60)}
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
+					<SongList songs={filteredTracks} />
 				</div>
 			)}
 		</>

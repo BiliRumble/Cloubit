@@ -36,20 +36,15 @@ const Login = () => {
 			checkQR().then(async (res) => {
 				switch (res?.data.code) {
 					case 800:
-						// 更新qr
 						createQR().then((res) => setQr(res?.data.qrimg || ''));
-						console.debug('更新qr', qr);
 						break;
 					case 801:
-						// 等待扫码
 						break;
 					case 802:
-						// 扫码成功, 等待授权
 						setQrStatus(1);
 						setQrInfo(res?.data as QrInfo);
 						break;
 					case 803:
-						// 登录成功
 						setQrStatus(2);
 						clearInterval(timer);
 						if (res.data.cookie && res.data.cookie.includes('MUSIC_U')) {
@@ -64,6 +59,7 @@ const Login = () => {
 								await getUserAccount().then((res) => {
 									useAuthStore.setState({ userData: res });
 								});
+								window.location.reload();
 							}
 						} else {
 							console.error('登录失败，未获取到cookie');

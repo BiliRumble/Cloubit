@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { UserAccountResult } from '../models/user';
 
 /**
- * 系统设置store类型
+ * 账号数据store类型
  */
 export interface authStoreType {
 	isLogin: boolean;

@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { DailySongsResult, recommendPlaylist } from '../models/song';
 
 /**
- * 系统设置store类型
+ * 用户数据store类型
  */
 export interface userStoreType {
 	dailySong: { timestamp: number; tracks: DailySongsResult | null };

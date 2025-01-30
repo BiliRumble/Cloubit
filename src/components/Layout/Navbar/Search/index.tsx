@@ -161,6 +161,19 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 											<Chip
 												key={item.time}
 												text={item.name}
+												onContextMenu={() => {
+													setHistory(
+														history.filter((i) => i.time !== item.time)
+													);
+													localStorage.setItem(
+														'history',
+														JSON.stringify(
+															history.filter(
+																(i) => i.time !== item.time
+															)
+														)
+													);
+												}}
 												onClick={() => {
 													// 修改input的内容
 													(

@@ -1,6 +1,7 @@
 import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
 import React, { useEffect, useState } from 'react';
+import cover from '../../assets/images/song.png';
 import { closePip } from '../../managers/PIPWindowManager';
 import { PlayListItem } from '../../models/song';
 import styles from './pip.module.scss';
@@ -8,10 +9,7 @@ import styles from './pip.module.scss';
 const Pip = () => {
 	const appWindow = new Window('main');
 
-	const [currentSong, setCurrentSong] = useState({
-		name: '等待SYNC',
-		cover: 'https://',
-	} as PlayListItem);
+	const [currentSong, setCurrentSong] = useState({ name: '无数据' } as PlayListItem);
 	const [playing, setPlaying] = useState(false);
 	const [seek, setSeek] = useState(0);
 	const [duration, setDuration] = useState(1);
@@ -59,19 +57,19 @@ const Pip = () => {
 			className={styles.pip}
 			style={{ '--progress': progress } as React.CSSProperties}
 		>
-			<div data-tauri-drag-region className={styles.card}>
+			<div data-tauri-drag-region className={styles.pip__card}>
 				<div
 					onClick={() => appWindow.show()}
 					data-tauri-drag-region
-					className={styles.cover}
+					className={styles.pip__card__cover}
 				>
-					<img src={currentSong?.cover || 'https://'} alt="" />
+					<img src={currentSong?.cover || cover} alt="" />
 				</div>
-				<div data-tauri-drag-region className={styles.pip__info}>
-					<h1>{lyric ? lyric : currentSong?.name || '等待SYNC'}</h1>
+				<div data-tauri-drag-region className={styles.pip__card__info}>
+					<h1>{lyric ? lyric : currentSong?.name}</h1>
 				</div>
-				<div data-tauri-drag-region className={styles.pip__control}>
-					<div data-tauri-drag-region className={styles.control__buttons}>
+				<div data-tauri-drag-region className={styles.pip__card__control}>
+					<div data-tauri-drag-region className={styles.pip__card__control__buttons}>
 						<span
 							className="i-solar-rewind-back-line-duotone"
 							onClick={() => event.emitTo('main', 'pip-prev')}

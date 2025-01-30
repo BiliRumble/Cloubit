@@ -25,6 +25,7 @@ export const usePlayerStore = create(
 			currentSong: {
 				index: -1,
 				id: 0,
+				source: 0,
 				name: '暂无歌曲',
 			},
 			seek: 0,

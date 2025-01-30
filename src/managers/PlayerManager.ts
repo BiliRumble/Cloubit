@@ -376,9 +376,7 @@ export default class PlayerManager {
 		invoke('push_to_stmc', {
 			title: this._currentSong?.name || 'None',
 			artist: this._currentSong?.artists?.join('/') || 'None',
-			cover:
-				this._currentSong?.cover ||
-				'https://cdn.discordapp.com/attachments/929847977705945610/929848029813848478/unknown.png',
+			cover: this._currentSong?.cover,
 		});
 	}
 

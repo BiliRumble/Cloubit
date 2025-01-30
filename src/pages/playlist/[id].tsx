@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPlayListDetail } from '../../apis/playlist';
 import Chip from '../../components/Common/Chip';
+import SongList from '../../components/Common/SongList';
 import { usePlayerManager } from '../../context/PlayerContext';
-import { Artist } from '../../models/search';
 import styles from './Playlist.module.scss';
 
 const Playlist = () => {
@@ -24,19 +24,6 @@ const Playlist = () => {
 			setLoading(false);
 		});
 	}, [id]);
-
-	const play = (id: number, name: string, cover: string, artist: Artist[]) => {
-		const artistNames: string[] = artist.map((a) => a.name);
-		usePlayer.addToPlaylist({
-			index: usePlayer.playlist.count,
-			id,
-			name,
-			cover,
-			artists: artistNames,
-			source: playlistTracks.id,
-		});
-		usePlayer.setCurrentSong(id, true);
-	};
 
 	const setPlaylist = async (tracks: any) => {
 		usePlayer.clearPlaylist();
@@ -158,69 +145,7 @@ const Playlist = () => {
 							</div>
 						</div>
 					</div>
-					<div className={styles.playlist__content}>
-						<div className={styles.playlist__content__header}>
-							<span className={styles.playlist__content__header__name}>标题</span>
-							<span className={styles.playlist__content__header__album}>专辑</span>
-							<span className={styles.playlist__content__header__operator}>操作</span>
-							<span className={styles.playlist__content__header__duration}>时长</span>
-						</div>
-						<div className={styles.playlist__content__tracks}>
-							{filteredTracks?.map((track: any, index: number) => (
-								<div
-									key={index}
-									className={styles.playlist__content__tracks__track}
-									onClick={() =>
-										play(track.id, track.name, track.al.picUrl, track.ar)
-									}
-								>
-									<div className={styles.playlist__content__tracks__track__title}>
-										<img src={track.al.picUrl} alt={track.name} />
-										<div
-											className={
-												styles.playlist__content__tracks__track__info
-											}
-										>
-											<h3>{track.name}</h3>
-											<p>
-												{track.ar
-													.map((artist: any) => artist.name)
-													.join(' / ')}
-											</p>
-										</div>
-									</div>
-									<div className={styles.playlist__content__tracks__track__album}>
-										<h3 onClick={() => navigate(`/album/${track.al.id}`)}>
-											{track.al.name}
-										</h3>
-									</div>
-									<div
-										className={
-											styles.playlist__content__tracks__track__operation
-										}
-									>
-										<span
-											className={
-												track.subscribed
-													? 'i-solar-heart-broken-line-duotone'
-													: 'i-solar-heart-angle-line-duotone'
-											}
-										/>
-									</div>
-									<div
-										className={
-											styles.playlist__content__tracks__track__duration
-										}
-									>
-										{track.dt / 1000 / 60 < 10 ? '0' : ''}
-										{Math.floor(track.dt / 1000 / 60)}:
-										{(track.dt / 1000) % 60 < 10 ? '0' : ''}
-										{Math.floor((track.dt / 1000) % 60)}
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
+					<SongList songs={filteredTracks} />
 				</div>
 			)}
 		</>

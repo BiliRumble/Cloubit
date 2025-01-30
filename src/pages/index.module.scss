@@ -5,12 +5,12 @@
 	width: 100%;
 	padding: 1rem;
 
-	.title {
+	&__title {
 		color: var(--text-color);
 		margin-bottom: 0.85rem;
 	}
 
-	.permanent {
+	&__permanent {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
@@ -178,7 +178,7 @@
 		justify-content: space-between;
 
 		&__card:not(:last-child) {
-			padding-right: 0.8rem;
+			margin-right: 0.8rem;
 		}
 	}
 }

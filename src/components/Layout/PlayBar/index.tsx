@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { usePlayerStore } from '../../../store/player';
 import { useSettingStore } from '../../../store/setting';
+import cover from '../../../assets/images/song.png';
 import Modal from '../../Common/Modal';
 import Popover from '../../Common/Popover';
 import LryicModal from './Lyric';
@@ -172,7 +173,10 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 				<div className={styles.playbar__left}>
 					<div className={styles.playbar__left__info}>
 						<div className={styles.playbar__left__info__cover}>
-							<img src={currentSong?.cover} alt={`${currentSong?.name}的封面`} />
+							<img
+								src={currentSong?.cover || cover}
+								alt={`${currentSong?.name}的封面`}
+							/>
 							<div
 								className={styles.playbar__left__info__cover__mask}
 								onClick={() => setLyricModalOpen(true)}
