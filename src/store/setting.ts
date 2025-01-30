@@ -74,7 +74,7 @@ export const useSettingStore = create(
 			setLyricsType: (value) => set(() => ({ lyricsType: value })),
 			fadeInOut: true,
 			setFadeInOut: (value) => set(() => ({ fadeInOut: value })),
-			fadeTime: 1500,
+			fadeTime: 500,
 			setFadeTime: (value) => set(() => ({ fadeTime: value })),
 			pushToSMTC: true,
 			setPushToSMTC: (value) => set(() => ({ pushToSMTC: value })),

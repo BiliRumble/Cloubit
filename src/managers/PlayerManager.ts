@@ -94,6 +94,8 @@ export default class PlayerManager {
 					console.error('🎵 Error playing audio:', error);
 					alert('歌曲无法播放');
 				},
+				preload: 'metadata',
+				pool: 1,
 				xhr: {
 					withCredentials: true,
 					headers: {
@@ -172,18 +174,38 @@ export default class PlayerManager {
 		}
 	}
 
-	public play() {
+	public async play() {
 		if (!this._player || this._currentSong.index === -1 || this._player.playing()) return;
+		this._player.volume(0);
 		this._player.play();
 		this._playing = true;
+		await new Promise<void>((resolve) => {
+			if (!this._player) return;
+			this._player.once('play', () => {
+				if (!this._player) return;
+				this._player.fade(0, this._volume, useSettingStore.getState().fadeTime);
+				this._player.volume(this._volume);
+				resolve();
+			});
+		});
 		event.emit('player-play');
 	}
 
-	public pause() {
+	public async pause() {
 		if (!this._player || this._currentSong.index === -1 || !this._player.playing()) return;
-		this._playing = false;
-		this._player.pause();
 		event.emit('player-pause');
+		// 淡出
+		await new Promise<void>((resolve) => {
+			if (!this._player) return;
+			this._player.fade(this._volume, 0, useSettingStore.getState().fadeTime);
+			this._player.once('fade', () => {
+				if (!this._player) return;
+				this._playing = false;
+				this._player.pause();
+				this._player.volume(this._volume);
+				resolve();
+			});
+		});
 	}
 
 	public next(force = false) {

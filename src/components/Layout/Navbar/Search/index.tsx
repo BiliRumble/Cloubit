@@ -106,6 +106,7 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 				id="searchInput"
 				className={styles.search__input + ` ${isFocus ? styles.search__input__focus : ''}`}
 				type="search"
+				autoComplete="off"
 				placeholder={
 					settingStore.searchAutoComplete && defaultSearch !== null
 						? defaultSearch?.showKeyword || ''

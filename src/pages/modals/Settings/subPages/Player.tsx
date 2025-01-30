@@ -59,7 +59,7 @@ const PlayerSettings: React.FC<{ className: string }> = ({ className }) => {
 					onChange={() => settingStore.setFadeInOut(!settingStore.fadeInOut)}
 				/>
 			</Control>
-			<Control label="渐入渐出时间">
+			<Control label="渐入渐出时间(不推荐大于750ms)">
 				<Input
 					value={`${settingStore.fadeTime}`}
 					title="渐入渐出时间(毫秒)"
