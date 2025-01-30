@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserPlaylist } from '../../../apis/user';
 import { useAuthStore } from '../../../store/auth';
-import styles from './Sidebar.module.scss';
 import { useUserStore } from '../../../store/user';
+import styles from './Sidebar.module.scss';
 
 interface SideBarProps {
 	className?: string;
@@ -36,7 +36,7 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 		<nav className={`${className || ''} ${styles.sidebar}`.trim()}>
 			<div data-tauri-drag-region className={styles.logo}>
 				<img src="/vite.svg" alt="" />
-				<h1>QTMusic</h1>
+				<h1>AzusaP</h1>
 			</div>
 			<div className={styles.item}>
 				<h1>推荐</h1>

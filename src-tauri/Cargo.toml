@@ -1,6 +1,6 @@
 [package]
-name = "qtmusic"
-version = "0.2.7"
+name = "azusap"
+version = "0.2.8"
 description = "网易云音乐的客户端代替方案"
 authors = ["rumble"]
 edition = "2021"

@@ -1,8 +1,8 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
-	"productName": "QTMusic",
-	"version": "0.2.7",
-	"identifier": "top.rumble.qtmusic",
+	"productName": "AzusaP",
+	"version": "0.2.8",
+	"identifier": "top.rumble.azusap",
 	"build": {
 		"beforeDevCommand": "pnpm vdev",
 		"devUrl": "http://localhost:1420",

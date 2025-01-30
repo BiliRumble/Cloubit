@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import About from './subPages/About';
+import DataSettings from './subPages/Data';
 import GeneralSettings from './subPages/General';
 import PlayerSettings from './subPages/Player';
 import Shortcut from './subPages/Shortcut';
 import styles from './Settings.module.scss';
 
 const Settings = () => {
-	const [page, setPage] = useState<'general' | 'player' | 'shortcut' | 'cache' | 'about'>(
+	const [page, setPage] = useState<'general' | 'player' | 'shortcut' | 'data' | 'about'>(
 		'general'
 	);
 
@@ -37,9 +38,9 @@ const Settings = () => {
 					</button>
 					<button
 						className={styles.settings__sidebar__list__item}
-						onClick={() => setPage('cache')}
+						onClick={() => setPage('data')}
 					>
-						缓存设置
+						数据
 					</button>
 					<button
 						className={styles.settings__sidebar__list__item}
@@ -55,6 +56,7 @@ const Settings = () => {
 				)}
 				{page === 'player' && <PlayerSettings className={styles.settings__content__item} />}
 				{page === 'shortcut' && <Shortcut className={styles.settings__content__item} />}
+				{page === 'data' && <DataSettings className={styles.settings__content__item} />}
 				{page === 'about' && <About className={styles.settings__content__item} />}
 			</div>
 		</div>

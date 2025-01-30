@@ -1,7 +1,7 @@
 {
-	"name": "qtmusic",
+	"name": "AzusaP",
 	"private": true,
-	"version": "0.2.7",
+	"version": "0.2.8",
 	"type": "module",
 	"scripts": {
 		"dev": "tauri dev",
@@ -43,6 +43,7 @@
 		"@tauri-apps/plugin-opener": "^2.2.4",
 		"@tauri-apps/plugin-window-state": "^2.2.0",
 		"axios": "^1.7.9",
+		"AzusaP": "file:",
 		"cookie-js": "^0.0.1",
 		"howler": "^2.2.4",
 		"js-cookie": "^3.0.5",

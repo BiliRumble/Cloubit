@@ -520,6 +520,39 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26"
 
 [[package]]
+name = "azusap"
+version = "0.2.8"
+dependencies = [
+ "actix-cors",
+ "actix-web",
+ "base64 0.22.1",
+ "cached",
+ "chrono",
+ "env_logger",
+ "form_urlencoded",
+ "hex",
+ "lazy_static",
+ "md5",
+ "openssl",
+ "qrcode",
+ "rand 0.8.5",
+ "regex",
+ "reqwest",
+ "rust-crypto",
+ "serde",
+ "serde_json",
+ "sled",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-global-shortcut",
+ "tauri-plugin-opener",
+ "tauri-plugin-single-instance",
+ "tauri-plugin-window-state",
+ "tokio",
+ "windows 0.59.0",
+]
+
+[[package]]
 name = "backtrace"
 version = "0.3.74"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3591,39 +3624,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d68782463e408eb1e668cf6152704bd856c78c5b6417adaee3203d8f4c1fc9ec"
 dependencies = [
  "image",
-]
-
-[[package]]
-name = "qtmusic"
-version = "0.2.7"
-dependencies = [
- "actix-cors",
- "actix-web",
- "base64 0.22.1",
- "cached",
- "chrono",
- "env_logger",
- "form_urlencoded",
- "hex",
- "lazy_static",
- "md5",
- "openssl",
- "qrcode",
- "rand 0.8.5",
- "regex",
- "reqwest",
- "rust-crypto",
- "serde",
- "serde_json",
- "sled",
- "tauri",
- "tauri-build",
- "tauri-plugin-global-shortcut",
- "tauri-plugin-opener",
- "tauri-plugin-single-instance",
- "tauri-plugin-window-state",
- "tokio",
- "windows 0.59.0",
 ]
 
 [[package]]

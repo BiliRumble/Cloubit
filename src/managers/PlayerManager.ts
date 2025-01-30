@@ -145,7 +145,7 @@ export default class PlayerManager {
 		// 如果当前播放的歌曲被移除，则播放下一首
 		if (this._currentSong.id === id) {
 			this._player?.unload();
-			document.title = 'QTMusic';
+			document.title = 'AzusaP';
 			this.next();
 		}
 		this._playlist.data.splice(index, 1);
@@ -165,7 +165,7 @@ export default class PlayerManager {
 		usePlayerStore.setState({ playlist: this._playlist });
 		this._currentSong = PLACEHOLDER_SONG;
 		usePlayerStore.setState({ currentSong: PLACEHOLDER_SONG });
-		document.title = 'QTMusic';
+		document.title = 'AzusaP';
 
 		// 清空播放器
 		if (this._player) {
