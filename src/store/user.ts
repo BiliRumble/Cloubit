@@ -7,14 +7,14 @@ import { DailySongsResult, recommendPlaylist } from '../models/song';
  */
 export interface userStoreType {
 	dailySong: { timestamp: number; tracks: DailySongsResult | null };
-	setDailySong: (dailySong: { timestamp: number; tracks: DailySongsResult }) => void;
+	setDailySong: (dailySong: { timestamp: number; tracks: DailySongsResult | null }) => void;
 	recommendPlaylist: { timestamp: number; playlists: recommendPlaylist | null };
 	setRecommendPlaylist: (recommendPlaylist: {
 		timestamp: number;
-		playlists: recommendPlaylist;
+		playlists: recommendPlaylist | null;
 	}) => void;
 	likePlaylist: number;
-	setLikePlaylist: (likePlaylist: number) => void;
+	setLikePlaylist: (likePlaylist: number[] | null) => void;
 }
 
 export const useUserStore = create(

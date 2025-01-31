@@ -1,4 +1,5 @@
 import { event } from '@tauri-apps/api';
+import { debounce } from 'lodash-es';
 import { getUserAccount } from '../apis/user';
 import { registerShortcuts, unregisterAllShortcuts } from '../managers/ShortcutManager';
 import { useAuthStore } from '../store/auth';
@@ -57,20 +58,31 @@ function arraysEqual(a: string[], b: string[]): boolean {
 function registerShortcut() {
 	unregisterAllShortcuts();
 	if (!useSettingStore.getState().enableGlobalShortcut) return;
-	// 注册快捷键
-	registerShortcuts(useSettingStore.getState().playShortcut.join('+'), () =>
-		event.emit('shortcut-play')
+
+	const playShortcut = useSettingStore.getState().playShortcut.join('+');
+	const prevShortcut = useSettingStore.getState().prevShortcut.join('+');
+	const nextShortcut = useSettingStore.getState().nextShortcut.join('+');
+	const volumeUpShortcut = useSettingStore.getState().volumeUpShortcut.join('+');
+	const volumeDownShortcut = useSettingStore.getState().volumeDownShortcut.join('+');
+
+	registerShortcuts(
+		playShortcut,
+		debounce(() => event.emit('shortcut-play'), 10)
 	);
-	registerShortcuts(useSettingStore.getState().prevShortcut.join('+'), () =>
-		event.emit('shortcut-prev')
+	registerShortcuts(
+		prevShortcut,
+		debounce(() => event.emit('shortcut-prev'), 10)
 	);
-	registerShortcuts(useSettingStore.getState().nextShortcut.join('+'), () =>
-		event.emit('shortcut-next')
+	registerShortcuts(
+		nextShortcut,
+		debounce(() => event.emit('shortcut-next'), 10)
 	);
-	registerShortcuts(useSettingStore.getState().volumeUpShortcut.join('+'), () =>
-		event.emit('shortcut-volumeUp')
+	registerShortcuts(
+		volumeUpShortcut,
+		debounce(() => event.emit('shortcut-volumeUp'), 10)
 	);
-	registerShortcuts(useSettingStore.getState().volumeDownShortcut.join('+'), () =>
-		event.emit('shortcut-volumeDown')
+	registerShortcuts(
+		volumeDownShortcut,
+		debounce(() => event.emit('shortcut-volumeDown'), 10)
 	);
 }

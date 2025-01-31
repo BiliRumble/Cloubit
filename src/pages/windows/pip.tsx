@@ -2,6 +2,7 @@ import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
 import React, { useEffect, useState } from 'react';
 import cover from '../../assets/images/song.png';
+import { useTheme } from '../../hooks/useTheme';
 import { closePip } from '../../managers/PIPWindowManager';
 import { PlayListItem } from '../../models/song';
 import styles from './pip.module.scss';
@@ -37,6 +38,9 @@ const Pip = () => {
 			const data = event.payload as number;
 			setDuration(data);
 		});
+		const st = event.listen('switch-theme', (event) => {
+			useTheme().initTheme();
+		});
 
 		event.emitTo('main', 'pip-request-current-song');
 
@@ -46,6 +50,7 @@ const Pip = () => {
 			us.then((f) => f());
 			ul.then((f) => f());
 			ud.then((f) => f());
+			st.then((f) => f());
 		};
 	}, []);
 

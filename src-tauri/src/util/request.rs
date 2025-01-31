@@ -2,6 +2,7 @@ use crate::util::crypto::{eapi, weapi};
 use crate::util::os::choose_os;
 use crate::util::text::{choose_user_agent, cookie_obj_to_string, generate_random_hex_string, json_to_urlencoded, map_to_cookie_header, wnmcid};
 use crate::{error, ANONYMOUS_TOKEN, CONFIG, DEVICE_ID};
+use base64::{engine::general_purpose::STANDARD, Engine};
 use chrono::Utc;
 use reqwest::header::{HeaderMap, COOKIE, REFERER, SET_COOKIE, USER_AGENT};
 use reqwest::{ClientBuilder, Proxy};
@@ -39,7 +40,7 @@ pub fn create_request_option(header: HeaderMap, option: &QueryOption, cypto: &st
         crypto: option.crypto.clone().or(Some(cypto.to_string())),
         cookie: option.cookie.clone().and_then(|v| {
             // 尝试解码 Base64 字符串
-            let decoded = base64::decode(&v).ok()?;
+            let decoded = STANDARD.decode(&v).ok()?;
             // 将解码后的字节转换为字符串
             let decoded_str = String::from_utf8(decoded).ok()?;
             // 尝试将字符串解析为 JSON

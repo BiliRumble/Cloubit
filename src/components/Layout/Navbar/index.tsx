@@ -2,11 +2,13 @@ import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logout } from '../../../apis/login';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { closePip, createPip } from '../../../managers/PIPWindowManager';
 import Login from '../../../pages/modals/Login/Login';
 import Settings from '../../../pages/modals/Settings/Settings';
 import { useAuthStore } from '../../../store/auth';
+import { useUserStore } from '../../../store/user';
 import Modal from '../../Common/Modal';
 import Popover from '../../Common/Popover';
 import Search from './Search';
@@ -111,7 +113,22 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 			</Modal>
 			<Popover listen={userRef} onClose={() => {}} position="bottom">
 				<div>
-					<button>退出登录</button>
+					<button
+						onClick={() => {
+							logout();
+							const auth = useAuthStore.getState();
+							auth.setIsLogin(false);
+							auth.setCookie(null);
+							auth.setUserData(null);
+							const userData = useUserStore.getState();
+							userData.setDailySong({ timestamp: 0, tracks: null });
+							userData.setRecommendPlaylist({ timestamp: 0, playlists: null });
+							userData.setLikePlaylist(null);
+							window.location.reload();
+						}}
+					>
+						退出登录
+					</button>
 				</div>
 			</Popover>
 		</>

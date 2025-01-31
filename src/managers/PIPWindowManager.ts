@@ -1,13 +1,13 @@
-import { invoke } from '@tauri-apps/api/core';
 import { LogicalSize } from '@tauri-apps/api/dpi';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { Window } from '@tauri-apps/api/window';
+
+const appWindow = new Window('main');
 
 export async function createPip(init: boolean = false) {
 	if (!init && localStorage.getItem('isPip') === 'true') return;
 
 	try {
-		const appWindow = new Window('main');
 		const pipWindow = new WebviewWindow('pip-window', {
 			url: '/windows/pip',
 			minWidth: 325,
@@ -28,10 +28,6 @@ export async function createPip(init: boolean = false) {
 			if (!init) appWindow.hide();
 			localStorage.setItem('isPip', 'true');
 		});
-		pipWindow.once('tauri://close-requested', () => {
-			appWindow.show();
-			pipWindow.close();
-		});
 		console.debug('🪟 PIPWindow created.');
 	} catch (error) {
 		console.error('🪟 Cannot create PIPWindow:', error);
@@ -39,12 +35,12 @@ export async function createPip(init: boolean = false) {
 }
 
 export async function closePip() {
-	if (localStorage.getItem('isPip') !== 'true') return;
-
 	try {
-		await invoke('close_webview_window', { windowLabel: 'pip-window' });
+		WebviewWindow.getByLabel('pip-window').then((pipWindow) => {
+			appWindow.show();
+			pipWindow?.destroy();
+		});
 		localStorage.removeItem('isPip');
-		console.debug('🪟 PIPWindow closed.');
 	} catch (error) {
 		console.error('🪟 Cannot close PIPWindow:', error);
 	}

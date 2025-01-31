@@ -1,5 +1,6 @@
 //import { useSettingStore } from '@/store/setting';
 
+import { event } from '@tauri-apps/api';
 import { useSettingStore } from '../store/setting';
 
 /**
@@ -25,6 +26,7 @@ export const useTheme = () => {
 				break;
 			}
 		}
+		event.emit('switch-theme', type);
 	};
 
 	const initTheme = () => {

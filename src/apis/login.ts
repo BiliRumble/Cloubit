@@ -70,6 +70,17 @@ export async function checkQR(): Promise<LoginCheckQRResult | null> {
 }
 
 /**
+ * 登出
+ *
+ * @return boolean
+ * */
+export async function logout(): Promise<boolean> {
+	const response = (await get('logout')).data as any;
+	console.debug(response);
+	return response.code === 200;
+}
+
+/**
  * 获取登录状态
  *
  * @todo 实现

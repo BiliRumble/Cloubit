@@ -23,6 +23,7 @@ export default class PlayerManager {
 	private _mode: 'list' | 'single' | 'random' = 'list';
 	private _player: Howl | null = null;
 	private isChangingSong: boolean = false;
+	private isChangingPlayState: boolean = false;
 	private _playing: boolean = false;
 	private _volume: number = DEFAULT_VOLUME;
 	private _lyric: Lyric = {
@@ -175,7 +176,15 @@ export default class PlayerManager {
 	}
 
 	public async play() {
-		if (!this._player || this._currentSong.index === -1 || this._player.playing()) return;
+		if (
+			!this._player ||
+			this._currentSong.index === -1 ||
+			this._player.playing() ||
+			this.isChangingPlayState
+		)
+			return;
+		this.isChangingPlayState = true;
+		// 淡入
 		this._player.volume(0);
 		this._player.play();
 		this._playing = true;
@@ -185,6 +194,7 @@ export default class PlayerManager {
 				if (!this._player) return;
 				this._player.fade(0, this._volume, useSettingStore.getState().fadeTime);
 				this._player.volume(this._volume);
+				this.isChangingPlayState = false;
 				resolve();
 			});
 		});
@@ -192,8 +202,15 @@ export default class PlayerManager {
 	}
 
 	public async pause() {
-		if (!this._player || this._currentSong.index === -1 || !this._player.playing()) return;
+		if (
+			!this._player ||
+			this._currentSong.index === -1 ||
+			!this._player.playing() ||
+			this.isChangingPlayState
+		)
+			return;
 		event.emit('player-pause');
+		this.isChangingPlayState = true;
 		// 淡出
 		await new Promise<void>((resolve) => {
 			if (!this._player) return;
@@ -203,6 +220,7 @@ export default class PlayerManager {
 				this._playing = false;
 				this._player.pause();
 				this._player.volume(this._volume);
+				this.isChangingPlayState = false;
 				resolve();
 			});
 		});

@@ -1,10 +1,4 @@
-use tauri::{Manager, AppHandle};
-
-#[tauri::command]
-async fn close_webview_window(window_label: String, app_handle: AppHandle) {
-	// 关闭webview窗口
-	app_handle.get_webview_window(&window_label).unwrap().close().unwrap();
-}
+use tauri::Manager;
 
 mod stmc;
 
@@ -38,7 +32,7 @@ pub fn run() {
         })
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![close_webview_window, push_to_stmc])
+        .invoke_handler(tauri::generate_handler![push_to_stmc])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

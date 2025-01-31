@@ -1,10 +1,10 @@
 import { event } from '@tauri-apps/api';
 import { debounce } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import cover from '../../../assets/images/song.png';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { usePlayerStore } from '../../../store/player';
 import { useSettingStore } from '../../../store/setting';
-import cover from '../../../assets/images/song.png';
 import Modal from '../../Common/Modal';
 import Popover from '../../Common/Popover';
 import LryicModal from './Lyric';
@@ -103,13 +103,12 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 
 	const registerEvents = useCallback(async () => {
 		const prev = event.listen('pip-prev', () => usePlayer.prev());
-		const next = event.listen('pip-next', () => debounce(() => usePlayer.next(), 300));
-		const play = event.listen('pip-play', () =>
-			debounce(() => {
-				if (playing) return usePlayer.pause();
-				else return usePlayer.play();
-			}, 300)
-		);
+		const next = event.listen('pip-next', () => usePlayer.next());
+		const play = event.listen('pip-play', () => {
+			console.debug(playing);
+			if (playing) return usePlayer.pause();
+			else return usePlayer.play();
+		});
 
 		event.emit('player-update-current-song', currentSong);
 		event.emit('player-update-duration', duration);
@@ -123,12 +122,11 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 	}, [playing, duration, currentSong, usePlayer]);
 
 	const registerShortcuts = useCallback(async () => {
-		const play = event.listen('shortcut-play', () =>
-			debounce(() => {
-				if (playing) return usePlayer.pause();
-				else return usePlayer.play();
-			}, 50)
-		);
+		const play = event.listen('shortcut-play', () => {
+			console.debug('1', Date.now());
+			if (playing) return usePlayer.pause();
+			else return usePlayer.play();
+		});
 		const prev = event.listen('shortcut-prev', () => usePlayer.prev());
 		const next = event.listen('shortcut-next', () => usePlayer.next());
 		const volumeUp = event.listen('shortcut-volume-up', () => {

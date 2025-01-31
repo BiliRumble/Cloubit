@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { checkQR, createQR, getLoginStatus } from '../../../apis/login';
 import { getUserAccount } from '../../../apis/user';
 import { useAuthStore } from '../../../store/auth';
+import { useUserStore } from '../../../store/user';
 import { setCookies } from '../../../utils/cookie';
 import styles from './Login.module.scss';
 
@@ -58,6 +59,17 @@ const Login = () => {
 							if (useAuthStore.getState().isLogin) {
 								await getUserAccount().then((res) => {
 									useAuthStore.setState({ userData: res });
+									const auth = useAuthStore.getState();
+									auth.setIsLogin(false);
+									auth.setCookie(null);
+									auth.setUserData(null);
+									const userData = useUserStore.getState();
+									userData.setDailySong({ timestamp: 0, tracks: null });
+									userData.setRecommendPlaylist({
+										timestamp: 0,
+										playlists: null,
+									});
+									userData.setLikePlaylist(null);
 								});
 								window.location.reload();
 							}
