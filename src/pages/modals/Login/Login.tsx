@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { checkQR, createQR, getLoginStatus } from '../../../apis/login';
 import { getUserAccount } from '../../../apis/user';
+import LazyImage from '../../../components/Common/LazyImage';
 import { useAuthStore } from '../../../store/auth';
 import { useUserStore } from '../../../store/user';
 import { setCookies } from '../../../utils/cookie';
@@ -84,14 +85,17 @@ const Login = () => {
 	return (
 		<div className={styles.login}>
 			<div className={styles.login__qrbox + ` ${''}`}>
-				<img src={qr} alt="qr" />
+				<LazyImage src={qr} alt="qr" />
 				<div
 					className={styles.login__qrbox__tip}
-					style={{ display: qrStatus > 0 ? 'block' : 'none' }}
+					style={{ display: qrStatus > 0 ? 'flex' : 'none' }}
 				>
-					<div className={styles.login__qrbox__mask__info}>
-						<p>等待 {qrInfo?.nickname} 授权...</p>
-					</div>
+					<LazyImage
+						src={qrInfo?.avatarUrl || ''}
+						alt="头像"
+						className={styles.login__qrbox__tip__avatar}
+					/>
+					<p>等待 {qrInfo?.nickname} 授权...</p>
 				</div>
 			</div>
 		</div>

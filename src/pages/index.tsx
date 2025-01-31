@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRadarPlaylist, getUserDailyPlaylist, getUserDailySongs } from '../apis/user';
 import Card from '../components/Common/Card';
+import LazyImage from '../components/Common/LazyImage';
 import { DailySongsResult, recommendPlaylist } from '../models/song';
 import { useAuthStore } from '../store/auth';
 import styles from './index.module.scss';
@@ -55,9 +56,12 @@ const Home = () => {
 							}
 						>
 							<div className={styles.recommends__permanent__left__daily__cover}>
-								<img
-									src={userDailySongs?.data.dailySongs[0].al.picUrl}
+								<LazyImage
+									src={userDailySongs?.data.dailySongs[0].al.picUrl || ''}
 									alt="每日30封面"
+									className={
+										styles.recommends__permanent__left__daily__cover__img
+									}
 								/>
 								<div
 									className={styles.mask}

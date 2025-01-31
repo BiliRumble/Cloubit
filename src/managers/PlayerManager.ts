@@ -1,5 +1,4 @@
 import { event } from '@tauri-apps/api';
-import { invoke } from '@tauri-apps/api/core';
 import { Howl } from 'howler';
 import { debounce } from 'lodash-es';
 import { getLyric, getSongURL } from '../apis/song';
@@ -7,7 +6,6 @@ import { scrobble } from '../apis/user';
 import { Lyric, LyricContent, PlayList, PlayListItem } from '../models/song';
 import { usePlayerStore } from '../store/player';
 import { useSettingStore } from '../store/setting';
-import { imageToBase64 } from '../utils/base64';
 
 const DEFAULT_VOLUME = 0.5;
 const PLACEHOLDER_SONG: PlayListItem = {
@@ -100,7 +98,7 @@ export default class PlayerManager {
 								{
 									src: this._currentSong.cover as string,
 									sizes: '1600x1600',
-									type: 'image/jpge',
+									type: 'image/jpeg',
 								},
 							],
 						});

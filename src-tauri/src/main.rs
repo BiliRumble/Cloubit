@@ -88,7 +88,7 @@ fn get_random_device_id(filename: &str) -> io::Result<String> {
     }
 
     // 随机选择一行
-    let random_index = rand::thread_rng().gen_range(0..lines.len());
+    let random_index = rand::rng().random_range(0..lines.len());
     Ok(lines[random_index].clone())
 }
 

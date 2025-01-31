@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { Artist } from '../../../models/search';
+import LazyImage from '../LazyImage';
 import styles from './SongList.module.scss';
 
 interface SongListProps {
@@ -42,7 +43,11 @@ const SongList: React.FC<SongListProps> = ({ songs, className = '', style }) => 
 					onClick={() => play(song.id, song.name, song.al.picUrl, song.ar)}
 				>
 					<div className={styles.song__item__title}>
-						<img src={song.al.picUrl} alt={song.name} />
+						<LazyImage
+							className={styles.song__item__title__cover}
+							src={song.al.picUrl}
+							alt={song.name}
+						/>
 						<div className={styles.song__item__title__info}>
 							<h3>{song.name}</h3>
 							<p>{song.ar.map((artist: any) => artist.name).join(' / ')}</p>

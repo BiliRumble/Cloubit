@@ -28,7 +28,7 @@ pub fn generate_random_hex_string(size: usize) -> String {
     let mut buffer = vec![0u8; size];
 
     // 用随机字节填充数组
-    rand::thread_rng().fill_bytes(&mut buffer);
+    rand::rng().fill_bytes(&mut buffer);
 
     // 转换为十六进制字符串
     hex::encode(buffer)
@@ -95,7 +95,7 @@ pub fn wnmcid() -> String {
     let characters = "abcdefghijklmnopqruvwxyz";
     let mut random_string = String::new();
     for _ in 0..6 {
-        let index = rand::thread_rng().gen_range(0..characters.len());
+        let index = rand::rng().random_range(0..characters.len());
         random_string.push(characters.chars().nth(index).unwrap());
     }
     format!("{}.01.0", random_string)

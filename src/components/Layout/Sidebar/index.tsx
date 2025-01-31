@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUserPlaylist } from '../../../apis/user';
 import { useAuthStore } from '../../../store/auth';
 import { useUserStore } from '../../../store/user';
+import LazyImage from '../../Common/LazyImage';
 import styles from './Sidebar.module.scss';
 
 interface SideBarProps {
@@ -90,7 +91,11 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 								className={styles.sidebar__item__playlist}
 								onClick={() => navigate(`/playlist/${sidebar__item.id}`)}
 							>
-								<img src={sidebar__item.coverImgUrl} alt="" />
+								<LazyImage
+									src={sidebar__item.coverImgUrl}
+									className={styles.sidebar__item__playlist__cover}
+									alt={sidebar__item.item}
+								/>
 								{sidebar__item.name}
 							</button>
 						);

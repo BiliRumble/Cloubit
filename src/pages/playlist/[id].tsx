@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPlayListDetail } from '../../apis/playlist';
 import Chip from '../../components/Common/Chip';
+import LazyImage from '../../components/Common/LazyImage';
 import SongList from '../../components/Common/SongList';
 import { usePlayerManager } from '../../context/PlayerContext';
 import styles from './Playlist.module.scss';
@@ -72,7 +73,11 @@ const Playlist = () => {
 			{!loading && (
 				<div className={styles.playlist}>
 					<div className={styles.playlist__header}>
-						<img src={playlistTracks?.coverImgUrl} alt="" />
+						<LazyImage
+							src={playlistTracks?.coverImgUrl}
+							alt=""
+							className={styles.playlist__header__cover}
+						/>
 						<div className={styles.playlist__header__info}>
 							<div className={styles.playlist__header__info__data}>
 								<h1

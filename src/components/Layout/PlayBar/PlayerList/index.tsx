@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { usePlayerManager } from '../../../../context/PlayerContext';
 import { PlayList } from '../../../../models/song';
 import styles from './PlayList.module.scss';
+import LazyImage from '../../../Common/LazyImage';
 
 interface PlayListProps {
 	onClose: () => void;
@@ -44,7 +45,7 @@ const PlayListModal: React.FC<PlayListProps> = ({ onClose, className = '' }) => 
 						}
 						key={item.id}
 					>
-						<img src={item.cover} alt={item.name} />
+						<LazyImage src={item.cover || ''} alt={item.name} className={styles.playlist__list__item__cover} />
 						<div
 							className={styles.playlist__list__item__info}
 							onClick={() => {

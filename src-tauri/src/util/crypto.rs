@@ -16,7 +16,7 @@ use openssl::encrypt::Encrypter;
 use openssl::pkey::PKey;
 use openssl::rsa::Padding;
 use openssl::rsa::Rsa;
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use regex::Regex;
 use serde_json::json;
 use std::error::Error;
@@ -146,7 +146,7 @@ pub fn eapi(url: &str, object: &serde_json::Value) -> Result<serde_json::Value, 
 
 
 fn generate_random_char() -> char {
-    let random_index = thread_rng().gen_range(0..BASE62.len());
+    let random_index = rng().random_range(0..BASE62.len());
     BASE62.chars().nth(random_index).unwrap_or_else(|| {
         eprintln!("Warning: Failed to get character from BASE62, using default character.");
         BASE62.chars().next().unwrap()
