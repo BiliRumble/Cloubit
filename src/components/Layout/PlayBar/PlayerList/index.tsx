@@ -45,7 +45,11 @@ const PlayListModal: React.FC<PlayListProps> = ({ onClose, className = '' }) => 
 						}
 						key={item.id}
 					>
-						<LazyImage src={item.cover || ''} alt={item.name} className={styles.playlist__list__item__cover} />
+						<LazyImage
+							src={item.cover || ''}
+							alt={item.name}
+							className={styles.playlist__list__item__cover}
+						/>
 						<div
 							className={styles.playlist__list__item__info}
 							onClick={() => {
