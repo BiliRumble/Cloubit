@@ -7,6 +7,7 @@ import { scrobble } from '../apis/user';
 import { Lyric, LyricContent, PlayList, PlayListItem } from '../models/song';
 import { usePlayerStore } from '../store/player';
 import { useSettingStore } from '../store/setting';
+import { imageToBase64 } from '../utils/base64';
 
 const DEFAULT_VOLUME = 0.5;
 const PLACEHOLDER_SONG: PlayListItem = {
@@ -89,18 +90,39 @@ export default class PlayerManager {
 				autoplay: play,
 				loop: this._mode === 'single',
 				onend: () => this.next(),
-				onpause: () => event.emit('player-update-playing', false),
-				onplay: () => event.emit('player-update-playing', true),
+				onpause: () => this.emitPlayerUpdate('pause'),
+				onplay: () => {
+					if ('mediaSession' in navigator && useSettingStore.getState().pushToSMTC) {
+						navigator.mediaSession.metadata = new MediaMetadata({
+							title: this.currentSong.name,
+							artist: this._currentSong.artists?.join('/'),
+							artwork: [
+								{
+									src: this._currentSong.cover as string,
+									sizes: '1600x1600',
+									type: 'image/jpge',
+								},
+							],
+						});
+					}
+					this.emitPlayerUpdate('play');
+				},
 				onplayerror: (error) => {
 					console.error('🎵 Error playing audio:', error);
 					alert('歌曲无法播放');
+				},
+				onstop: () => {
+					if ('mediaSession' in navigator) {
+						navigator.mediaSession.metadata = null;
+					}
 				},
 				preload: 'metadata',
 				pool: 1,
 				xhr: {
 					withCredentials: true,
 					headers: {
-						referer: 'https://music.163.com/',
+						Referer: 'https://music.163.com/',
+						Origin: 'https://music.163.com',
 					},
 				},
 			});
@@ -119,9 +141,8 @@ export default class PlayerManager {
 			this._currentSong = target;
 			this._playing = play;
 			document.title = `${this._currentSong.name} - ${this._currentSong.artists?.join('/')}`;
-			event.emit('player-update-current-song', this._currentSong);
+			this.emitPlayerUpdate('song-change');
 			usePlayerStore.setState({ currentSong: target });
-			if (useSettingStore.getState().pushToSMTC) this.pushToSTMC();
 		} catch (error) {
 			console.error('🎵 Error setting current song:', error);
 		} finally {
@@ -130,8 +151,9 @@ export default class PlayerManager {
 	}
 
 	public addToPlaylist(song: PlayListItem) {
-		debounce(() => {
+		debounce(async () => {
 			if (this._playlist.data.find((item) => item.id === song.id)) return;
+			//if (song.cover) song.cover = song.cover.replace('http://', 'https://');
 			this._playlist.data.push(song);
 			this._playlist.count++;
 			this.resetPlaylistIndices(); // 添加歌曲后重设index
@@ -178,9 +200,9 @@ export default class PlayerManager {
 	public async play() {
 		if (
 			!this._player ||
+			this.isChangingPlayState ||
 			this._currentSong.index === -1 ||
-			this._player.playing() ||
-			this.isChangingPlayState
+			this._player.playing()
 		)
 			return;
 		this.isChangingPlayState = true;
@@ -189,16 +211,13 @@ export default class PlayerManager {
 		this._player.play();
 		this._playing = true;
 		await new Promise<void>((resolve) => {
-			if (!this._player) return;
-			this._player.once('play', () => {
-				if (!this._player) return;
-				this._player.fade(0, this._volume, useSettingStore.getState().fadeTime);
-				this._player.volume(this._volume);
+			this._player?.once('play', () => {
+				this._player?.fade(0, this._volume, useSettingStore.getState().fadeTime);
+				this._player?.volume(this._volume);
 				this.isChangingPlayState = false;
 				resolve();
 			});
 		});
-		event.emit('player-play');
 	}
 
 	public async pause() {
@@ -209,7 +228,6 @@ export default class PlayerManager {
 			this.isChangingPlayState
 		)
 			return;
-		event.emit('player-pause');
 		this.isChangingPlayState = true;
 		// 淡出
 		await new Promise<void>((resolve) => {
@@ -257,15 +275,8 @@ export default class PlayerManager {
 				this.setCurrentSong(this._playlist.data[index].id);
 				break;
 			case 'random':
-				if (this._playlist.count < 2) {
-					this._player?.seek(0);
-				}
-				if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
 				// eslint-disable-next-line no-case-declarations
-				let random;
-				do {
-					random = Math.floor(Math.random() * this._playlist.count);
-				} while (random === this._currentSong.index);
+				const random = this.getRandomIndex();
 				this.setCurrentSong(this._playlist.data[random].id);
 				break;
 		}
@@ -290,15 +301,8 @@ export default class PlayerManager {
 				this.setCurrentSong(this._playlist.data[index].id);
 				break;
 			case 'random':
-				if (this._playlist.count < 2) {
-					this._player?.seek(0);
-				}
-				if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
 				// eslint-disable-next-line no-case-declarations
-				let random;
-				do {
-					random = Math.floor(Math.random() * this._playlist.count);
-				} while (random === this._currentSong.index);
+				const random = this.getRandomIndex();
 				this.setCurrentSong(this._playlist.data[random].id);
 				break;
 		}
@@ -374,8 +378,13 @@ export default class PlayerManager {
 		usePlayerStore.setState({ mode: mode });
 	}
 	set seek(seek: number) {
-		if (!this._player) return;
-		this._player.seek(seek);
+		if (!this._player || this._player.state() !== 'loaded') return;
+
+		// 约束 seek 范围在 [0, duration] 之间
+		const clampedSeek = Math.max(0, Math.min(seek, this.duration));
+
+		this._player.seek(clampedSeek);
+		usePlayerStore.setState({ seek: clampedSeek }); // 同步到状态管理
 	}
 	set muted(muted: boolean) {
 		if (!this._player) return;
@@ -387,15 +396,6 @@ export default class PlayerManager {
 		if (!this._player) return;
 		this._player.volume(volume);
 		usePlayerStore.setState({ volume: volume });
-	}
-
-	public pushToSTMC() {
-		if (!this._player || !useSettingStore.getState().pushToSMTC) return;
-		invoke('push_to_stmc', {
-			title: this._currentSong?.name || 'None',
-			artist: this._currentSong?.artists?.join('/') || 'None',
-			cover: this._currentSong?.cover,
-		});
 	}
 
 	public static getInstance(): PlayerManager {
@@ -424,5 +424,28 @@ export default class PlayerManager {
 			}
 		}
 		return lyricMap;
+	}
+
+	private getRandomIndex(excludeCurrent: boolean = true): number {
+		if (this._playlist.count <= 1) return 0;
+		let random: number;
+		do {
+			random = Math.floor(Math.random() * this._playlist.count);
+		} while (excludeCurrent && random === this._currentSong?.index);
+		return random;
+	}
+
+	private emitPlayerUpdate(eventType: 'play' | 'pause' | 'song-change') {
+		switch (eventType) {
+			case 'play':
+				event.emit('player-update-playing', true);
+				break;
+			case 'pause':
+				event.emit('player-update-playing', false);
+				break;
+			case 'song-change':
+				event.emit('player-update-current-song', this._currentSong);
+				break;
+		}
 	}
 }

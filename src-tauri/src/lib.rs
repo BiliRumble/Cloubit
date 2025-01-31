@@ -1,16 +1,5 @@
 use tauri::Manager;
 
-mod stmc;
-
-#[tauri::command]
-async fn push_to_stmc(
-    title: String,
-    artist: String,
-    cover: String,
-) {
-    stmc::update_system_media_info(&title, &artist, &cover);
-}
-
 #[cfg(desktop)]
 mod tray;
 
@@ -32,7 +21,7 @@ pub fn run() {
         })
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![push_to_stmc])
+        .invoke_handler(tauri::generate_handler![])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
