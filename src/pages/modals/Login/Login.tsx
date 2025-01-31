@@ -59,10 +59,6 @@ const Login = () => {
 							if (useAuthStore.getState().isLogin) {
 								await getUserAccount().then((res) => {
 									useAuthStore.setState({ userData: res });
-									const auth = useAuthStore.getState();
-									auth.setIsLogin(false);
-									auth.setCookie(null);
-									auth.setUserData(null);
 									const userData = useUserStore.getState();
 									userData.setDailySong({ timestamp: 0, tracks: null });
 									userData.setRecommendPlaylist({

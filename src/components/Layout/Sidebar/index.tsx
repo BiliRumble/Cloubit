@@ -87,7 +87,7 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 						}
 						return (
 							<button
-								className={styles.playlist__sidebar__item}
+								className={styles.sidebar__item__playlist}
 								onClick={() => navigate(`/playlist/${sidebar__item.id}`)}
 							>
 								<img src={sidebar__item.coverImgUrl} alt="" />
