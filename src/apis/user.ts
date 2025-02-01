@@ -98,6 +98,13 @@ export async function getUserDailyPlaylist(limit?: number): Promise<recommendPla
 	return null;
 }
 
+/**
+ * 获取用户歌单
+ *
+ * @param id 用户id
+ *
+ * @returns UserPlaylistResult | null
+ */
 export async function getUserPlaylist(
 	id: number = useAuthStore.getState().userData?.account.id as number
 ): Promise<any> {
@@ -116,7 +123,10 @@ export async function getUserPlaylist(
 	return null;
 }
 
-export async function getRadarPlaylist() {
+/**
+ * 获取雷达歌单
+ */
+export async function getRadarPlaylist(): Promise<any> {
 	const allRadar = idMeta.radarPlaylist.map(async (playlist) => {
 		return (
 			await get('/playlist/detail', {
@@ -130,11 +140,15 @@ export async function getRadarPlaylist() {
 
 export async function getLikeList(
 	id: number = useAuthStore.getState().userData?.account.id as number
-) {
-	const lastLikeList = useUserStore.getState().userLikeData;
+): Promise<number[] | null> {
+	if (!id) return null;
+	const lastLikeList = useUserStore.getState().likeSongs as {
+		timestamp: number;
+		ids: number[] | null;
+	};
 	if (lastLikeList.timestamp + 5 * 1000 > Date.now()) {
-		console.debug('🌐 Get User Daily Resource From Cache: ', lastLikeList);
-		return lastLikeList?.likelist;
+		console.debug('🌐 Get User Like List From Cache: ', lastLikeList);
+		return lastLikeList.ids;
 	}
 	console.debug(lastLikeList);
 	const response = (
@@ -144,11 +158,35 @@ export async function getLikeList(
 		})
 	).data as any;
 	if (response.code === 200) {
-		useUserStore.getState().setUserLikeData({ timestamp: Date.now(), likelist: response.ids });
+		useUserStore.getState().setLikeSongs({ timestamp: Date.now(), ids: response.ids });
 		return response;
 	}
 	console.error('🌐 Get User Like List Failed!');
 	return null;
+}
+
+/**
+ * 收藏歌曲
+ *
+ * @param id 歌曲id
+ * @param like 是否收藏
+ *
+ * @returns boolean
+ */
+export async function likeSong(id: number, like: boolean): Promise<boolean> {
+	const response = (
+		await get('like', {
+			id,
+			like,
+			timestamp: Date.now(),
+		})
+	).data as any;
+	if (response.code === 200) {
+		console.debug('🌐 Like Song Success: ', response);
+		return true;
+	}
+	console.error('🌐 Like Song Failed!');
+	return false;
 }
 
 export async function scrobble(id: number, sourceId: number, time: number): Promise<boolean> {

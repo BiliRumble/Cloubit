@@ -1,6 +1,6 @@
 [package]
 name = "azusap"
-version = "0.2.9"
+version = "0.3.0"
 description = "网易云音乐的客户端代替方案"
 authors = ["rumble"]
 edition = "2021"

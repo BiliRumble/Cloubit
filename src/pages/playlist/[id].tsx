@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPlayListDetail } from '../../apis/playlist';
+import { getUserPlaylist } from '../../apis/user';
 import Chip from '../../components/Common/Chip';
 import LazyImage from '../../components/Common/LazyImage';
 import SongList from '../../components/Common/SongList';
 import { usePlayerManager } from '../../context/PlayerContext';
+import { toLikePlaylist } from '../../utils/song';
 import styles from './Playlist.module.scss';
 
 const Playlist = () => {
@@ -17,11 +19,22 @@ const Playlist = () => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [searchKeyword, setSearchKeyword] = useState<string>('');
 
+	const [isLike, setIsLike] = useState<boolean>(false);
+
+	const handleLike = () => {
+		setIsLike(!isLike);
+		toLikePlaylist(playlistTracks.id, !isLike);
+	};
+
 	useEffect(() => {
 		if (!id) navigate('/');
 		getPlayListDetail(id as unknown as number).then((res) => {
 			setPlaylistTracks(res.playlist);
 			setFilteredTracks(res.playlist.tracks); // 初始时显示所有歌曲
+			getUserPlaylist().then((res) => {
+				const likedPlaylistIds = res.playlist.map((playlist: any) => playlist.id);
+				setIsLike(likedPlaylistIds.includes(playlistTracks.id));
+			});
 			setLoading(false);
 		});
 	}, [id]);
@@ -131,9 +144,13 @@ const Playlist = () => {
 									onClick={() => setPlaylist(playlistTracks?.tracks)}
 								/>
 								<button
+									onClick={() => handleLike()}
 									className={
 										styles.playlist__header__info__operator__collect +
-										' i-solar-heart-angle-line-duotone'
+										' ' +
+										(isLike
+											? 'i-solar-heart-broken-line-duotone'
+											: 'i-solar-heart-angle-line-duotone')
 									}
 								/>
 								<div className={styles.playlist__header__info__operator__search}>

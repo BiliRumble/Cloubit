@@ -1,10 +1,13 @@
 import { event } from '@tauri-apps/api';
 import { debounce } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getLikeList } from '../../../apis/user';
 import cover from '../../../assets/images/song.png';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { usePlayerStore } from '../../../store/player';
 import { useSettingStore } from '../../../store/setting';
+import { useUserStore } from '../../../store/user';
+import { toLikeSong } from '../../../utils/song';
 import Modal from '../../Common/Modal';
 import Popover from '../../Common/Popover';
 import LryicModal from './Lyric';
@@ -33,8 +36,18 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 	const [duration, setDuration] = useState(usePlayer.duration);
 	const [lyrics, setLyrics] = useState<string | null>(null);
 
+	const { likeSongs } = useUserStore.getState();
+	const isLikeSong = (): boolean => {
+		return likeSongs.ids?.includes(currentSong?.id ?? 0) ?? false;
+	};
+
+	const handleLike = () => {
+		toLikeSong(currentSong?.id ?? 0, !isLikeSong());
+	};
+
 	useEffect(() => {
 		usePlayer.resetPlaylistIndices();
+		getLikeList();
 	}, []);
 
 	const updateState = useCallback(() => {
@@ -192,10 +205,14 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 						</div>
 					</div>
 					<div className={styles.action}>
-						<span className={`i-solar-heart-angle-line-duotone ${styles.like}`} />
-						{false /* 在love列表内 */ && (
-							<span className="i-solar-heart-broken-line-duotone" />
-						)}
+						<span
+							onClick={() => handleLike()}
+							className={
+								isLikeSong()
+									? 'i-solar-heart-broken-line-duotone'
+									: 'i-solar-heart-angle-line-duotone ${styles.like}'
+							}
+						/>
 						<span className="i-solar-dialog-2-line-duotone" />
 						<span className="i-solar-menu-dots-circle-line-duotone" />
 					</div>

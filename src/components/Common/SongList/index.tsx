@@ -1,6 +1,10 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getLikeList } from '../../../apis/user';
 import { usePlayerManager } from '../../../context/PlayerContext';
 import { Artist } from '../../../models/search';
+import { useUserStore } from '../../../store/user';
+import { toLikeSong } from '../../../utils/song';
 import LazyImage from '../LazyImage';
 import styles from './SongList.module.scss';
 
@@ -13,6 +17,19 @@ interface SongListProps {
 const SongList: React.FC<SongListProps> = ({ songs, className = '', style }) => {
 	const navigate = useNavigate();
 	const usePlayer = usePlayerManager();
+
+	useEffect(() => {
+		getLikeList();
+	}, []);
+
+	const { likeSongs } = useUserStore.getState();
+	const isLikeSong = (songId: number): boolean => {
+		return likeSongs.ids?.includes(songId) ?? false;
+	};
+
+	const handleLike = (songId: number) => {
+		toLikeSong(songId, !isLikeSong(songId));
+	};
 
 	const play = (id: number, name: string, cover: string, artist: Artist[]) => {
 		// 获取歌手名字列表
@@ -57,7 +74,14 @@ const SongList: React.FC<SongListProps> = ({ songs, className = '', style }) => 
 						<h3 onClick={() => navigate(`/album/${song.al.id}`)}>{song.al.name}</h3>
 					</div>
 					<div className={styles.song__item__operation}>
-						<span className={`i-solar-heart-angle-line-duotone`} />
+						<span
+							className={
+								isLikeSong(song.id)
+									? 'i-solar-heart-broken-line-duotone'
+									: 'i-solar-heart-angle-line-duotone'
+							}
+							onClick={() => handleLike(song.id)}
+						/>
 					</div>
 					<div className={styles.song__item__duration}>
 						{song.dt / 1000 / 60 < 10 ? '0' : ''}

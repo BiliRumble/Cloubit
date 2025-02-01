@@ -1,10 +1,10 @@
 import request from '../utils/request';
 
-const { get } = request;
+const { get, post } = request;
 
 export async function likePlaylist(id: number, like: boolean): Promise<boolean> {
 	const t = like ? 1 : 0;
-	const response = (await get('playlist/subscribe', { t, id, timestamp: Date.now() }))
+	const response = (await post(`playlist/subscribe?t=${t}&id=${id}&timestamp=${Date.now()}`))
 		.data as any;
 	if (response.code === 200) {
 		console.debug('🌐 Like Playlist Success: ', response);
@@ -15,7 +15,7 @@ export async function likePlaylist(id: number, like: boolean): Promise<boolean> 
 }
 
 export async function getPlayListDetail(id: number): Promise<any> {
-	const response = (await get('playlist/detail', { id: id })).data as any;
+	const response = (await get('playlist/detail', { id: id, timestamp: Date.now() })).data as any;
 	if (response.code === 200) {
 		console.debug('🌐 Get PlayList Detail Success: ', response);
 		return response;
