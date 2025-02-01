@@ -26,7 +26,13 @@ export const useTheme = () => {
 				break;
 			}
 		}
-		event.emit('switch-theme', type);
+		const theme =
+			type === 'auto'
+				? window.matchMedia('(prefers-color-scheme: dark)').matches
+					? 'dark'
+					: 'light'
+				: type;
+		event.emit('switch-theme', theme);
 	};
 
 	const initTheme = () => {

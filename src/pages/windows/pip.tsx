@@ -39,7 +39,9 @@ const Pip = () => {
 			setDuration(data);
 		});
 		const st = event.listen('switch-theme', (event) => {
-			useTheme().initTheme();
+			const data = event.payload as string;
+			const body = document.documentElement;
+			body.setAttribute('data-theme', data);
 		});
 
 		event.emitTo('main', 'pip-request-current-song');
