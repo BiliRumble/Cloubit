@@ -77,7 +77,7 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 					<h1>
 						歌单 <span className="i-solar-add-circle-linear" title="创建歌单" />
 					</h1>
-					{playlist.map((sidebar__item: any) => {
+					{playlist.map((sidebar__item: any, index) => {
 						if (
 							sidebar__item.name === '我喜欢的音乐' &&
 							sidebar__item.creator.userId ==
@@ -90,6 +90,7 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 							<button
 								className={styles.sidebar__item__playlist}
 								onClick={() => navigate(`/playlist/${sidebar__item.id}`)}
+								key={index}
 							>
 								<LazyImage
 									src={sidebar__item.coverImgUrl}

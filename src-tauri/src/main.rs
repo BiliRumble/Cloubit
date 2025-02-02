@@ -159,7 +159,7 @@ async fn main() -> io::Result<()> {
     };
 
     // 服务绑定地址
-    let address = "127.0.0.1:8080";
+    let address = "127.0.0.1:59662";
 
     println!("Starting server at: http://{}", address);
     let server = HttpServer::new(move || {
@@ -167,7 +167,7 @@ async fn main() -> io::Result<()> {
             // 添加缓存中间件
             .app_data(web::Data::new(app_state.clone()))
             // 添加日志中间件，默认会记录请求和响应
-            .wrap(Logger::new("%a %t \"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %{Cookie}i"))
+            .wrap(Logger::new("%a \"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %T"))
 			// 配置CORS中间件
 			.wrap(Cors::default().allow_any_origin().allow_any_method().allow_any_header().supports_credentials())
             // 配置路由

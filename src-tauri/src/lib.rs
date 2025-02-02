@@ -6,9 +6,10 @@ mod tray;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-			let _ = app.get_webview_window("main")
-				.expect("no main window")
-				.set_focus();
+			let main = app.get_webview_window("main")
+				.expect("no main window");
+			main.show().expect("failed to show main window");
+			main.set_focus().expect("failed to focus main window");
 		}))
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .setup(|app| {

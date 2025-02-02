@@ -4,7 +4,7 @@ import { useSettingStore } from '../../store/setting';
 
 // 创建新的axios实例
 const service = axios.create({
-	baseURL: 'http://localhost:8080',
+	baseURL: 'http://localhost:59662',
 	timeout: 5000,
 	withCredentials: true,
 });

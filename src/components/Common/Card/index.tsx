@@ -28,7 +28,9 @@ const Card: React.FC<CardProps> = ({
 				className={styles.img}
 			/>
 			<div className={styles.card__content}>
-				<h3 className={styles.card__content__title}>{text}</h3>
+				<h3 className={styles.card__content__title} title={text}>
+					{text}
+				</h3>
 			</div>
 		</div>
 	);

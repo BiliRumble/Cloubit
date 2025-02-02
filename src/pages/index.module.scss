@@ -176,9 +176,5 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, clamp(100px, calc((100% - 0.8rem) / 5), 200px));
 		justify-content: space-between;
-
-		&__card:not(:last-child) {
-			margin-right: 0.8rem;
-		}
 	}
 }
