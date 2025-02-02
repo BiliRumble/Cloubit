@@ -406,13 +406,14 @@ export default class PlayerManager {
 	// 解析歌词
 	public parseLyric(lyricLines: string[]): Map<number, string> {
 		const lyricMap = new Map<number, string>();
-		const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+		const timeRegex = /\[(\d{2}):(\d{2})\.(\d+)\]/; // 调整正则表达式
 		for (const line of lyricLines) {
 			const match = line.match(timeRegex);
 			if (match) {
 				const minutes = parseInt(match[1], 10);
 				const seconds = parseInt(match[2], 10);
 				const milliseconds = parseInt(match[3], 10);
+				// 处理不同精度的毫秒
 				const time =
 					minutes * 60 + seconds + milliseconds / (match[3].length === 3 ? 1000 : 100);
 				const lyricText = line.replace(timeRegex, '').trim();

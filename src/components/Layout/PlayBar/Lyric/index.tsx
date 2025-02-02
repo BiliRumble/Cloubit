@@ -17,43 +17,44 @@ function parseLyric(
 	lyric: LyricContent,
 	translated?: LyricContent
 ): { index: number; text: string; translatedText?: string }[] {
+	// 通用歌词解析逻辑
+	const parseLrc = (lrcText: string) => {
+		return lrcText
+			.split('\n')
+			.map((line) => {
+				// 使用正则匹配时间戳，兼容多出的"]"
+				const timeMatch = line.match(/^\[(\d{2}):(\d{2})\.(\d+)\]/);
+				if (!timeMatch) return null;
+				const minute = parseInt(timeMatch[1], 10);
+				const second = parseInt(timeMatch[2], 10);
+				const millis = parseInt(timeMatch[3], 10);
+				// 处理毫秒位数（兼容2位或3位）
+				const index =
+					minute * 60 + second + millis / (timeMatch[3].length === 3 ? 1000 : 100);
+				const text = line.slice(timeMatch[0].length).trim();
+				return { index, text };
+			})
+			.filter((item) => item !== null);
+	};
+
 	let data;
-	if (!translated || translated.lyric == '' || useSettingStore.getState().lyricsType === 'raw')
-		data = lyric.lyric
-			.split('\n')
-			.map((item) => {
-				const [time, text] = item.split(']');
-				const [minute, second] = time.slice(1).split(':');
-				const index = Number(minute) * 60 + Number(second);
-				if (isNaN(index)) {
-					return null;
-				}
-				return {
-					index,
-					text,
-				};
-			})
-			.filter((item) => item !== null);
-	else
-		data = translated.lyric
-			.split('\n')
-			.map((item) => {
-				const [time, text] = item.split(']');
-				const [minute, second] = time.slice(1).split(':');
-				const index = Number(minute) * 60 + Number(second);
-				if (isNaN(index)) {
-					return null;
-				}
-				return {
-					index,
-					text,
-					translatedText: lyric.lyric
-						.split('\n')
-						.find((line) => line.startsWith(time))
-						?.split(']')[1],
-				};
-			})
-			.filter((item) => item !== null);
+	const lyricsType = useSettingStore.getState().lyricsType;
+
+	if (!translated?.lyric || lyricsType === 'raw') {
+		data = parseLrc(lyric.lyric);
+	} else {
+		// 解析翻译歌词并匹配原歌词
+		const mainLines = parseLrc(lyric.lyric);
+		const transLines = parseLrc(translated.lyric);
+		data = transLines.map((tItem) => {
+			const mainItem = mainLines.find((mItem) => mItem.index === tItem.index);
+			return {
+				index: tItem.index,
+				text: mainItem?.text || '',
+				translatedText: tItem.text,
+			};
+		});
+	}
 
 	return data;
 }
