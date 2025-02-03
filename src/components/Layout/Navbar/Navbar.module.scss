@@ -88,12 +88,15 @@
 			flex-direction: row !important;
 			flex-wrap: nowrap !important;
 
-			img {
-				width: 28px;
-				height: 28px;
-				border-radius: 50%;
+			&__avatar {
 				margin-right: 0.4rem;
+
+				img {
+					width: 28px;
+					height: 28px;
+				}
 			}
+
 			span {
 				font-size: 1rem !important;
 			}

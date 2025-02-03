@@ -9,6 +9,7 @@ import Login from '../../../pages/modals/Login/Login';
 import Settings from '../../../pages/modals/Settings/Settings';
 import { useAuthStore } from '../../../store/auth';
 import { useUserStore } from '../../../store/user';
+import Avatar from '../../Common/Avatar';
 import Modal from '../../Common/Modal';
 import Popover from '../../Common/Popover';
 import Search from './Search';
@@ -68,9 +69,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					<button className={styles.navbar__right__login}>
 						{useAuthStore.getState().isLogin ? (
 							<div className={styles.navbar__right__login__info} ref={userRef}>
-								<img
-									src={useAuthStore.getState().userData?.profile.avatarUrl}
-									alt="avatar"
+								<Avatar
+									url={useAuthStore.getState().userData?.profile.avatarUrl || ''}
+									name={useAuthStore.getState().userData?.profile.nickname || ''}
+									className={styles.navbar__right__login__info__avatar}
+									size={28}
 								/>
 								<span>{useAuthStore.getState().userData?.profile.nickname}</span>
 							</div>

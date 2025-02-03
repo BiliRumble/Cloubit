@@ -1,3 +1,11 @@
+export interface BaseUser {
+	userId: number;
+	nickname: string;
+	avatarUrl: string;
+	authStatus: number;
+	userType: number;
+}
+
 interface Account {
 	anonimousUser: boolean;
 	ban: number;
@@ -14,7 +22,7 @@ interface Account {
 	whitelistAuthority: number;
 }
 
-interface Profile {
+export interface Profile extends BaseUser {
 	accountStatus: number;
 	accountType: number;
 	anchor: boolean;

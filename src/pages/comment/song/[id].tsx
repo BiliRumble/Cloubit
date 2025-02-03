@@ -1,0 +1,39 @@
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { getSongComment } from '../../../apis/comment';
+import CommentComponent from '../../../components/Common/Comment';
+import { Comment } from '../../../models/comment';
+import styles from '../Comment.module.scss';
+
+const SongComment = () => {
+	const { id } = useParams<{ id: string }>();
+
+	const [comments, setComments] = useState<Comment[]>([]);
+	const [loading, setLoading] = useState<boolean>(true);
+
+	useEffect(() => {
+		getSongComment(id as unknown as number).then((res) => {
+			setComments(res?.comments || []);
+			setLoading(false);
+			console.warn(comments);
+		});
+	}, [id]);
+
+	return (
+		<>
+			{!loading && (
+				<div className={styles.comments__body}>
+					{comments.map((comment) => (
+						<CommentComponent
+							key={comment.commentId}
+							comment={comment}
+							onLike={() => {}}
+						/>
+					))}
+				</div>
+			)}
+		</>
+	);
+};
+
+export default SongComment;

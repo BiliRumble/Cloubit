@@ -1,6 +1,7 @@
 import { event } from '@tauri-apps/api';
 import { debounce } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getLikeList } from '../../../apis/user';
 import cover from '../../../assets/images/song.png';
 import { usePlayerManager } from '../../../context/PlayerContext';
@@ -20,6 +21,7 @@ interface PlayBarProps {
 
 const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 	const usePlayer = usePlayerManager();
+	const navigate = useNavigate();
 
 	const [playerListModalOpen, setPlayerListModalOpen] = useState(false);
 	const [lyricModalOpen, setLyricModalOpen] = useState(false);
@@ -213,7 +215,10 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 									: 'i-solar-heart-angle-line-duotone ${styles.like}'
 							}
 						/>
-						<span className="i-solar-dialog-2-line-duotone" />
+						<span
+							onClick={() => navigate('/comment/song/' + currentSong.id)}
+							className="i-solar-dialog-2-line-duotone"
+						/>
 						<span className="i-solar-menu-dots-circle-line-duotone" />
 					</div>
 				</div>

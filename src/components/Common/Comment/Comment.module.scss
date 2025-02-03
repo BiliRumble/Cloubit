@@ -1,0 +1,53 @@
+.comment {
+	display: flex;
+	gap: 12px;
+	padding: 16px;
+	background-color: var(--third-background-color);
+	border-radius: var(--border-radius);
+	box-shadow: var(--shadow);
+	transition: box-shadow 0.2s ease;
+
+	&:hover {
+		box-shadow: var(--shadow-hover);
+	}
+
+	&__avatar {
+		flex-shrink: 0;
+	}
+
+	&__content {
+		flex: 1;
+		min-width: 0;
+
+		&__header {
+			display: flex;
+			align-items: baseline;
+			gap: 8px;
+			margin-bottom: 8px;
+
+			&__name {
+				font-weight: 500;
+				color: var(--text-color);
+			}
+
+			&__time {
+				font-size: 0.85em;
+				color: var(--third-text-color);
+			}
+		}
+
+		&__body {
+			color: var(--second-text-color);
+			line-height: 1.5;
+			white-space: pre-wrap;
+			word-break: break-word;
+		}
+
+		&__footer {
+			margin-top: 12px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+	}
+}
