@@ -112,7 +112,9 @@ const Album = () => {
 									<div
 										className={styles.album__header__info__data__details__tags}
 									>
-										{albumInfo?.tags?.map((tag: string) => <Chip text={tag} />)}
+										{albumInfo?.tags?.map((tag: string) => (
+											<Chip children={tag} />
+										))}
 									</div>
 								)}
 							</div>

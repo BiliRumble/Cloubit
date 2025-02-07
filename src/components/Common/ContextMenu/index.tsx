@@ -1,4 +1,3 @@
-// components/ContextMenu/index.tsx
 import { useEffect, useRef, useState } from 'react';
 import styles from './ContextMenu.module.scss';
 

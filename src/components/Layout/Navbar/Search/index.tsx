@@ -160,7 +160,7 @@ const Search: React.FC<PlayBarProps> = ({ className = '' }) => {
 										return (
 											<Chip
 												key={item.time}
-												text={item.name}
+												children={item.name}
 												onContextMenu={() => {
 													setHistory(
 														history.filter((i) => i.time !== item.time)

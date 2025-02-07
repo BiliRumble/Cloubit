@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import styles from './LazyImage.module.scss';
 
 interface LazyImageProps {
@@ -13,12 +13,14 @@ interface LazyImageProps {
 }
 
 const useIntersectionObserver = (ref: RefObject<Element>, callback: () => void) => {
+	const cachedCallback = useCallback(callback, [callback]);
+
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
 					if (entry.isIntersecting) {
-						callback();
+						cachedCallback();
 						observer.unobserve(entry.target);
 					}
 				});
@@ -35,7 +37,7 @@ const useIntersectionObserver = (ref: RefObject<Element>, callback: () => void) 
 		return () => {
 			if (currentRef) observer.unobserve(currentRef);
 		};
-	}, [ref, callback]);
+	}, [ref, cachedCallback]);
 };
 
 const LazyImage: React.FC<LazyImageProps> = ({
@@ -52,9 +54,17 @@ const LazyImage: React.FC<LazyImageProps> = ({
 	const [error, setError] = useState(false);
 	const [retryCount, setRetryCount] = useState(0);
 	const imgRef = useRef<HTMLImageElement>(null);
+	const imgInstanceRef = useRef<HTMLImageElement | null>(null);
 
-	const loadImage = () => {
+	const loadImage = useCallback(() => {
+		if (imgInstanceRef.current) {
+			imgInstanceRef.current.onload = null;
+			imgInstanceRef.current.onerror = null;
+		}
+
 		const img = new Image();
+		imgInstanceRef.current = img;
+
 		img.src = src;
 		if (srcSet) img.srcset = srcSet;
 		if (sizes) img.sizes = sizes;
@@ -73,19 +83,20 @@ const LazyImage: React.FC<LazyImageProps> = ({
 			} else {
 				setError(true);
 				onError?.();
+				imgInstanceRef.current = null;
 			}
 		};
-	};
+	}, [src, srcSet, sizes, retryCount, maxRetries, onError]);
 
 	useIntersectionObserver(imgRef, loadImage);
 
-	const handleRetry = () => {
+	const handleRetry = useCallback(() => {
 		if (error) {
 			setRetryCount(0);
 			setError(false);
 			loadImage();
 		}
-	};
+	}, [error, loadImage]);
 
 	return (
 		<div

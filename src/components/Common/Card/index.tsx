@@ -10,6 +10,16 @@ interface CardProps {
 	className?: string;
 }
 
+/**
+ * Card 组件
+ *
+ * @param {string} key - 唯一标识
+ * @param {string} cover - 封面图片
+ * @param {string} text - 标题
+ * @param {React.CSSProperties} style - 样式
+ * @param {() => void} onClick - 点击事件
+ * @param {string} className - 类名
+ */
 const Card: React.FC<CardProps> = ({
 	key,
 	className = '',
