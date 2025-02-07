@@ -77,31 +77,32 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 					<h1>
 						歌单 <span className="i-solar-add-circle-linear" title="创建歌单" />
 					</h1>
-					{playlist.map((sidebar__item: any, index) => {
-						if (
-							sidebar__item.name === '我喜欢的音乐' &&
-							sidebar__item.creator.userId ==
-								useAuthStore.getState().userData?.profile.userId
-						) {
-							useUserStore.setState({ likePlaylist: sidebar__item.id });
-							return null;
-						}
-						<div className={styles.sidebar__playlist__items} key={index} />
-						return (
-							<button
-								onClick={() => navigate(`/playlist/${sidebar__item.id}`)}
-								className={styles.sidebar__playlist__items__item}
-								key={index}
-							>
-								<LazyImage
-									src={sidebar__item.coverImgUrl}
-									className={styles.sidebar__playlist__items__item__cover}
-									alt={sidebar__item.item}
-								/>
-								{sidebar__item.name}
-							</button>
-						);
-					})}
+					<div className={styles.sidebar__playlist__items}>
+						{playlist.map((sidebar__item: any, index) => {
+							if (
+								sidebar__item.name === '我喜欢的音乐' &&
+								sidebar__item.creator.userId ==
+									useAuthStore.getState().userData?.profile.userId
+							) {
+								useUserStore.setState({ likePlaylist: sidebar__item.id });
+								return null;
+							}
+							return (
+								<button
+									onClick={() => navigate(`/playlist/${sidebar__item.id}`)}
+									className={styles.sidebar__playlist__items__item}
+									key={index}
+								>
+									<LazyImage
+										src={sidebar__item.coverImgUrl}
+										className={styles.sidebar__playlist__items__item__cover}
+										alt={sidebar__item.item}
+									/>
+									{sidebar__item.name}
+								</button>
+							);
+						})}
+					</div>
 				</div>
 			)}
 		</nav>

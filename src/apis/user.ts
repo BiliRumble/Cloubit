@@ -150,7 +150,6 @@ export async function getLikeList(
 		console.debug('🌐 Get User Like List From Cache: ', lastLikeList);
 		return lastLikeList.ids;
 	}
-	console.debug(lastLikeList);
 	const response = (
 		await get('likelist', {
 			timestamp: Date.now(),

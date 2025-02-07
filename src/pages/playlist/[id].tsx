@@ -130,7 +130,7 @@ const Playlist = () => {
 										}
 									>
 										{playlistTracks?.tags?.map((tag: string) => (
-											<Chip text={tag} />
+											<Chip key={tag} text={tag} />
 										))}
 									</div>
 								)}

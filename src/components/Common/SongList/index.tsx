@@ -76,7 +76,6 @@ const SongList: React.FC<SongListProps> = ({ songs, className = '', style }) => 
 				<ContextMenu items={menuItems(song)} key={song.id}>
 					<div
 						className={styles.song__item}
-						key={song.id}
 						data-context-data={song}
 						onClick={() => play(song.id, song.name, song.al.picUrl, song.ar)}
 					>
