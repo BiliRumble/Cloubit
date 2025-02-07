@@ -183,6 +183,13 @@ export async function likeSong(id: number, like: boolean): Promise<boolean> {
 	).data as any;
 	if (response.code === 200) {
 		console.debug('🌐 Like Song Success: ', response);
+		const newIds = useUserStore.getState().likeSongs.ids;
+		if (like) {
+			newIds?.push(id);
+		} else {
+			newIds?.splice(newIds.indexOf(id), 1);
+		}
+		useUserStore.getState().setLikeSongs({ timestamp: Date.now(), ids: newIds });
 		return true;
 	}
 	console.error('🌐 Like Song Failed!');

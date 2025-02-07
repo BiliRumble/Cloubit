@@ -1,4 +1,5 @@
-import Control, { Button } from '../../../../components/Common/Controls/Controls';
+import { Button } from '../../../../components/Common/Button';
+import Control from '../../../../components/Common/Controls/Controls';
 
 const DataSettings: React.FC<{ className: string }> = ({ className }) => {
 	const exportData = () => {

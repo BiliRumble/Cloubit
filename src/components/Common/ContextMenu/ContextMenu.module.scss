@@ -1,0 +1,37 @@
+// components/ContextMenu/ContextMenu.module.scss
+.contextMenu {
+	position: relative;
+	width: 100%;
+	display: inline-block;
+
+	&__box {
+		position: fixed;
+		z-index: 1000;
+		min-width: 160px;
+		background: var(--button-bg-color);
+		border: 1px solid var(--third-background-color);
+		border-radius: 4px;
+		box-shadow: var(--shadow);
+		padding: 4px 0;
+
+		&__item {
+			padding: 8px 16px;
+			font-size: 14px;
+			color: var(--text-color);
+			cursor: pointer;
+			transition:
+				background 0.2s,
+				color 0.2s;
+
+			&:hover {
+				background: var(--button-hover-bg-color);
+				color: var(--primary-color);
+			}
+
+			&.disabled {
+				color: var(--third-text-color);
+				cursor: not-allowed;
+			}
+		}
+	}
+}

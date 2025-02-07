@@ -73,7 +73,7 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 				</button>
 			</div>
 			{useAuthStore.getState().isLogin && (
-				<div className={styles.sidebar__item}>
+				<div className={styles.sidebar__item + ' ' + styles.sidebar__playlist}>
 					<h1>
 						歌单 <span className="i-solar-add-circle-linear" title="创建歌单" />
 					</h1>
@@ -86,15 +86,16 @@ const Sidebar: React.FC<SideBarProps> = ({ className }) => {
 							useUserStore.setState({ likePlaylist: sidebar__item.id });
 							return null;
 						}
+						<div className={styles.sidebar__playlist__items} key={index} />
 						return (
 							<button
-								className={styles.sidebar__item__playlist}
 								onClick={() => navigate(`/playlist/${sidebar__item.id}`)}
+								className={styles.sidebar__playlist__items__item}
 								key={index}
 							>
 								<LazyImage
 									src={sidebar__item.coverImgUrl}
-									className={styles.sidebar__item__playlist__cover}
+									className={styles.sidebar__playlist__items__item__cover}
 									alt={sidebar__item.item}
 								/>
 								{sidebar__item.name}

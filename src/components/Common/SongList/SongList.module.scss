@@ -135,9 +135,5 @@
 		&:hover {
 			background: var(--button-hover-bg-color);
 		}
-
-		&:not(:last-child) {
-			margin-bottom: 0.4rem;
-		}
 	}
 }

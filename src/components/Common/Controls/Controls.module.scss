@@ -98,22 +98,3 @@
 		background: var(--button-focus-bg-color);
 	}
 }
-
-.button {
-	padding: 0.5rem 1rem;
-	background: var(--button-bg-color);
-	color: var(--text-color);
-	border: none;
-	border-radius: 6px;
-	outline: none;
-	box-shadow: var(--shadow);
-	transition: background 0.1s ease-in-out;
-
-	&:hover {
-		background: var(--button-hover-bg-color);
-	}
-
-	&:focus {
-		background: var(--button-focus-bg-color);
-	}
-}

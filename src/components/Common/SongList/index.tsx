@@ -1,3 +1,4 @@
+import { openUrl } from '@tauri-apps/plugin-opener';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLikeList } from '../../../apis/user';
@@ -5,6 +6,7 @@ import { usePlayerManager } from '../../../context/PlayerContext';
 import { Artist } from '../../../models/search';
 import { useUserStore } from '../../../store/user';
 import { toLikeSong } from '../../../utils/song';
+import ContextMenu, { MenuItem } from '../ContextMenu';
 import LazyImage from '../LazyImage';
 import styles from './SongList.module.scss';
 
@@ -22,7 +24,7 @@ const SongList: React.FC<SongListProps> = ({ songs, className = '', style }) => 
 		getLikeList();
 	}, []);
 
-	const { likeSongs } = useUserStore.getState();
+	const { likeSongs } = useUserStore();
 	const isLikeSong = (songId: number): boolean => {
 		return likeSongs.ids?.includes(songId) ?? false;
 	};
@@ -45,6 +47,23 @@ const SongList: React.FC<SongListProps> = ({ songs, className = '', style }) => 
 		usePlayer.setCurrentSong(id, true);
 	};
 
+	const menuItems = function (song: any): MenuItem[] {
+		return [
+			{
+				label: <p>播放</p>,
+				onClick: () => play(song.id, song.name, song.al.picUrl, song.ar),
+			},
+			{
+				label: <p>评论</p>,
+				onClick: () => navigate('/comment/song/' + song.id),
+			},
+			{
+				label: <p>打开链接</p>,
+				onClick: () => openUrl(`https://music.163.com/#/song?id=${song.id}`),
+			},
+		];
+	};
+
 	return (
 		<div className={styles.song + ' ' + className} style={style}>
 			<div className={styles.song__header}>
@@ -54,41 +73,45 @@ const SongList: React.FC<SongListProps> = ({ songs, className = '', style }) => 
 				<h2 className={styles.song__header__duration}>时长</h2>
 			</div>
 			{songs.map((song) => (
-				<div
-					className={styles.song__item}
-					key={song.id}
-					onClick={() => play(song.id, song.name, song.al.picUrl, song.ar)}
-				>
-					<div className={styles.song__item__title}>
-						<LazyImage
-							className={styles.song__item__title__cover}
-							src={song.al.picUrl}
-							alt={song.name}
-						/>
-						<div className={styles.song__item__title__info}>
-							<h3>{song.name}</h3>
-							<p>{song.ar.map((artist: any) => artist.name).join(' / ')}</p>
+				<ContextMenu items={menuItems(song)} key={song.id}>
+					<div
+						className={styles.song__item}
+						key={song.id}
+						data-context-data={song}
+						onClick={() => play(song.id, song.name, song.al.picUrl, song.ar)}
+					>
+						<div className={styles.song__item__title}>
+							<LazyImage
+								className={styles.song__item__title__cover}
+								src={song.al.picUrl}
+								alt={song.name}
+							/>
+							<div className={styles.song__item__title__info}>
+								<h3>{song.name}</h3>
+								<p>{song.ar.map((artist: any) => artist.name).join(' / ')}</p>
+							</div>
+						</div>
+						<div className={styles.song__item__album}>
+							<h3 onClick={() => navigate(`/album/${song.al.id}`)}>{song.al.name}</h3>
+						</div>
+						<div className={styles.song__item__operation}>
+							<span
+								className={
+									isLikeSong(song.id)
+										? 'i-solar-heart-broken-line-duotone'
+										: 'i-solar-heart-angle-line-duotone'
+								}
+								onClick={() => handleLike(song.id)}
+							/>
+						</div>
+						<div className={styles.song__item__duration}>
+							{song.dt / 1000 / 60 < 10 ? '0' : ''}
+							{Math.floor(song.dt / 1000 / 60)}:
+							{(song.dt / 1000) % 60 < 10 ? '0' : ''}
+							{Math.floor((song.dt / 1000) % 60)}
 						</div>
 					</div>
-					<div className={styles.song__item__album}>
-						<h3 onClick={() => navigate(`/album/${song.al.id}`)}>{song.al.name}</h3>
-					</div>
-					<div className={styles.song__item__operation}>
-						<span
-							className={
-								isLikeSong(song.id)
-									? 'i-solar-heart-broken-line-duotone'
-									: 'i-solar-heart-angle-line-duotone'
-							}
-							onClick={() => handleLike(song.id)}
-						/>
-					</div>
-					<div className={styles.song__item__duration}>
-						{song.dt / 1000 / 60 < 10 ? '0' : ''}
-						{Math.floor(song.dt / 1000 / 60)}:{(song.dt / 1000) % 60 < 10 ? '0' : ''}
-						{Math.floor((song.dt / 1000) % 60)}
-					</div>
-				</div>
+				</ContextMenu>
 			))}
 		</div>
 	);
