@@ -9,6 +9,7 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
 
     let _ = TrayIconBuilder::with_id("tray")
         .icon(app.default_window_icon().unwrap().clone())
+        .tooltip("AzusaPlayer")
         .menu(&menu)
         .menu_on_left_click(false)
         .on_menu_event(move |app, event| match event.id.as_ref() {
@@ -27,10 +28,10 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
                 let app = tray.app_handle();
                 if let Some(window) = app.get_webview_window("main") {
 					if window.is_visible().unwrap_or(false) {
-						window.hide().unwrap();
+						window.hide().expect("failed to hide main window");
 					} else {
-						window.show().unwrap();
-						window.set_focus().unwrap();
+                        window.show().expect("failed to show main window");
+                        window.set_focus().expect("failed to focus main window");
 					}
 				}
             }

@@ -4,7 +4,6 @@ import { getUserAccount } from '../apis/user';
 import { registerShortcuts, unregisterAllShortcuts } from '../managers/ShortcutManager';
 import { useAuthStore } from '../store/auth';
 import { useSettingStore } from '../store/setting';
-
 export async function init() {
 	const isLogin = useAuthStore.getState().isLogin;
 
