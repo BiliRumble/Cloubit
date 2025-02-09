@@ -64,7 +64,7 @@ export default class PlayerManager {
 		}
 
 		if (this._player) {
-			const seek = this._player.seek();
+			const seek = this._player.seek() == 0 ? this.duration : this._player.seek();
 			if (useSettingStore.getState().scrobble)
 				scrobble(this._currentSong.id, this._currentSong.source, seek);
 			this._player.stop();

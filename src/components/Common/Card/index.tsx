@@ -21,7 +21,6 @@ interface CardProps {
  * @param {string} className - 类名
  */
 const Card: React.FC<CardProps> = ({
-	key,
 	className = '',
 	style = {},
 	cover,
@@ -29,7 +28,7 @@ const Card: React.FC<CardProps> = ({
 	onClick = () => {},
 }) => {
 	return (
-		<div key={key} className={styles.card + ' ' + className} style={style} onClick={onClick}>
+		<div className={styles.card + ' ' + className} style={style} onClick={onClick}>
 			<LazyImage
 				src={cover}
 				sizes="100%, 100%"
