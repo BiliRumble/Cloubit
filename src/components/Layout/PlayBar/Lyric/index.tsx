@@ -67,6 +67,7 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 	const [seekDragging, setSeekDragging] = useState(false);
 	const volumeRef = useRef<HTMLSpanElement>(null);
 	const lyricRef = useRef<HTMLDivElement>(null);
+	const lyricListRef = useRef<HTMLDivElement>(null);
 	const lastInteractionRef = useRef<number>(Date.now() - 1.5 * 1000);
 
 	const [lyricType, setLyricType] = useState<'raw' | 'translate'>(
@@ -94,13 +95,13 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 		}
 	}, [isFullScreen]);
 
-	// 监听滚动事件
-	useEffect(() => {
-		const handleScroll = () => {
-			lastInteractionRef.current = Date.now();
-		};
+	const handleScroll = () => {
+		lastInteractionRef.current = Date.now();
+	};
 
-		window.addEventListener('scroll', handleScroll);
+	// 载入
+	useEffect(() => {
+		lyricListRef.current?.addEventListener('scroll', handleScroll);
 		// 监听esc
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') {
@@ -118,17 +119,14 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 		};
 	}, []);
 
+	// 歌词变动
 	useEffect(() => {
-		const timer = setInterval(() => {
-			const currentTime = Date.now();
-			if (currentTime - lastInteractionRef.current >= 3000) {
-				lyricRef.current?.scrollIntoView({ behavior: 'smooth' });
-				clearInterval(timer);
-			}
-		}, 150);
-
-		return () => clearInterval(timer);
-	}, [lyricRef.current]);
+		const currentTime = Date.now();
+		if (currentTime - lastInteractionRef.current >= 3000) {
+			console.debug(currentTime - lastInteractionRef.current);
+			lyricRef.current?.scrollIntoView({ behavior: 'smooth' });
+		}
+	}, [lyricRef.current, lastInteractionRef.current]);
 
 	// 慢更新
 	useEffect(() => {
@@ -203,7 +201,7 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 						</div>
 					</div>
 				</div>
-				<div className={styles.lyric__body__lyric}>
+				<div className={styles.lyric__body__lyric} ref={lyricListRef}>
 					{lyrics.map((item, index) => {
 						const isCurrent =
 							item.index <= seek &&
