@@ -9,9 +9,9 @@ import Login from '../../../pages/modals/Login/Login';
 import Settings from '../../../pages/modals/Settings/Settings';
 import { useAuthStore } from '../../../store/auth';
 import { useUserStore } from '../../../store/user';
-import Avatar from '../../Common/Avatar';
-import Modal from '../../Common/Modal';
-import Popover from '../../Common/Popover';
+import Avatar from '../../common/Avatar';
+import Modal from '../../common/Modal';
+import Popover from '../../common/Popover';
 import Search from './Search';
 import styles from './Navbar.module.scss';
 

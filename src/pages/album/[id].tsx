@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAlbumDetail } from '../../apis/song';
-import Chip from '../../components/Common/Chip';
-import SongList from '../../components/Common/SongList';
+import Chip from '../../components/common/Chip';
+import SongList from '../../components/layout/SongList';
 import { usePlayerManager } from '../../context/PlayerContext';
 import styles from './Album.module.scss';
 

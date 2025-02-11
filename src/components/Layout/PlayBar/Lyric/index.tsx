@@ -5,7 +5,7 @@ import cover from '../../../../assets/images/song.png';
 import { usePlayerManager } from '../../../../context/PlayerContext';
 import { LyricContent, PlayListItem } from '../../../../models/song';
 import { useSettingStore } from '../../../../store/setting';
-import Popover from '../../../Common/Popover';
+import Popover from '../../../common/Popover';
 import styles from './Lyric.module.scss';
 
 interface LryicProps {

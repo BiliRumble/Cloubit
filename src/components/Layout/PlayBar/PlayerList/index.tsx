@@ -2,7 +2,7 @@ import { debounce } from 'lodash-es';
 import { useEffect, useState } from 'react';
 import { usePlayerManager } from '../../../../context/PlayerContext';
 import { PlayList } from '../../../../models/song';
-import LazyImage from '../../../Common/LazyImage';
+import LazyImage from '../../../common/LazyImage';
 import styles from './PlayList.module.scss';
 
 interface PlayListProps {

@@ -1,6 +1,6 @@
 import { Comment } from '../../../models/comment';
-import Avatar from '../Avatar';
-import Time from '../Time';
+import Avatar from '../../common/Avatar';
+import Time from '../../common/Time';
 import styles from './Comment.module.scss';
 
 interface CommentProps {

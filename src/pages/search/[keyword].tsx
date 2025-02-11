@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getSearchResult } from '../../apis/search';
 import notFoundImg from '../../assets/images/nodata.png';
-import Card from '../../components/Common/Card';
-import SongList from '../../components/Common/SongList';
+import Card from '../../components/common/Card';
+import SongList from '../../components/layout/SongList';
 import { SearchResult, searchType } from '../../models/search';
 import styles from './Search.module.scss';
 

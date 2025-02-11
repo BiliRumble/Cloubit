@@ -53,6 +53,15 @@ export default class PlayerManager {
 		}
 	}
 
+	/**
+	 * 切歌
+	 *
+	 * @param id 歌曲id
+	 * @param play 是否播放
+	 * @param init 是否初始化(读取进度并自动设置)
+	 *
+	 * @returns
+	 */
 	public async setCurrentSong(id: number, play: boolean = true, init: boolean = false) {
 		if (this.isChangingSong) return;
 		this.isChangingSong = true;

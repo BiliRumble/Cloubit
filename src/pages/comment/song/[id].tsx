@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getSongComment } from '../../../apis/comment';
-import CommentComponent from '../../../components/Common/Comment';
+import CommentComponent from '../../../components/layout/Comment';
 import { Comment } from '../../../models/comment';
 import styles from '../Comment.module.scss';
 
@@ -22,15 +22,20 @@ const SongComment = () => {
 	return (
 		<>
 			{!loading && (
-				<div className={styles.comments__body}>
-					{comments.map((comment) => (
-						<CommentComponent
-							key={comment.commentId}
-							comment={comment}
-							onLike={() => {}}
-						/>
-					))}
-				</div>
+				<>
+					<div className={styles.comments__header}>
+						
+					</div>
+					<div className={styles.comments__body}>
+						{comments.map((comment) => (
+							<CommentComponent
+								key={comment.commentId}
+								comment={comment}
+								onLike={() => {}}
+							/>
+						))}
+					</div>
+				</>
 			)}
 		</>
 	);

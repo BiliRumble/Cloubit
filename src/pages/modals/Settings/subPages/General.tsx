@@ -1,4 +1,4 @@
-import Control, { Checkbox, Input, Select } from '../../../../components/Common/Controls/Controls';
+import Control, { Checkbox, Input, Select } from '../../../../components/common/Controls/Controls';
 import { useTheme } from '../../../../hooks/useTheme';
 import { useSettingStore } from '../../../../store/setting';
 

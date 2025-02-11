@@ -7,7 +7,7 @@ import {
 	SuggestSearchResult,
 } from '../../../../models/search';
 import { useSettingStore } from '../../../../store/setting';
-import Chip from '../../../Common/Chip';
+import Chip from '../../../common/Chip';
 import styles from './Search.module.scss';
 
 interface PlayBarProps {

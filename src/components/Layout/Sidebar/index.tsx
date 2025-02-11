@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUserPlaylist } from '../../../apis/user';
 import { useAuthStore } from '../../../store/auth';
 import { useUserStore } from '../../../store/user';
-import LazyImage from '../../Common/LazyImage';
+import LazyImage from '../../common/LazyImage';
 import styles from './Sidebar.module.scss';
 
 interface SideBarProps {
