@@ -200,18 +200,9 @@
 
 				input {
 					width: 100%;
-					background: transparent;
-					outline: none;
-					border-radius: 2px;
-					cursor: pointer;
 					height: 4px;
-
-					&::-webkit-slider-thumb {
-						appearance: none;
-					}
-					&::-webkit-slider-runnable-track {
-						appearance: none;
-					}
+					position: relative;
+					top: 2px;
 				}
 			}
 		}

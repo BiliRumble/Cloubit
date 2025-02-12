@@ -5,6 +5,7 @@ import cover from '../../../../assets/images/song.png';
 import { usePlayerManager } from '../../../../context/PlayerContext';
 import { LyricContent, PlayListItem } from '../../../../models/song';
 import { useSettingStore } from '../../../../store/setting';
+import Progress from '../../../atoms/Progress';
 import Popover from '../../../numerator/Popover';
 import styles from './Lyric.module.scss';
 
@@ -306,9 +307,7 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 									.toString()
 									.padStart(2, '0')}`}
 							</span>
-							<input
-								type="range"
-								min={0}
+							<Progress
 								max={duration}
 								value={seek}
 								onMouseDown={() => setSeekDragging(true)}
@@ -319,7 +318,7 @@ const LryicModal: React.FC<LryicProps> = ({ onClose, className = '' }) => {
 								onInput={(e) => {
 									if (seekDragging) {
 										const newSeek = Number(
-											(e.target as HTMLInputElement).value
+											(e?.target as HTMLInputElement).value
 										);
 										setSeek(newSeek); // 实时更新 seek 值
 									}

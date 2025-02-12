@@ -9,6 +9,7 @@ import { usePlayerStore } from '../../../store/player';
 import { useSettingStore } from '../../../store/setting';
 import { useUserStore } from '../../../store/user';
 import { toLikeSong } from '../../../utils/song';
+import Progress from '../../atoms/Progress';
 import Modal from '../../numerator/Modal';
 import Popover from '../../numerator/Popover';
 import LryicModal from './Lyric';
@@ -287,9 +288,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 								.toString()
 								.padStart(2, '0')}`}
 						</span>
-						<input
-							type="range"
-							min={0}
+						<Progress
 							max={duration}
 							value={seek}
 							onMouseDown={() => setSeekDragging(true)}
@@ -299,7 +298,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 							}}
 							onInput={(e) => {
 								if (seekDragging) {
-									const newSeek = Number((e.target as HTMLInputElement).value);
+									const newSeek = Number((e?.target as HTMLInputElement).value);
 									setSeek(newSeek); // 实时更新 seek 值
 								}
 							}}
