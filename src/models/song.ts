@@ -288,3 +288,149 @@ export interface recommendPlaylist {
 	hasTaste: boolean;
 	result: RecommendItem[];
 }
+
+interface ChargeInfo {
+	chargeMessage: any;
+	chargeType: number;
+	chargeUrl: any;
+	rate: number;
+}
+
+interface FreeTrialPrivilege {
+	cannotListenReason: any;
+	freeLimitTagType: any;
+	listenType: any;
+	playReason: any;
+	resConsumable: boolean;
+	userConsumable: boolean;
+}
+
+interface Privilege {
+	chargeInfoList: ChargeInfo[];
+	code: number;
+	cp: number;
+	cs: boolean;
+	dl: number;
+	dlLevel: string;
+	downloadMaxBrLevel: string;
+	downloadMaxbr: number;
+	fee: number;
+	fl: number;
+	flLevel: string;
+	flag: number;
+	freeTrialPrivilege: FreeTrialPrivilege;
+	id: number;
+	maxBrLevel: string;
+	maxbr: number;
+	message: any;
+	payed: number;
+	pl: number;
+	plLevel: string;
+	playMaxBrLevel: string;
+	playMaxbr: number;
+	preSell: boolean;
+	rightSource: number;
+	rscl: any;
+	sp: number;
+	st: number;
+	subp: number;
+	toast: boolean;
+}
+
+interface Artist {
+	alias: string[];
+	id: number;
+	name: string;
+	tns: string[];
+}
+
+interface Album {
+	id: number;
+	name: string;
+	pic: number;
+	picUrl: string;
+	pic_str: string;
+	tns: string[];
+}
+
+export interface Song {
+	a: any;
+	al: Album;
+	alia: string[];
+	ar: Artist[];
+	awardTags: any;
+	cd: string;
+	cf: string;
+	copyright: number;
+	cp: number;
+	crbt: any;
+	displayTags: any;
+	djId: number;
+	dt: number;
+	entertainmentTags: any;
+	fee: number;
+	ftype: number;
+	h: {
+		br: number;
+		fid: number;
+		size: number;
+		sr: number;
+		vd: number;
+	};
+	hr: any;
+	id: number;
+	l: {
+		br: number;
+		fid: number;
+		size: number;
+		sr: number;
+		vd: number;
+	};
+	m: {
+		br: number;
+		fid: number;
+		size: number;
+		sr: number;
+		vd: number;
+	};
+	mark: number;
+	mst: number;
+	mv: number;
+	name: string;
+	no: number;
+	noCopyrightRcmd: any;
+	originCoverType: number;
+	originSongSimpleData: any;
+	pop: number;
+	privilege: Privilege;
+	pst: number;
+	publishTime: number;
+	resourceState: boolean;
+	rt: string;
+	rtUrl: any;
+	rtUrls: any[];
+	rtype: number;
+	rurl: any;
+	s_id: number;
+	single: number;
+	songJumpInfo: any;
+	sq: {
+		br: number;
+		fid: number;
+		size: number;
+		sr: number;
+		vd: number;
+	};
+	st: number;
+	t: number;
+	tagPicList: any;
+	tns: string[];
+	v: number;
+	version: number;
+}
+
+export interface SongDetail {
+	code: number;
+	privileges: Privilege[];
+	songs: Song[];
+}

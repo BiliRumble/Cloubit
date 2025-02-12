@@ -1,7 +1,23 @@
-import { getSongURLResult, Lyric } from '../models/song';
+import { getSongURLResult, Lyric, Song, SongDetail } from '../models/song';
 import request from '../utils/request';
 
 const { get } = request;
+
+/**
+ * 获取歌曲详情
+ *
+ * @param {number} id 歌曲id
+ * @returns {Promise<Song>}
+ */
+export async function getSongDetail(id: number): Promise<Song[] | null> {
+	const response = (await get('song/detail', { ids: id })).data as SongDetail;
+	if (response.code === 200) {
+		console.debug('🌐 Get Song Detail Success: ', response);
+		return response.songs;
+	}
+	console.error('🌐 Cannot Get Song Detail!');
+	return null;
+}
 
 /**
  * 获取可用性

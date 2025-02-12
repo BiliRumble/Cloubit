@@ -14,6 +14,7 @@ interface InputProps {
 		| 'decimal'
 		| 'search'
 		| undefined;
+	placeholder?: string;
 	lazyPush?: boolean; // 如果为true，用户停止输入后才更新值
 	onChange: (value: string) => void;
 	className?: string;
@@ -24,6 +25,7 @@ const Input: React.FC<InputProps> = ({
 	value,
 	title,
 	allowType,
+	placeholder,
 	onChange,
 	className = '',
 	style,
@@ -33,6 +35,7 @@ const Input: React.FC<InputProps> = ({
 			className={styles.textInput + ' ' + className}
 			type="text"
 			value={value}
+			placeholder={placeholder}
 			onChange={(e) => onChange(e.target.value)}
 			title={title}
 			inputMode={allowType}

@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPlayListDetail } from '../../apis/playlist';
 import { getUserPlaylist } from '../../apis/user';
-import Chip from '../../components/atoms/Chip';
-import LazyImage from '../../components/atoms/LazyImage';
+import MediaHeader from '../../components/organisms/MediaHeader';
 import SongList from '../../components/organisms/SongList';
 import { usePlayerManager } from '../../context/PlayerContext';
 import { toLikePlaylist } from '../../utils/song';
@@ -63,8 +62,8 @@ const Playlist = () => {
 	};
 
 	// 搜索功能
-	const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const keyword = e.target.value;
+	const handleSearch = (value: string) => {
+		const keyword = value;
 		setSearchKeyword(keyword);
 
 		if (keyword === '') {
@@ -85,57 +84,15 @@ const Playlist = () => {
 		<>
 			{!loading && (
 				<div className={styles.playlist}>
-					<div className={styles.playlist__header}>
-						<LazyImage
-							src={playlistTracks?.coverImgUrl}
-							alt=""
-							className={styles.playlist__header__cover}
-						/>
-						<div className={styles.playlist__header__info}>
-							<div className={styles.playlist__header__info__data}>
-								<h1
-									className={styles.playlist__header__info__data__title}
-									title={playlistTracks?.name}
-								>
-									{playlistTracks?.name}
-								</h1>
-								<h3
-									className={styles.playlist__header__info__data__description}
-									title={playlistTracks?.description}
-								>
-									{playlistTracks?.description}
-								</h3>
-								<div className={styles.playlist__header__info__data__details}>
-									<span
-										className={
-											styles.playlist__header__info__data__details__author
-										}
-									>
-										<i className="i-solar-user-linear" />
-										{playlistTracks?.creator?.nickname}
-									</span>
-									<span
-										className={
-											styles.playlist__header__info__data__details__time
-										}
-									>
-										<i className="i-solar-clock-circle-linear" />
-										{new Date(playlistTracks?.createTime).toLocaleDateString()}
-									</span>
-								</div>
-								{playlistTracks?.tags?.length > 0 && (
-									<div
-										className={
-											styles.playlist__header__info__data__details__tags
-										}
-									>
-										{playlistTracks?.tags?.map((tag: string) => (
-											<Chip key={tag} children={tag} />
-										))}
-									</div>
-								)}
-							</div>
-							<div className={styles.playlist__header__info__operator}>
+					<MediaHeader
+						cover={playlistTracks.coverImgUrl}
+						name={playlistTracks.name}
+						description={playlistTracks.description}
+						author={playlistTracks.creator.nickname}
+						createTime={playlistTracks.createTime}
+						tags={playlistTracks.tags}
+						footerbar={
+							<>
 								<button
 									className={
 										styles.playlist__header__info__operator__play +
@@ -153,20 +110,12 @@ const Playlist = () => {
 											: 'i-solar-heart-angle-line-duotone')
 									}
 								/>
-								<div className={styles.playlist__header__info__operator__search}>
-									<input
-										type="text"
-										placeholder="模糊搜索"
-										className={
-											styles.playlist__header__info__operator__search__input
-										}
-										value={searchKeyword}
-										onChange={handleSearch}
-									/>
-								</div>
-							</div>
-						</div>
-					</div>
+							</>
+						}
+						enableSearch={true}
+						searchKeyword={searchKeyword}
+						onSearch={handleSearch}
+					/>
 					<SongList songs={filteredTracks} />
 				</div>
 			)}
