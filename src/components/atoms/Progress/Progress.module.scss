@@ -6,7 +6,7 @@
 	min-height: 12px;
 
 	overflow: hidden;
-	
+
 	// 如果未悬浮，则隐藏圆球(渐显)
 	&::-webkit-slider-thumb {
 		appearance: none;
@@ -17,7 +17,8 @@
 		top: -4px;
 		background: transparent;
 		border: 1px solid transparent;
-		border-image: linear-gradient(var(--primary-color), var(--primary-color)) 0 fill / 4 0 4 0 / 0 0 0 99dvw;
+		border-image: linear-gradient(var(--primary-color), var(--primary-color)) 0 fill / 4 0 4 0 /
+			0 0 0 99dvw;
 		transition: background 0.1s ease-in-out;
 	}
 

@@ -5,6 +5,7 @@ import notFoundImg from '../../assets/images/nodata.png';
 import Card from '../../components/numerator/Card';
 import SongList from '../../components/organisms/SongList';
 import { SearchResult, searchType } from '../../models/search';
+import { Song } from '../../models/song';
 import styles from './Search.module.scss';
 
 const search = () => {
@@ -28,57 +29,58 @@ const search = () => {
 	}, [keyword, searchType]);
 
 	const renderResults = () => {
-		if (!searchResult)
-			return (
-				<div className={styles.centBox}>
-					<img src={notFoundImg} alt="No data" />
-					<h3>没有找到相关内容</h3>
-				</div>
-			);
+		const none = (
+			<div className={styles.centBox}>
+				<img src={notFoundImg} alt="No data" />
+				<h3>没有找到相关内容</h3>
+			</div>
+		);
 
 		switch (searchType) {
 			case 'song':
-				if (searchResult.songs) return <SongList songs={searchResult.songs} />;
-				return null;
+				if (searchResult && (searchResult.songCount || 0) > 0)
+					return <SongList songs={searchResult.songs as unknown as Song[]} />;
+				return none;
 			case 'playlist':
-				return (
-					<div className={styles.search__result__playlist}>
-						{searchResult.playlists?.map((playlist) => (
-							<Card
-								key={playlist.id}
-								cover={playlist.coverImgUrl}
-								text={playlist.name}
-								className={styles.search__result__playlist__card}
-								onClick={() => navigate(`/playlist/${playlist.id}`)}
-							/>
-						))}
-					</div>
-				);
+				if (searchResult && (searchResult.playlistCount || 0) > 0)
+					return (
+						<div className={styles.search__result__playlist}>
+							{searchResult.playlists?.map((playlist) => (
+								<Card
+									key={playlist.id}
+									cover={playlist.coverImgUrl}
+									text={playlist.name}
+									className={styles.search__result__playlist__card}
+									onClick={() => navigate(`/playlist/${playlist.id}`)}
+								/>
+							))}
+						</div>
+					);
+				return none;
 			case 'album':
-				return (
-					<div className={styles.search__result__album}>
-						{searchResult.albums?.map((album) => (
-							<Card
-								key={album.id}
-								cover={album.picUrl}
-								text={album.name}
-								className={styles.search__result__album__card}
-								onClick={() => navigate(`/album/${album.id}`)}
-							/>
-						))}
-					</div>
-				);
+				if (searchResult && (searchResult.albumCount || 0) > 0)
+					return (
+						<div className={styles.search__result__album}>
+							{searchResult.albums?.map((album) => (
+								<Card
+									key={album.id}
+									cover={album.picUrl}
+									text={album.name}
+									className={styles.search__result__album__card}
+									onClick={() => navigate(`/album/${album.id}`)}
+								/>
+							))}
+						</div>
+					);
+				return none;
 			case 'artist':
-				return searchResult.artists?.map((artist) => (
-					<div key={artist.id}>{artist.name}</div>
-				));
+				if (searchResult && (searchResult.artistCount || 0) > 0)
+					return searchResult.artists?.map((artist) => (
+						<div key={artist.id}>{artist.name}</div>
+					));
+				return none;
 			default:
-				return (
-					<div className={styles.centBox}>
-						<img src={notFoundImg} alt="No data" />
-						<h3>没有找到相关内容</h3>
-					</div>
-				);
+				return none;
 		}
 	};
 
