@@ -39,9 +39,8 @@ function parseLyric(
 	};
 
 	let data;
-	const lyricsType = useSettingStore.getState().lyricsType;
 
-	if (!translated?.lyric || lyricsType === 'raw') {
+	if (!translated?.lyric) {
 		data = parseLrc(lyric.lyric);
 	} else {
 		// 解析翻译歌词并匹配原歌词
