@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { checkQR, createQR, getLoginStatus } from '../../../apis/login';
 import { getUserAccount } from '../../../apis/user';
-import LazyImage from '../../../components/common/LazyImage';
+import LazyImage from '../../../components/atoms/LazyImage';
 import { useAuthStore } from '../../../store/auth';
 import { useUserStore } from '../../../store/user';
 import { setCookies } from '../../../utils/cookie';

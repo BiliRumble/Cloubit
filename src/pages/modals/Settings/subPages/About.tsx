@@ -1,4 +1,4 @@
-import Control from '../../../../components/common/Controls/Controls';
+import Control from '../../../../components/numerator/Controls/Controls';
 
 const About: React.FC<{ className: string }> = ({ className }) => {
 	return (

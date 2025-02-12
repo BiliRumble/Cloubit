@@ -1,0 +1,17 @@
+.textInput {
+	background: var(--button-bg-color);
+	color: var(--text-color);
+	box-shadow: var(--shadow);
+	padding: 0.5rem;
+	border: none;
+	border-radius: 6px;
+	outline: none;
+	transition: background 0.3s ease-in-out;
+
+	&:hover {
+		background: var(--button-hover-bg-color);
+	}
+	&:focus {
+		background: var(--button-focus-bg-color);
+	}
+}

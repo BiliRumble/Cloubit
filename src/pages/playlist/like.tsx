@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getPlayListDetail } from '../../apis/playlist';
-import Chip from '../../components/common/Chip';
-import LazyImage from '../../components/common/LazyImage';
-import SongList from '../../components/layout/SongList';
+import Chip from '../../components/atoms/Chip';
+import LazyImage from '../../components/atoms/LazyImage';
+import SongList from '../../components/organisms/SongList';
 import { usePlayerManager } from '../../context/PlayerContext';
 import { useUserStore } from '../../store/user';
 import styles from './Playlist.module.scss';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getSongComment } from '../../../apis/comment';
-import CommentComponent from '../../../components/layout/Comment';
+import CommentComponent from '../../../components/organisms/Comment';
 import { Comment } from '../../../models/comment';
 import styles from '../Comment.module.scss';
 

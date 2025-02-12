@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import Navbar from './components/Layout/Navbar';
-import PlayBar from './components/Layout/PlayBar';
-import Sidebar from './components/Layout/Sidebar';
+import Navbar from './components/templates/Navbar';
+import PlayBar from './components/templates/PlayBar';
+import Sidebar from './components/templates/Sidebar';
 import { useTheme } from './hooks/useTheme';
 import { unregisterAllShortcuts } from './managers/ShortcutManager';
 import { useSettingStore } from './store/setting';

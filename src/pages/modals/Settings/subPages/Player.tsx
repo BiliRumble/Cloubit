@@ -1,4 +1,7 @@
-import Control, { Checkbox, Input, Select } from '../../../../components/common/Controls/Controls';
+import Checkbox from '../../../../components/atoms/Checkbox';
+import Input from '../../../../components/atoms/Input';
+import Select from '../../../../components/atoms/Select';
+import Control from '../../../../components/numerator/Controls/Controls';
 import { useSettingStore } from '../../../../store/setting';
 
 const PlayerSettings: React.FC<{ className: string }> = ({ className }) => {

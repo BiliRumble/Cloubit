@@ -1,0 +1,14 @@
+.control {
+	display: flex;
+	flex-direction: row;
+	margin: 1rem 0.8rem;
+	align-items: center;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+
+	.label {
+		font-size: 1rem;
+		color: var(--text-color);
+		margin-bottom: 0.5rem;
+	}
+}

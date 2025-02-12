@@ -1,6 +1,7 @@
 import { event } from '@tauri-apps/api';
 import { useEffect, useState } from 'react';
-import Control, { Checkbox, KeyBinder } from '../../../../components/common/Controls/Controls';
+import Checkbox from '../../../../components/atoms/Checkbox';
+import Control, { KeyBinder } from '../../../../components/numerator/Controls/Controls';
 import { registerShortcuts, unregisterShortcuts } from '../../../../managers/ShortcutManager';
 import { useSettingStore } from '../../../../store/setting';
 

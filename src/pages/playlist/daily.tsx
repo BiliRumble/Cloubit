@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserDailySongs } from '../../apis/user';
-import SongList from '../../components/layout/SongList';
+import SongList from '../../components/organisms/SongList';
 import { usePlayerManager } from '../../context/PlayerContext';
 import { DailySongsResult } from '../../models/song';
 import { useUserStore } from '../../store/user';
