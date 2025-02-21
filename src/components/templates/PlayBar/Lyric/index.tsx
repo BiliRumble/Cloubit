@@ -56,6 +56,15 @@ function parseLyric(
 		});
 	}
 
+	if (data.length === 0) {
+		data = [
+			{
+				index: 0,
+				text: '暂无歌词',
+			},
+		];
+	}
+
 	return data;
 }
 

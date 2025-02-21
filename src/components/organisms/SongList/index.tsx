@@ -6,8 +6,8 @@ import { usePlayerManager } from '../../../context/PlayerContext';
 import { Artist } from '../../../models/search';
 import { useUserStore } from '../../../store/user';
 import { toLikeSong } from '../../../utils/song';
-import ContextMenu, { MenuItem } from '../../numerator/ContextMenu';
 import LazyImage from '../../atoms/LazyImage';
+import ContextMenu, { MenuItem } from '../../numerator/ContextMenu';
 import styles from './SongList.module.scss';
 
 interface SongListProps {
@@ -75,7 +75,11 @@ const SongList: React.FC<SongListProps> = ({ songs, className = '', style }) => 
 			{songs.map((song) => (
 				<ContextMenu items={menuItems(song)} key={song.id}>
 					<div
-						className={styles.song__item}
+						className={
+							styles.song__item +
+							' ' +
+							(usePlayer.currentSong.id === song.id ? styles.active : '')
+						}
 						data-context-data={song}
 						onClick={() => play(song.id, song.name, song.al.picUrl, song.ar)}
 					>

@@ -135,5 +135,9 @@
 		&:hover {
 			background: var(--button-hover-bg-color);
 		}
+
+		&.active {
+			background: var(--button-focus-bg-color);
+		}
 	}
 }

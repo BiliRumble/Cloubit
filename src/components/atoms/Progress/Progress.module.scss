@@ -17,7 +17,7 @@
 		top: -4px;
 		background: transparent;
 		border: 1px solid transparent;
-		border-image: linear-gradient(var(--primary-color), var(--primary-color)) 0 fill / 4 0 4 0 /
+		border-image: linear-gradient(var(--primary-color), var(--primary-color)) 0 fill / 4 4 4 0 /
 			0 0 0 99dvw;
 		transition: background 0.1s ease-in-out;
 	}

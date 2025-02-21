@@ -23,7 +23,6 @@ const SongComment = () => {
 		getSongComment(id as unknown as number).then((res) => {
 			setComments(res?.comments || []);
 			setLoading(false);
-			console.warn(comments);
 		});
 	}, [id]);
 

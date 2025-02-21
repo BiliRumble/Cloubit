@@ -15,6 +15,31 @@ const PLACEHOLDER_SONG: PlayListItem = {
 	name: '暂无歌曲',
 };
 
+interface PlaybackStrategy {
+	getNextIndex(currentIndex: number, playlistLength: number): number;
+	getPrevIndex(currentIndex: number, playlistLength: number): number;
+}
+
+class ListPlaybackStrategy implements PlaybackStrategy {
+	getNextIndex(currentIndex: number, playlistLength: number): number {
+		return currentIndex >= playlistLength - 1 ? 0 : currentIndex + 1;
+	}
+
+	getPrevIndex(currentIndex: number, playlistLength: number): number {
+		return currentIndex <= 0 ? playlistLength - 1 : currentIndex - 1;
+	}
+}
+
+class RandomPlaybackStrategy implements PlaybackStrategy {
+	getNextIndex(currentIndex: number, playlistLength: number): number {
+		return Math.floor(Math.random() * playlistLength);
+	}
+
+	getPrevIndex(currentIndex: number, playlistLength: number): number {
+		return Math.floor(Math.random() * playlistLength);
+	}
+}
+
 export default class PlayerManager {
 	private static instance: PlayerManager;
 	private _playlist: PlayList = { count: 0, data: [] };
@@ -25,19 +50,27 @@ export default class PlayerManager {
 	private isChangingPlayState: boolean = false;
 	private _playing: boolean = false;
 	private _volume: number = DEFAULT_VOLUME;
-	private _lyric: Lyric = {
-		code: 200,
-		lrc: {
-			lyric: '[00:00.00]暂无歌词',
-			version: 0,
-		} as LyricContent,
-	} as Lyric;
+	private _lyric: Lyric = this.createDefaultLyric();
+	private playbackStrategies: Record<string, PlaybackStrategy> = {
+		list: new ListPlaybackStrategy(),
+		random: new RandomPlaybackStrategy(),
+	};
 
-	constructor() {
-		this.init();
+	private createDefaultLyric(): Lyric {
+		return {
+			code: 200,
+			lrc: {
+				lyric: '',
+				version: 0,
+			} as LyricContent,
+		};
 	}
 
-	public init() {
+	constructor() {
+		this.initializeFromStore();
+	}
+
+	private initializeFromStore() {
 		const playerStore = usePlayerStore.getState();
 		const settingStore = useSettingStore.getState();
 
@@ -46,142 +79,306 @@ export default class PlayerManager {
 		this._mode = playerStore.mode;
 		this._volume = playerStore.volume;
 
-		if (this._currentSong && this._playlist.data.length) {
+		if (this._currentSong?.id && this._playlist.data.length) {
 			this.setCurrentSong(this._currentSong.id, settingStore.autoPlay, true).then(() => {
-				if (settingStore.savePlaySeek) this._player?.seek(playerStore.seek);
+				if (settingStore.savePlaySeek) {
+					this._player?.seek(playerStore.seek);
+				}
 			});
 		}
 	}
 
 	/**
-	 * 切歌
-	 *
-	 * @param id 歌曲id
-	 * @param play 是否播放
-	 * @param init 是否初始化(读取进度并自动设置)
-	 *
-	 * @returns
+	 * Sets the current song to play
+	 * @param id - ID of the song to play
+	 * @param play - Whether to start playing immediately
+	 * @param init - Initialization flag for restoring playback state
 	 */
 	public async setCurrentSong(id: number, play: boolean = true, init: boolean = false) {
 		if (this.isChangingSong) return;
 		this.isChangingSong = true;
 
-		const target = this._playlist.data.find((item) => item.id === id);
-		if (!target) {
-			this.isChangingSong = false;
-			return;
-		}
-
-		if (this._player) {
-			const seek = this._player.seek() == 0 ? this.duration : this._player.seek();
-			if (useSettingStore.getState().scrobble)
-				scrobble(this._currentSong.id, this._currentSong.source, seek);
-			this._player.stop();
-			this._player.unload();
-		}
-
 		try {
-			const url = await getSongURL(target.id);
-			const data = url?.data[0];
-			if (!data?.url) {
-				alert('歌曲无法播放');
-				return;
-			}
+			const target = this.findSongInPlaylist(id);
+			if (!target) return;
 
-			this._player = new Howl({
-				src: [data.url],
-				html5: true,
-				format: ['mp3', 'wav', 'ogg'],
-				volume: this._volume,
-				mute: usePlayerStore.getState().muted,
-				autoplay: play,
-				loop: this._mode === 'single',
-				onend: () => this.next(),
-				onpause: () => this.emitPlayerUpdate('pause'),
-				onplay: () => {
-					if ('mediaSession' in navigator && useSettingStore.getState().pushToSMTC) {
-						navigator.mediaSession.metadata = new MediaMetadata({
-							title: this.currentSong.name,
-							artist: this._currentSong.artists?.join('/'),
-							artwork: [
-								{
-									src: this._currentSong.cover as string,
-									sizes: '1600x1600',
-									type: 'image/jpeg',
-								},
-							],
-						});
-					}
-					this.emitPlayerUpdate('play');
-				},
-				onplayerror: (error) => {
-					console.error('🎵 Error playing audio:', error);
-					alert('歌曲无法播放');
-				},
-				onstop: () => {
-					if ('mediaSession' in navigator) {
-						navigator.mediaSession.metadata = null;
-					}
-				},
-				preload: 'metadata',
-				pool: 1,
-				xhr: {
-					withCredentials: true,
-					headers: {
-						Referer: 'https://music.163.com/',
-						Origin: 'https://music.163.com',
-					},
-				},
-			});
+			await this.handleCurrentSongChange();
+			const urlData = await this.fetchSongUrl(target.id);
 
-			if (init) this._player.seek(usePlayerStore.getState().seek);
-			this._lyric = await getLyric(data.id).then(
-				(res) =>
-					res || {
-						code: 200,
-						lrc: {
-							lyric: '[00:00.00]暂无歌词',
-							version: 0,
-						} as LyricContent,
-					}
-			);
-			this._currentSong = target;
-			this._playing = play;
-			document.title = `${this._currentSong.name} - ${this._currentSong.artists?.join('/')}`;
-			this.emitPlayerUpdate('song-change');
-			usePlayerStore.setState({ currentSong: target });
+			this.initializePlayer(urlData.url, play, init);
+			await this.handleLyricsFetch(target.id);
+
+			this.updatePlayerState(target, play);
+			this.updateDocumentTitle();
 		} catch (error) {
-			console.error('🎵 Error setting current song:', error);
+			console.error('Error setting current song:', error);
 		} finally {
 			this.isChangingSong = false;
 		}
 	}
 
+	private findSongInPlaylist(id: number): PlayListItem | undefined {
+		return this._playlist.data.find((item) => item.id === id);
+	}
+
+	private async handleCurrentSongChange() {
+		if (this._player) {
+			const seek = this._player.seek();
+			if (useSettingStore.getState().scrobble) {
+				scrobble(this._currentSong.id, this._currentSong.source, seek);
+			}
+			this._player.stop();
+			this._player.unload();
+		}
+	}
+
+	private async fetchSongUrl(songId: number) {
+		const urlResponse = await getSongURL(songId);
+		const urlData = urlResponse?.data[0];
+		if (!urlData?.url) throw new Error('Song URL not available');
+		return urlData;
+	}
+
+	private initializePlayer(url: string, play: boolean, init: boolean) {
+		this._player = new Howl({
+			src: [url],
+			html5: true,
+			format: ['mp3', 'wav', 'ogg'],
+			volume: this._volume,
+			mute: usePlayerStore.getState().muted,
+			autoplay: play,
+			onend: () => this.next(),
+			onpause: () => this.emitPlayerUpdate('pause'),
+			onplay: () => this.handlePlayStart(),
+			onplayerror: () => this.handlePlayError(),
+			onstop: () => this.clearMediaSession(),
+			preload: 'metadata',
+			pool: 1,
+			xhr: this.createXhrConfig(),
+		});
+
+		if (init) this._player.seek(usePlayerStore.getState().seek);
+	}
+
+	private createXhrConfig() {
+		return {
+			withCredentials: true,
+			headers: {
+				Referer: 'https://music.163.com/',
+				Origin: 'https://music.163.com',
+			},
+		};
+	}
+
+	private handlePlayStart() {
+		if ('mediaSession' in navigator && useSettingStore.getState().pushToSMTC) {
+			this.updateMediaSession();
+		}
+		this.emitPlayerUpdate('play');
+	}
+
+	private updateMediaSession() {
+		navigator.mediaSession.metadata = new MediaMetadata({
+			title: this.currentSong.name,
+			artist: this._currentSong.artists?.join('/'),
+			artwork: [
+				{
+					src: this._currentSong.cover as string,
+					sizes: '1600x1600',
+					type: 'image/jpeg',
+				},
+			],
+		});
+	}
+
+	private handlePlayError() {
+		console.error('Error playing audio');
+		alert('歌曲无法播放');
+	}
+
+	private clearMediaSession() {
+		if ('mediaSession' in navigator) {
+			navigator.mediaSession.metadata = null;
+		}
+	}
+
+	private async handleLyricsFetch(songId: number) {
+		this._lyric = (await getLyric(songId)) || this.createDefaultLyric();
+	}
+
+	private updatePlayerState(song: PlayListItem, playState: boolean) {
+		this._currentSong = song;
+		this._playing = playState;
+		usePlayerStore.setState({ currentSong: song });
+		this.emitPlayerUpdate('song-change');
+	}
+
+	private updateDocumentTitle() {
+		document.title = `${this._currentSong.name} - ${this._currentSong.artists?.join('/')}`;
+	}
+
+	/**
+	 * Adds a song to the playlist
+	 * @param song - Song item to add
+	 */
 	public addToPlaylist(song: PlayListItem) {
-		debounce(async () => {
-			if (this._playlist.data.find((item) => item.id === song.id)) return;
-			//if (song.cover) song.cover = song.cover.replace('http://', 'https://');
+		debounce(() => {
+			if (this._playlist.data.some((item) => item.id === song.id)) return;
+
 			this._playlist.data.push(song);
 			this._playlist.count++;
-			this.resetPlaylistIndices(); // 添加歌曲后重设index
+			this.resetPlaylistIndices();
 			usePlayerStore.setState({ playlist: this._playlist });
 		}, 300)();
 	}
 
+	/**
+	 * Removes a song from the playlist
+	 * @param id - ID of the song to remove
+	 */
 	public removeFromPlaylist(id: number) {
 		if (this._playlist.count < 1) return;
-		if (this._playlist.count === 1) return this.clearPlaylist();
+
 		const index = this._playlist.data.findIndex((item) => item.id === id);
-		// 如果当前播放的歌曲被移除，则播放下一首
+		if (index === -1) return;
+
 		if (this._currentSong.id === id) {
-			this._player?.unload();
-			document.title = 'AzusaP';
-			this.next();
+			this.handleCurrentSongRemoval();
 		}
+
 		this._playlist.data.splice(index, 1);
 		this._playlist.count--;
-		this.resetPlaylistIndices(); // 删除歌曲后重设index
+		this.resetPlaylistIndices();
 		usePlayerStore.setState({ playlist: this._playlist });
+	}
+
+	private handleCurrentSongRemoval() {
+		this._player?.unload();
+		document.title = 'AzusaP';
+		this.next();
+	}
+
+	/**
+	 * Clears the entire playlist
+	 */
+	public clearPlaylist() {
+		this._playlist = { count: 0, data: [] };
+		this._currentSong = PLACEHOLDER_SONG;
+		document.title = 'AzusaP';
+
+		usePlayerStore.setState({
+			playlist: this._playlist,
+			currentSong: PLACEHOLDER_SONG,
+		});
+
+		if (this._player) {
+			this._player.pause();
+			this._player.unload();
+		}
+	}
+
+	/**
+	 * Starts or resumes playback
+	 */
+	public async play() {
+		if (!this.isPlayActionValid()) return;
+		this.isChangingPlayState = true;
+
+		this._player?.volume(0);
+		this._player?.play();
+		this._playing = true;
+
+		await this.handlePlayTransition();
+		this.isChangingPlayState = false;
+	}
+
+	private isPlayActionValid(): boolean {
+		return (
+			!!this._player &&
+			!this.isChangingPlayState &&
+			this._currentSong.index !== -1 &&
+			!this._player.playing()
+		);
+	}
+
+	private async handlePlayTransition() {
+		return new Promise<void>((resolve) => {
+			this._player?.once('play', () => {
+				this._player?.fade(0, this._volume, useSettingStore.getState().fadeTime);
+				resolve();
+			});
+		});
+	}
+
+	/**
+	 * Pauses playback
+	 */
+	public async pause() {
+		if (!this.isPauseActionValid()) return;
+		this.isChangingPlayState = true;
+
+		await this.handlePauseTransition();
+		this.isChangingPlayState = false;
+	}
+
+	private isPauseActionValid(): boolean {
+		return (
+			!!this._player &&
+			this._currentSong.index !== -1 &&
+			!!this._player.playing() &&
+			!this.isChangingPlayState
+		);
+	}
+
+	private async handlePauseTransition() {
+		return new Promise<void>((resolve) => {
+			if (!this._player) return resolve();
+
+			this._player.fade(this._volume, 0, useSettingStore.getState().fadeTime);
+			this._player.once('fade', () => {
+				this._player?.pause();
+				this._player?.volume(this._volume);
+				this._playing = false;
+				resolve();
+			});
+		});
+	}
+
+	/**
+	 * Skips to the next track
+	 * @param force - Force skip regardless of playback mode
+	 */
+	public next(force = false) {
+		usePlayerStore.setState({ seek: 0 });
+
+		if (this._playlist.count < 1 || this._mode === 'single') {
+			this._player?.seek(0);
+			return;
+		}
+
+		const strategy = force ? new ListPlaybackStrategy() : this.playbackStrategies[this._mode];
+
+		const newIndex = strategy.getNextIndex(this._currentSong?.index ?? 0, this._playlist.count);
+
+		this.setCurrentSong(this._playlist.data[newIndex].id);
+	}
+
+	/**
+	 * Returns to the previous track
+	 */
+	public prev() {
+		usePlayerStore.setState({ seek: 0 });
+
+		if (this._playlist.count < 1 || this._mode === 'single') {
+			this._player?.seek(0);
+			return;
+		}
+
+		const strategy = this.playbackStrategies[this._mode];
+
+		const newIndex = strategy.getPrevIndex(this._currentSong?.index ?? 0, this._playlist.count);
+
+		this.setCurrentSong(this._playlist.data[newIndex].id);
 	}
 
 	public resetPlaylistIndices() {
@@ -190,137 +387,22 @@ export default class PlayerManager {
 		});
 	}
 
-	public clearPlaylist() {
-		this._playlist = { count: 0, data: [] };
-		usePlayerStore.setState({ playlist: this._playlist });
-		this._currentSong = PLACEHOLDER_SONG;
-		usePlayerStore.setState({ currentSong: PLACEHOLDER_SONG });
-		document.title = 'AzusaP';
+	private emitPlayerUpdate(eventType: 'play' | 'pause' | 'song-change') {
+		const eventMap = {
+			play: () => event.emit('player-update-playing', true),
+			pause: () => event.emit('player-update-playing', false),
+			'song-change': () => event.emit('player-update-current-song', this._currentSong),
+		};
 
-		// 清空播放器
-		if (this._player) {
-			this._player.pause();
-			this._player.unload();
-		}
+		eventMap[eventType]();
 	}
 
-	public async play() {
-		if (
-			!this._player ||
-			this.isChangingPlayState ||
-			this._currentSong.index === -1 ||
-			this._player.playing()
-		)
-			return;
-		this.isChangingPlayState = true;
-		// 淡入
-		this._player.volume(0);
-		this._player.play();
-		this._playing = true;
-		await new Promise<void>((resolve) => {
-			this._player?.once('play', () => {
-				this._player?.fade(0, this._volume, useSettingStore.getState().fadeTime);
-				this._player?.volume(this._volume);
-				this.isChangingPlayState = false;
-				resolve();
-			});
-		});
-	}
-
-	public async pause() {
-		if (
-			!this._player ||
-			this._currentSong.index === -1 ||
-			!this._player.playing() ||
-			this.isChangingPlayState
-		)
-			return;
-		this.isChangingPlayState = true;
-		// 淡出
-		await new Promise<void>((resolve) => {
-			if (!this._player) return;
-			this._player.fade(this._volume, 0, useSettingStore.getState().fadeTime);
-			this._player.once('fade', () => {
-				if (!this._player) return;
-				this._playing = false;
-				this._player.pause();
-				this._player.volume(this._volume);
-				this.isChangingPlayState = false;
-				resolve();
-			});
-		});
-	}
-
-	public next(force = false) {
-		usePlayerStore.setState({ seek: 0 });
-		if (force) {
-			if (this._playlist.count < 2) {
-				this._player?.seek(0);
-			}
-			if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
-			// eslint-disable-next-line no-case-declarations
-			const index = (this._currentSong?.index as number) + 1;
-			if (index >= this._playlist.count)
-				return this.setCurrentSong(this._playlist.data[0].id);
-			this.setCurrentSong(this._playlist.data[index].id);
-			return;
-		}
-		switch (this._mode) {
-			case 'single':
-				this._player?.seek(0);
-				if (!this._player?.playing) this._player?.play();
-				break;
-			case 'list':
-				if (this._playlist.count < 2) {
-					this._player?.seek(0);
-				}
-				if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
-				// eslint-disable-next-line no-case-declarations
-				const index = (this._currentSong?.index as number) + 1;
-				if (index >= this._playlist.count)
-					return this.setCurrentSong(this._playlist.data[0].id);
-				this.setCurrentSong(this._playlist.data[index].id);
-				break;
-			case 'random':
-				// eslint-disable-next-line no-case-declarations
-				const random = this.getRandomIndex();
-				this.setCurrentSong(this._playlist.data[random].id);
-				break;
-		}
-	}
-
-	public prev() {
-		usePlayerStore.setState({ seek: 0 });
-		switch (this._mode) {
-			case 'single':
-				this._player?.seek(0);
-				if (!this._player?.playing) this._player?.play();
-				break;
-			case 'list':
-				if (this._playlist.count < 2) {
-					this._player?.seek(0);
-				}
-				if (!this._currentSong) return this.setCurrentSong(this._playlist.data[0].id);
-				// eslint-disable-next-line no-case-declarations
-				const index = (this._currentSong?.index as number) - 1;
-				if (index < 0)
-					return this.setCurrentSong(this._playlist.data[this._playlist.count - 1].id);
-				this.setCurrentSong(this._playlist.data[index].id);
-				break;
-			case 'random':
-				// eslint-disable-next-line no-case-declarations
-				const random = this.getRandomIndex();
-				this.setCurrentSong(this._playlist.data[random].id);
-				break;
-		}
-	}
-
+	// Getters and setters
 	get playlist() {
 		return this._playlist;
 	}
-	get currentSong(): PlayListItem {
-		if (this._currentSong) return this._currentSong;
-		return PLACEHOLDER_SONG;
+	get currentSong() {
+		return this._currentSong || PLACEHOLDER_SONG;
 	}
 	get mode() {
 		return this._mode;
@@ -328,41 +410,8 @@ export default class PlayerManager {
 	get player() {
 		return this._player;
 	}
-	// 歌词列表
-	get lyric(): Lyric {
-		return (
-			this._lyric ||
-			({
-				code: 200,
-				lrc: {
-					lyric: '[00:00.00]暂无歌词',
-					version: 0,
-				} as LyricContent,
-			} as Lyric)
-		);
-	}
-	public currentLyric(type: 'raw' | 'translate' = 'raw') {
-		if (!this._lyric) return '';
-		let lyricLines;
-		if (type === 'translate' && this._lyric.tlyric?.lyric !== '') {
-			if (!this._lyric.tlyric) return '';
-			lyricLines = this._lyric.tlyric.lyric.split('\n');
-		} else {
-			if (!this._lyric.lrc) return '';
-			lyricLines = this._lyric.lrc.lyric.split('\n');
-		}
-
-		const seekTime = this._player?.seek() || 0;
-		const lyricMap = this.parseLyric(lyricLines);
-
-		// 查找当前歌词
-		let currentLyric = '';
-		for (const [time, lyric] of lyricMap) {
-			if (time > seekTime) break;
-			currentLyric = lyric;
-		}
-
-		return currentLyric;
+	get lyric() {
+		return this._lyric || this.createDefaultLyric();
 	}
 	get muted() {
 		return this._player?.mute() || false;
@@ -374,35 +423,33 @@ export default class PlayerManager {
 		return this._player?.seek() || 0;
 	}
 	get playing() {
-		return this._playing || false;
+		return this._playing;
 	}
 	get volume() {
-		return this._volume || 0.5;
+		return this._volume;
 	}
 
 	set mode(mode: 'list' | 'single' | 'random') {
 		this._mode = mode;
-		usePlayerStore.setState({ mode: mode });
+		usePlayerStore.setState({ mode });
 	}
+
 	set seek(seek: number) {
 		if (!this._player || this._player.state() !== 'loaded') return;
-
-		// 约束 seek 范围在 [0, duration] 之间
 		const clampedSeek = Math.max(0, Math.min(seek, this.duration));
-
 		this._player.seek(clampedSeek);
-		usePlayerStore.setState({ seek: clampedSeek }); // 同步到状态管理
+		usePlayerStore.setState({ seek: clampedSeek });
 	}
+
 	set muted(muted: boolean) {
-		if (!this._player) return;
-		this._player.mute(muted);
-		usePlayerStore.setState({ muted: muted });
+		this._player?.mute(muted);
+		usePlayerStore.setState({ muted });
 	}
+
 	set volume(volume: number) {
 		this._volume = volume;
-		if (!this._player) return;
-		this._player.volume(volume);
-		usePlayerStore.setState({ volume: volume });
+		this._player?.volume(volume);
+		usePlayerStore.setState({ volume });
 	}
 
 	public static getInstance(): PlayerManager {
@@ -412,48 +459,63 @@ export default class PlayerManager {
 		return PlayerManager.instance;
 	}
 
-	// 解析歌词
+	/**
+	 * Parses lyric data into timestamped map
+	 * @param lyricLines - Array of lyric strings
+	 * @returns Map of timestamps to lyric text
+	 */
 	public parseLyric(lyricLines: string[]): Map<number, string> {
 		const lyricMap = new Map<number, string>();
-		const timeRegex = /\[(\d{2}):(\d{2})\.(\d+)\]/; // 调整正则表达式
+		const timeRegex = /\[(\d{2}):(\d{2})\.(\d+)\]/;
+
 		for (const line of lyricLines) {
 			const match = line.match(timeRegex);
 			if (match) {
-				const minutes = parseInt(match[1], 10);
-				const seconds = parseInt(match[2], 10);
-				const milliseconds = parseInt(match[3], 10);
-				// 处理不同精度的毫秒
-				const time =
-					minutes * 60 + seconds + milliseconds / (match[3].length === 3 ? 1000 : 100);
-				const lyricText = line.replace(timeRegex, '').trim();
-				if (lyricText) {
-					lyricMap.set(time, lyricText);
-				}
+				const time = this.calculateLyricTime(match);
+				const text = line.replace(timeRegex, '').trim();
+				if (text) lyricMap.set(time, text);
 			}
 		}
+
 		return lyricMap;
 	}
 
-	private getRandomIndex(excludeCurrent: boolean = true): number {
-		if (this._playlist.count <= 1) return 0;
-		let random: number;
-		do {
-			random = Math.floor(Math.random() * this._playlist.count);
-		} while (excludeCurrent && random === this._currentSong?.index);
-		return random;
+	private calculateLyricTime(match: RegExpMatchArray): number {
+		const minutes = parseInt(match[1], 10);
+		const seconds = parseInt(match[2], 10);
+		const milliseconds = parseInt(match[3], 10);
+		const precisionFactor = match[3].length === 3 ? 1000 : 100;
+		return minutes * 60 + seconds + milliseconds / precisionFactor;
 	}
 
-	private emitPlayerUpdate(eventType: 'play' | 'pause' | 'song-change') {
-		switch (eventType) {
-			case 'play':
-				event.emit('player-update-playing', true);
-				break;
-			case 'pause':
-				event.emit('player-update-playing', false);
-				break;
-			case 'song-change':
-				event.emit('player-update-current-song', this._currentSong);
-				break;
+	/**
+	 * Gets current lyric based on playback position
+	 * @param type - Lyric type (original or translated)
+	 */
+	public currentLyric(type: 'raw' | 'translate' = 'raw'): string {
+		const lyricContent = this.getLyricContent(type);
+		if (!lyricContent) return '';
+
+		const seekTime = this._player?.seek() || 0;
+		return this.findCurrentLyricText(lyricContent.split('\n'), seekTime);
+	}
+
+	private getLyricContent(type: 'raw' | 'translate'): string {
+		if (type === 'translate' && this._lyric.tlyric?.lyric) {
+			return this._lyric.tlyric.lyric;
 		}
+		return this._lyric.lrc?.lyric || '';
+	}
+
+	private findCurrentLyricText(lines: string[], seekTime: number): string {
+		const lyricMap = this.parseLyric(lines);
+		let currentLyric = '';
+
+		for (const [time, lyric] of lyricMap) {
+			if (time > seekTime) break;
+			currentLyric = lyric;
+		}
+
+		return currentLyric;
 	}
 }
