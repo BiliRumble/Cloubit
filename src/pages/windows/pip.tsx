@@ -1,10 +1,9 @@
-import { event } from '@tauri-apps/api';
 import { Window } from '@tauri-apps/api/window';
 import React, { useEffect, useState } from 'react';
 import cover from '../../assets/images/song.png';
-import { useTheme } from '../../hooks/useTheme';
 import { closePip } from '../../managers/PIPWindowManager';
 import { PlayListItem } from '../../models/song';
+import { eventBus } from '../../utils/EventBus';
 import styles from './pip.module.scss';
 
 const Pip = () => {
@@ -17,43 +16,33 @@ const Pip = () => {
 	const [lyric, setLyric] = useState<string | null>(null);
 
 	useEffect(() => {
-		// 监听
-		const ucs = event.listen('player-update-current-song', (event) => {
-			const data = event.payload as PlayListItem;
+		eventBus.on('playerCurrent', (data: PlayListItem) => {
+			if (!data) return;
 			setCurrentSong(data);
 		});
-		const up = event.listen('player-update-playing', (event) => {
-			const data = event.payload as boolean;
+
+		eventBus.on('playerState', (data: boolean) => {
 			setPlaying(data);
-			console.log(`player-update-playing: ${data}`);
 		});
-		const us = event.listen('player-update-seek', (event) => {
-			const data = event.payload as number;
+
+		eventBus.on('playerSeek', (data: number) => {
 			setSeek(data);
 		});
-		const ul = event.listen('player-update-lyric', (event) => {
-			setLyric(event.payload as string);
-		});
-		const ud = event.listen('player-update-duration', (event) => {
-			const data = event.payload as number;
+
+		eventBus.on('playerDuration', (data: number) => {
 			setDuration(data);
 		});
-		const st = event.listen('switch-theme', (event) => {
-			const data = event.payload as string;
+
+		eventBus.on('playerLyricChange', (data: string) => {
+			setLyric(data);
+		});
+
+		eventBus.on('systemTheme', (data: string) => {
 			const body = document.documentElement;
 			body.setAttribute('data-theme', data);
 		});
 
-		event.emitTo('main', 'pip-request-current-song');
-
-		return () => {
-			ucs.then((f) => f());
-			up.then((f) => f());
-			us.then((f) => f());
-			ul.then((f) => f());
-			ud.then((f) => f());
-			st.then((f) => f());
-		};
+		eventBus.emit('systemPipReady');
 	}, []);
 
 	const progress = (seek / duration) * 100;
@@ -79,19 +68,19 @@ const Pip = () => {
 					<div data-tauri-drag-region className={styles.pip__card__control__buttons}>
 						<span
 							className="i-solar-rewind-back-line-duotone"
-							onClick={() => event.emitTo('main', 'pip-prev')}
+							onClick={() => eventBus.emit('playerPrev')}
 						/>
 						<span
 							className={
 								playing ? 'i-solar-pause-line-duotone' : 'i-solar-play-line-duotone'
 							}
 							onClick={async () => {
-								event.emitTo('main', 'pip-play');
+								eventBus.emit('playerSetState');
 							}}
 						/>
 						<span
 							className="i-solar-rewind-forward-line-duotone"
-							onClick={() => event.emitTo('main', 'pip-next')}
+							onClick={() => eventBus.emit('playerNext')}
 						/>
 					</div>
 				</div>

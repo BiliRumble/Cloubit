@@ -1,18 +1,27 @@
 import {
 	isRegistered,
 	register,
+	ShortcutEvent,
 	unregister,
 	unregisterAll,
 } from '@tauri-apps/plugin-global-shortcut';
 
 // ShortcutManager.ts
-export async function registerShortcuts(shortcut: string | string[], callback: () => void) {
+export async function registerShortcuts(
+	shortcut: string | string[],
+	callback: (event?: ShortcutEvent | null) => void,
+	callType: 'Pressed' | 'Released' = 'Pressed'
+) {
 	if (Array.isArray(shortcut)) {
 		shortcut.join('+');
 	}
 	try {
 		console.debug(`⌨️ Registering shortcut ${shortcut}`);
-		await register(shortcut, callback);
+		await register(shortcut, (e) => {
+			if (e.state !== callType) return;
+			else callback(e);
+			console.debug(`⌨️ Shortcut ${shortcut} ${callType.toLowerCase()}`);
+		});
 	} catch (error) {
 		console.error(`Failed to register shortcut ${shortcut}:`, error);
 	}

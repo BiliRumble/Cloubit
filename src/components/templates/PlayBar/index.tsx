@@ -1,6 +1,5 @@
-import { event } from '@tauri-apps/api';
 import { debounce } from 'lodash-es';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLikeList } from '../../../apis/user';
 import cover from '../../../assets/images/song.png';
@@ -8,6 +7,7 @@ import { usePlayerManager } from '../../../context/PlayerContext';
 import { usePlayerStore } from '../../../store/player';
 import { useSettingStore } from '../../../store/setting';
 import { useUserStore } from '../../../store/user';
+import { eventBus } from '../../../utils/EventBus';
 import { toLikeSong } from '../../../utils/song';
 import Progress from '../../atoms/Progress';
 import Modal from '../../numerator/Modal';
@@ -73,14 +73,14 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 
 	const handleLyricsUpdate = useCallback(() => {
 		if (useSettingStore.getState().showLyrics) {
-			event.emit(
-				'player-update-lyric',
+			eventBus.emit(
+				'playerLyricChange',
 				usePlayer.currentLyric(useSettingStore.getState().lyricsType)
 			);
 			setLyrics(usePlayer.currentLyric(useSettingStore.getState().lyricsType));
 		} else {
 			setLyrics(null);
-			event.emit('player-update-lyric', lyrics);
+			eventBus.emit('playerLyricChange', lyrics);
 		}
 	}, [currentSong, useSettingStore.getState().showLyrics, seek]);
 
@@ -88,27 +88,7 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 		handleLyricsUpdate();
 	}, [handleLyricsUpdate]);
 
-	const lazyAsync = useMemo(
-		() => async () => {
-			await event.emit('player-update-duration', duration);
-			await event.emit('player-update-current-song', currentSong);
-		},
-		[duration, currentSong, useSettingStore]
-	);
-
-	useEffect(() => {
-		const interval = setInterval(lazyAsync, 1500);
-		return () => clearInterval(interval);
-	}, [lazyAsync]);
-
-	useEffect(() => {
-		event.emit('player-update-current-song', currentSong);
-		event.emit('player-update-duration', duration);
-		if (useSettingStore.getState().autoPlay) event.emit('player-play');
-	}, [currentSong, duration, usePlayer, useSettingStore]);
-
 	const updateSeek = useCallback(async () => {
-		await event.emit('player-update-seek', seek);
 		if (useSettingStore.getState().savePlaySeek) usePlayerStore.setState({ seek });
 		setPlaying(usePlayer.playing);
 	}, [seek, usePlayer]);
@@ -117,69 +97,12 @@ const PlayBar: React.FC<PlayBarProps> = ({ className }) => {
 		updateSeek();
 	}, [updateSeek]);
 
-	const registerEvents = useCallback(async () => {
-		const prev = event.listen('pip-prev', () => usePlayer.prev());
-		const next = event.listen('pip-next', () => usePlayer.next());
-		const play = event.listen('pip-play', () => {
-			console.debug(playing);
-			if (playing) return usePlayer.pause();
-			else return usePlayer.play();
-		});
-
-		event.emit('player-update-current-song', currentSong);
-		event.emit('player-update-duration', duration);
-		event.emit('player-update-playing', playing);
-
-		return () => {
-			prev.then((f) => f());
-			next.then((f) => f());
-			play.then((f) => f());
-		};
-	}, [playing, duration, currentSong, usePlayer]);
-
-	const registerShortcuts = useCallback(async () => {
-		const play = event.listen('shortcut-play', () => {
-			console.debug('1', Date.now());
-			if (playing) return usePlayer.pause();
-			else return usePlayer.play();
-		});
-		const prev = event.listen('shortcut-prev', () => usePlayer.prev());
-		const next = event.listen('shortcut-next', () => usePlayer.next());
-		const volumeUp = event.listen('shortcut-volume-up', () => {
-			if (volume < 1) {
-				usePlayer.volume = volume + 0.1;
-			}
-		});
-		const volumeDown = event.listen('shortcut-volume-down', () => {
-			if (volume > 0) {
-				usePlayer.volume = volume - 0.1;
-			}
-		});
-
-		return () => {
-			play.then((f) => f());
-			prev.then((f) => f());
-			next.then((f) => f());
-			volumeUp.then((f) => f());
-			volumeDown.then((f) => f());
-		};
-	}, [playing, volume, usePlayer]);
-
 	useEffect(() => {
-		const pipRequest = event.listen('pip-request', () =>
-			debounce(() => {
-				event.emit('player-update-current-song', currentSong);
-				event.emit('player-update-duration', duration);
-			}, 300)
-		);
-
-		registerEvents();
-		registerShortcuts();
-
-		return () => {
-			pipRequest.then((f) => f());
+		const emitLyricsChange = async () => {
+			eventBus.emit('playerLyricChange', lyrics);
 		};
-	}, [registerEvents, registerShortcuts, currentSong, duration]);
+		emitLyricsChange();
+	}, [lyrics]);
 
 	return (
 		<>

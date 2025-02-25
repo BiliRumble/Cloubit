@@ -6,6 +6,7 @@ import Sidebar from './components/templates/Sidebar';
 import { useTheme } from './hooks/useTheme';
 import { unregisterAllShortcuts } from './managers/ShortcutManager';
 import { useSettingStore } from './store/setting';
+import { eventBus } from './utils/EventBus';
 import { init } from './utils/init';
 import Router from './routers';
 import styles from './styles/layout.module.scss';
@@ -15,7 +16,10 @@ const App = () => {
 	useTheme();
 
 	useEffect(() => {
-		init();
+		if (!isWindowPath) {
+			init();
+			eventBus.emit('test');
+		}
 	}, []);
 
 	useEffect(() => {

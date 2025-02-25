@@ -1,9 +1,8 @@
-import { event } from '@tauri-apps/api';
-import { debounce } from 'lodash-es';
 import { getUserAccount } from '../apis/user';
 import { registerShortcuts, unregisterAllShortcuts } from '../managers/ShortcutManager';
 import { useAuthStore } from '../store/auth';
 import { useSettingStore } from '../store/setting';
+import { eventBus } from './EventBus';
 export async function init() {
 	const isLogin = useAuthStore.getState().isLogin;
 
@@ -61,27 +60,10 @@ function registerShortcut() {
 	const playShortcut = useSettingStore.getState().playShortcut.join('+');
 	const prevShortcut = useSettingStore.getState().prevShortcut.join('+');
 	const nextShortcut = useSettingStore.getState().nextShortcut.join('+');
-	const volumeUpShortcut = useSettingStore.getState().volumeUpShortcut.join('+');
-	const volumeDownShortcut = useSettingStore.getState().volumeDownShortcut.join('+');
+	// const volumeUpShortcut = useSettingStore.getState().volumeUpShortcut.join('+');
+	// const volumeDownShortcut = useSettingStore.getState().volumeDownShortcut.join('+');
 
-	registerShortcuts(
-		playShortcut,
-		debounce(() => event.emit('shortcut-play'), 10)
-	);
-	registerShortcuts(
-		prevShortcut,
-		debounce(() => event.emit('shortcut-prev'), 10)
-	);
-	registerShortcuts(
-		nextShortcut,
-		debounce(() => event.emit('shortcut-next'), 10)
-	);
-	registerShortcuts(
-		volumeUpShortcut,
-		debounce(() => event.emit('shortcut-volumeUp'), 10)
-	);
-	registerShortcuts(
-		volumeDownShortcut,
-		debounce(() => event.emit('shortcut-volumeDown'), 10)
-	);
+	registerShortcuts(playShortcut, () => eventBus.emit('playerSetState'));
+	registerShortcuts(prevShortcut, () => eventBus.emit('playerPrev'));
+	registerShortcuts(nextShortcut, () => eventBus.emit('playerNext'));
 }

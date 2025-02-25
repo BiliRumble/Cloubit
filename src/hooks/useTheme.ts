@@ -1,7 +1,5 @@
-//import { useSettingStore } from '@/store/setting';
-
-import { event } from '@tauri-apps/api';
 import { useSettingStore } from '../store/setting';
+import { eventBus } from '../utils/EventBus';
 
 /**
  * @description: 全局主题设置
@@ -32,7 +30,7 @@ export const useTheme = () => {
 					? 'dark'
 					: 'light'
 				: type;
-		event.emit('switch-theme', theme);
+		eventBus.emit('systemTheme', theme);
 	};
 
 	const initTheme = () => {

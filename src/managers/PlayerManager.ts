@@ -1,4 +1,3 @@
-import { event } from '@tauri-apps/api';
 import { Howl } from 'howler';
 import { debounce } from 'lodash-es';
 import { getLyric, getSongURL } from '../apis/song';
@@ -6,6 +5,7 @@ import { scrobble } from '../apis/user';
 import { Lyric, LyricContent, PlayList, PlayListItem } from '../models/song';
 import { usePlayerStore } from '../store/player';
 import { useSettingStore } from '../store/setting';
+import { eventBus } from '../utils/EventBus';
 
 const DEFAULT_VOLUME = 0.5;
 const PLACEHOLDER_SONG: PlayListItem = {
@@ -79,6 +79,8 @@ export default class PlayerManager {
 		this._mode = playerStore.mode;
 		this._volume = playerStore.volume;
 
+		this.subscribeEvents();
+
 		if (this._currentSong?.id && this._playlist.data.length) {
 			this.setCurrentSong(this._currentSong.id, settingStore.autoPlay, true).then(() => {
 				if (settingStore.savePlaySeek) {
@@ -86,6 +88,41 @@ export default class PlayerManager {
 				}
 			});
 		}
+	}
+
+	private subscribeEvents() {
+		eventBus.on('playerSetState', (playing?: boolean) => {
+			debounce(() => {
+				if (playing && playing !== this._playing) {
+					if (playing) this.play();
+					else this.pause();
+					return;
+				}
+				return this._playing ? this.pause() : this.play();
+			}, 300)();
+		});
+
+		eventBus.on('playerSetVolume', (volume?: number) => {
+			if (volume !== undefined) {
+				this.volume = volume;
+				return;
+			}
+			this.muted = !this.muted;
+		});
+
+		eventBus.on('playerNext', () => this.next());
+		eventBus.on('playerPrev', () => this.prev());
+
+		eventBus.on('playerSetMode', (mode: 'list' | 'single' | 'random') => {
+			this.mode = mode;
+		});
+
+		eventBus.on('systemPipReady', () => {
+			eventBus.emit('playerCurrent', this._currentSong);
+			eventBus.emit('playerState', this._playing);
+			eventBus.emit('playerDuration', this.duration);
+			eventBus.emit('playerLyric', this.currentLyric());
+		});
 	}
 
 	/**
@@ -110,6 +147,9 @@ export default class PlayerManager {
 
 			this.updatePlayerState(target, play);
 			this.updateDocumentTitle();
+
+			eventBus.emit('playerCurrent', target);
+			eventBus.emit('playerDuration', this.duration);
 		} catch (error) {
 			console.error('Error setting current song:', error);
 		} finally {
@@ -148,7 +188,7 @@ export default class PlayerManager {
 			mute: usePlayerStore.getState().muted,
 			autoplay: play,
 			onend: () => this.next(),
-			onpause: () => this.emitPlayerUpdate('pause'),
+			onpause: () => eventBus.emit('playerState', false),
 			onplay: () => this.handlePlayStart(),
 			onplayerror: () => this.handlePlayError(),
 			onstop: () => this.clearMediaSession(),
@@ -158,6 +198,8 @@ export default class PlayerManager {
 		});
 
 		if (init) this._player.seek(usePlayerStore.getState().seek);
+
+		eventBus.emit('playerInit', this._player);
 	}
 
 	private createXhrConfig() {
@@ -174,7 +216,7 @@ export default class PlayerManager {
 		if ('mediaSession' in navigator && useSettingStore.getState().pushToSMTC) {
 			this.updateMediaSession();
 		}
-		this.emitPlayerUpdate('play');
+		eventBus.emit('playerState', true);
 	}
 
 	private updateMediaSession() {
@@ -210,7 +252,6 @@ export default class PlayerManager {
 		this._currentSong = song;
 		this._playing = playState;
 		usePlayerStore.setState({ currentSong: song });
-		this.emitPlayerUpdate('song-change');
 	}
 
 	private updateDocumentTitle() {
@@ -385,16 +426,6 @@ export default class PlayerManager {
 		this._playlist.data.forEach((song, index) => {
 			song.index = index;
 		});
-	}
-
-	private emitPlayerUpdate(eventType: 'play' | 'pause' | 'song-change') {
-		const eventMap = {
-			play: () => event.emit('player-update-playing', true),
-			pause: () => event.emit('player-update-playing', false),
-			'song-change': () => event.emit('player-update-current-song', this._currentSong),
-		};
-
-		eventMap[eventType]();
 	}
 
 	// Getters and setters
