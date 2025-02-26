@@ -11,24 +11,39 @@ interface ContextMenuProps {
 	items: MenuItem[];
 	children: React.ReactNode;
 	className?: string;
+	onClick?: (e?: React.MouseEvent) => void;
+	style?: React.CSSProperties;
 }
 
-const ContextMenu: React.FC<ContextMenuProps> = ({ items, children, className }) => {
+let globalCloseMenu: (() => void) | null = null;
+
+const ContextMenu: React.FC<ContextMenuProps> = ({
+	items,
+	children,
+	onClick,
+	className = '',
+	style,
+}) => {
 	const [isVisible, setIsVisible] = useState(false);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const menuRef = useRef<HTMLDivElement>(null);
 
-	// 处理右键点击事件
 	const handleContextMenu = (e: React.MouseEvent) => {
 		e.preventDefault();
+		// 关闭其他菜单
+		if (globalCloseMenu) globalCloseMenu();
+		// 注册当前菜单
+		globalCloseMenu = closeMenu;
 		setIsVisible(true);
 		setPosition({ x: e.clientX, y: e.clientY });
 	};
 
-	// 关闭菜单
-	const closeMenu = () => setIsVisible(false);
+	const closeMenu = () => {
+		setIsVisible(false);
+		// 清除全局引用
+		if (globalCloseMenu === closeMenu) globalCloseMenu = null;
+	};
 
-	// 全局点击监听
 	useEffect(() => {
 		if (!isVisible) return;
 
@@ -39,29 +54,66 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children, className })
 		};
 
 		document.addEventListener('click', handleClickOutside);
-		return () => {
-			document.removeEventListener('click', handleClickOutside);
-		};
+		return () => document.removeEventListener('click', handleClickOutside);
 	}, [isVisible]);
 
-	// 调整菜单位置防止溢出视口
 	useEffect(() => {
 		if (!isVisible || !menuRef.current) return;
 
 		const { innerWidth, innerHeight } = window;
-		const { width, height } = menuRef.current.getBoundingClientRect();
+		const rect = menuRef.current.getBoundingClientRect();
 
 		let x = position.x;
 		let y = position.y;
 
-		if (x + width > innerWidth) x = innerWidth - width - 10;
-		if (y + height > innerHeight) y = innerHeight - height - 10;
+		// 水平边界处理
+		if (x + rect.width > innerWidth) x = innerWidth - rect.width - 10;
+		if (x < 10) x = 10;
+
+		// 垂直边界处理
+		if (y + rect.height > innerHeight) y = innerHeight - rect.height - 10;
+		if (y < 10) y = 10;
 
 		setPosition({ x, y });
 	}, [isVisible, position]);
 
+	useEffect(() => {
+		if (!isVisible) return;
+
+		const handleClickOutside = (e: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+				closeMenu();
+			}
+		};
+
+		// 新增滚动监听
+		const handleScroll = () => {
+			closeMenu();
+		};
+
+		document.addEventListener('click', handleClickOutside);
+		window.addEventListener('scroll', handleScroll, true); // 使用捕获阶段确保及时触发
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+			window.removeEventListener('scroll', handleScroll, true);
+		};
+	}, [isVisible]);
+
+	const click = (e: React.MouseEvent) => {
+		// 点击子内容而不是菜单时执行onClick
+		if (!isVisible && onClick) {
+			onClick(e);
+			closeMenu();
+		}
+	};
+
 	return (
-		<div className={`${styles.contextMenu} ${className}`} onContextMenu={handleContextMenu}>
+		<div
+			className={`${styles.contextMenu} ${className}`}
+			onClick={click}
+			onContextMenu={handleContextMenu}
+		>
 			{children}
 			{isVisible && (
 				<div
@@ -70,6 +122,9 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, children, className })
 					style={{
 						left: position.x,
 						top: position.y,
+						// 防止transform导致的溢出
+						transform: 'none',
+						...style,
 					}}
 				>
 					{items.map((item, index) => (

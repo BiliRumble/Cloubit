@@ -8,9 +8,10 @@ import styles from './PlayList.module.scss';
 interface PlayListProps {
 	onClose: () => void;
 	className?: string;
+	style?: React.CSSProperties;
 }
 
-const PlayListModal: React.FC<PlayListProps> = ({ onClose, className = '' }) => {
+const PlayListModal: React.FC<PlayListProps> = ({ onClose, className = '', style }) => {
 	const usePlayer = usePlayerManager();
 	const [playlist, setPlaylist] = useState<PlayList>({
 		count: 0,
@@ -24,7 +25,7 @@ const PlayListModal: React.FC<PlayListProps> = ({ onClose, className = '' }) => 
 	}, [usePlayer.playlist, usePlayer.currentSong]);
 
 	return (
-		<div className={styles.playlist + ' ' + className}>
+		<div className={styles.playlist + ' ' + className} style={style}>
 			<div className={styles.playlist__header}>
 				<h2>播放列表</h2>
 				<span>

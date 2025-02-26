@@ -180,6 +180,10 @@ export default class PlayerManager {
 	}
 
 	private initializePlayer(url: string, play: boolean, init: boolean) {
+		// 销毁
+		this._player?.unload();
+		this._player = null;
+
 		this._player = new Howl({
 			src: [url],
 			html5: true,
