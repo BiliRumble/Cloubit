@@ -10,7 +10,7 @@ use std::str::FromStr;
 use std::time::Duration;
 use web::Query;
 
-// // 歌手单曲
+// 歌手单曲
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(web::resource("/audio/match").route(web::get().to(audio_match)));
 }
@@ -21,6 +21,19 @@ define_request_struct!(AudioMatch, {
     audioFP: String,
 });
 
+// 大坑，要编码符号发送才有效
+fn percent_encode(s: &str) -> String {
+    let mut encoded = String::new();
+    for byte in s.bytes() {
+        if byte.is_ascii_alphanumeric() || byte == b'-' || byte == b'_' || byte == b'.' || byte == b'~' {
+            encoded.push(byte as char);
+        } else {
+            encoded.push('%');
+            encoded.push_str(&format!("{:02X}", byte));
+        }
+    }
+    encoded
+}
 
 impl AudioMatch {
     async fn requests(req: HttpRequest, query: Query<AudioMatch>) -> Result<Response, Value> {
@@ -33,14 +46,19 @@ impl AudioMatch {
             .gzip(true); // 启用 Gzip 压缩
         let client = client_builder.build().map_err(|e| format!("Client build error: {}", e))?;
         let query = query.into_inner();
-        let url = format!("https://interface.music.163.com/api/music/audio/match?sessionId=0123456789abcdef&algorithmCode=shazam_v2&duration={}&rawdata={}&times=1&decrypt=1", query.duration, query.audioFP);
+        // debug
+        println!("dur: {:?}", query.duration);
+        println!("audioFP: {:?}", query.audioFP);
+        let encoded_audioFP = percent_encode(&query.audioFP);
+        let url = format!("https://interface.music.163.com/api/music/audio/match?sessionId=0123456789abcdef&algorithmCode=shazam_v2&duration={}&rawdata={}&times=1&decrypt=1", query.duration, encoded_audioFP);
+        println!("url: {}", url);
         let result = client.get(&url).send().await.map_err(|e| format!("Request error: {}", e));
         match result {
             Ok(response) => {
-                let body = response.text().await.map_err(|e| format!("Response body error: {}", e))?;
+                let body: Value = response.json().await.map_err(|e| format!("Response error: {}", e))?;
                 Ok(Response {
                     status: 200,
-                    body: json!({"code": 200, "data": body}),
+                    body: json!({"code": 200, "data": body.get("data").unwrap_or(&json!({}))}),
                     cookie: None,
                 })
             }
@@ -49,24 +67,3 @@ impl AudioMatch {
     }
 }
 cache_handler!(audio_match, AudioMatch);
-
-
-// const { default: axios } = require('axios')
-//
-// const createOption = require('../util/option.js')
-// module.exports = async (query, request) => {
-//   const res = await axios({
-//     method: 'get',
-//     url: `https://interface.music.163.com/api/music/audio/match?sessionId=0123456789abcdef&algorithmCode=shazam_v2&duration=${
-//       query.duration
-//     }&rawdata=${encodeURIComponent(query.audioFP)}&times=1&decrypt=1`,
-//     data: null,
-//   })
-//   return {
-//     status: 200,
-//     body: {
-//       code: 200,
-//       data: res.data.data,
-//     },
-//   }
-// }
