@@ -125,12 +125,6 @@ export default class PlayerManager {
 		});
 	}
 
-	/**
-	 * Sets the current song to play
-	 * @param id - ID of the song to play
-	 * @param play - Whether to start playing immediately
-	 * @param init - Initialization flag for restoring playback state
-	 */
 	public async setCurrentSong(id: number, play: boolean = true, init: boolean = false) {
 		if (this.isChangingSong) return;
 		this.isChangingSong = true;
@@ -147,6 +141,7 @@ export default class PlayerManager {
 
 			this.updatePlayerState(target, play);
 			this.updateDocumentTitle();
+			this.updateMediaSession();
 
 			eventBus.emit('playerCurrent', target);
 			eventBus.emit('playerDuration', this.duration);
@@ -180,7 +175,6 @@ export default class PlayerManager {
 	}
 
 	private initializePlayer(url: string, play: boolean, init: boolean) {
-		// 销毁
 		this._player?.unload();
 		this._player = null;
 
@@ -192,8 +186,14 @@ export default class PlayerManager {
 			mute: usePlayerStore.getState().muted,
 			autoplay: play,
 			onend: () => this.next(),
-			onpause: () => eventBus.emit('playerState', false),
-			onplay: () => this.handlePlayStart(),
+			onpause: () => {
+				eventBus.emit('playerState', false);
+				this.updateMediaPlaybackState('paused');
+			},
+			onplay: () => {
+				this.handlePlayStart();
+				this.setupMediaSessionHandlers();
+			},
 			onplayerror: () => this.handlePlayError(),
 			onstop: () => this.clearMediaSession(),
 			preload: 'metadata',
@@ -216,25 +216,56 @@ export default class PlayerManager {
 		};
 	}
 
-	private handlePlayStart() {
-		if ('mediaSession' in navigator && useSettingStore.getState().pushToSMTC) {
-			this.updateMediaSession();
+	private setupMediaSessionHandlers() {
+		if ('mediaSession' in navigator) {
+			try {
+				navigator.mediaSession.setActionHandler('play', () => this.play());
+				navigator.mediaSession.setActionHandler('pause', () => this.pause());
+				navigator.mediaSession.setActionHandler('previoustrack', () => this.prev());
+				navigator.mediaSession.setActionHandler('nexttrack', () => this.next());
+
+				navigator.mediaSession.setActionHandler('seekto', (details) => {
+					if (details.seekTime !== undefined) {
+						this.seek = details.seekTime;
+					}
+				});
+			} catch (error) {
+				console.warn('MediaSession API 部分操作不支持:', error);
+			}
 		}
-		eventBus.emit('playerState', true);
 	}
 
 	private updateMediaSession() {
+		if (!('mediaSession' in navigator)) return;
+
+		const artwork = [];
+		const coverUrl = this._currentSong.cover;
+		if (coverUrl) {
+			artwork.push({
+				src: coverUrl,
+				sizes: '512x512',
+				type: 'image/jpeg',
+			});
+		}
+
 		navigator.mediaSession.metadata = new MediaMetadata({
-			title: this.currentSong.name,
-			artist: this._currentSong.artists?.join('/'),
-			artwork: [
-				{
-					src: this._currentSong.cover as string,
-					sizes: '1600x1600',
-					type: 'image/jpeg',
-				},
-			],
+			title: this._currentSong.name || '未知曲目',
+			artist: this._currentSong.artists?.join('/') || '未知艺术家',
+			artwork: artwork,
 		});
+
+		this.updateMediaPlaybackState(this._playing ? 'playing' : 'paused');
+	}
+
+	private updateMediaPlaybackState(state: 'playing' | 'paused' | 'none') {
+		if ('mediaSession' in navigator) {
+			navigator.mediaSession.playbackState = state;
+		}
+	}
+
+	private handlePlayStart() {
+		this.updateMediaSession();
+		eventBus.emit('playerState', true);
 	}
 
 	private handlePlayError() {
@@ -245,6 +276,7 @@ export default class PlayerManager {
 	private clearMediaSession() {
 		if ('mediaSession' in navigator) {
 			navigator.mediaSession.metadata = null;
+			this.updateMediaPlaybackState('none');
 		}
 	}
 
@@ -262,10 +294,6 @@ export default class PlayerManager {
 		document.title = `${this._currentSong.name} - ${this._currentSong.artists?.join('/')}`;
 	}
 
-	/**
-	 * Adds a song to the playlist
-	 * @param song - Song item to add
-	 */
 	public addToPlaylist(song: PlayListItem) {
 		debounce(() => {
 			if (this._playlist.data.some((item) => item.id === song.id)) return;
@@ -277,10 +305,6 @@ export default class PlayerManager {
 		}, 300)();
 	}
 
-	/**
-	 * Removes a song from the playlist
-	 * @param id - ID of the song to remove
-	 */
 	public removeFromPlaylist(id: number) {
 		if (this._playlist.count < 1) return;
 
@@ -303,9 +327,6 @@ export default class PlayerManager {
 		this.next();
 	}
 
-	/**
-	 * Clears the entire playlist
-	 */
 	public clearPlaylist() {
 		this._playlist = { count: 0, data: [] };
 		this._currentSong = PLACEHOLDER_SONG;
@@ -320,11 +341,13 @@ export default class PlayerManager {
 			this._player.pause();
 			this._player.unload();
 		}
+
+		if ('mediaSession' in navigator) {
+			navigator.mediaSession.metadata = null;
+			this.updateMediaPlaybackState('none');
+		}
 	}
 
-	/**
-	 * Starts or resumes playback
-	 */
 	public async play() {
 		if (!this.isPlayActionValid()) return;
 		this.isChangingPlayState = true;
@@ -335,6 +358,7 @@ export default class PlayerManager {
 
 		await this.handlePlayTransition();
 		this.isChangingPlayState = false;
+		this.updateMediaPlaybackState('playing');
 	}
 
 	private isPlayActionValid(): boolean {
@@ -355,15 +379,13 @@ export default class PlayerManager {
 		});
 	}
 
-	/**
-	 * Pauses playback
-	 */
 	public async pause() {
 		if (!this.isPauseActionValid()) return;
 		this.isChangingPlayState = true;
 
 		await this.handlePauseTransition();
 		this.isChangingPlayState = false;
+		this.updateMediaPlaybackState('paused');
 	}
 
 	private isPauseActionValid(): boolean {
@@ -389,10 +411,6 @@ export default class PlayerManager {
 		});
 	}
 
-	/**
-	 * Skips to the next track
-	 * @param force - Force skip regardless of playback mode
-	 */
 	public next(force = false) {
 		usePlayerStore.setState({ seek: 0 });
 
@@ -408,9 +426,6 @@ export default class PlayerManager {
 		this.setCurrentSong(this._playlist.data[newIndex].id);
 	}
 
-	/**
-	 * Returns to the previous track
-	 */
 	public prev() {
 		usePlayerStore.setState({ seek: 0 });
 
@@ -494,11 +509,6 @@ export default class PlayerManager {
 		return PlayerManager.instance;
 	}
 
-	/**
-	 * Parses lyric data into timestamped map
-	 * @param lyricLines - Array of lyric strings
-	 * @returns Map of timestamps to lyric text
-	 */
 	public parseLyric(lyricLines: string[]): Map<number, string> {
 		const lyricMap = new Map<number, string>();
 		const timeRegex = /\[(\d{2}):(\d{2})\.(\d+)\]/;
@@ -523,10 +533,6 @@ export default class PlayerManager {
 		return minutes * 60 + seconds + milliseconds / precisionFactor;
 	}
 
-	/**
-	 * Gets current lyric based on playback position
-	 * @param type - Lyric type (original or translated)
-	 */
 	public currentLyric(type: 'raw' | 'translate' = 'raw'): string {
 		const lyricContent = this.getLyricContent(type);
 		if (!lyricContent) return '';
