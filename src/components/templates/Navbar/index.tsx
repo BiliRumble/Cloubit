@@ -9,6 +9,7 @@ import Login from '../../../pages/modals/Login/Login';
 import Settings from '../../../pages/modals/Settings/Settings';
 import { useAuthStore } from '../../../store/auth';
 import { useUserStore } from '../../../store/user';
+import { IconButton } from '../../atoms/Button/icon';
 import Avatar from '../../numerator/Avatar';
 import Modal from '../../numerator/Modal';
 import Popover from '../../numerator/Popover';
@@ -49,21 +50,30 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 			<header data-tauri-drag-region className={`${className || ''} ${styles.navbar}`.trim()}>
 				<div data-tauri-drag-region className={styles.navbar__left}>
 					<div data-tauri-drag-region className={styles.buttons}>
-						<button onClick={() => window.history.back()}>
-							<span className="i-solar-alt-arrow-left-linear" />
-						</button>
-						<button onClick={() => window.history.forward()}>
-							<span className="i-solar-alt-arrow-right-linear" />
-						</button>
-						<button
+						<IconButton
+							title="返回"
+							icon="i-solar-alt-arrow-left-linear"
+							onClick={() => window.history.back()}
+						/>
+						<IconButton
+							title="继续"
+							icon="i-solar-alt-arrow-right-linear"
+							onClick={() => window.history.forward()}
+						/>
+						<IconButton
+							title="刷新"
+							icon="i-solar-restart-linear"
 							onClick={() => {
 								navigate(0);
 							}}
-						>
-							<span className="i-solar-restart-linear" />
-						</button>
+						/>
 					</div>
 					<Search />
+					<IconButton
+						title="听歌识曲"
+						icon="i-solar-microphone-linear"
+						onClick={() => navigate('/recognize')}
+					/>
 				</div>
 				<div data-tauri-drag-region className={styles.navbar__right}>
 					<button className={styles.navbar__right__login}>
@@ -78,34 +88,38 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 								<span>{useAuthStore.getState().userData?.profile.nickname}</span>
 							</div>
 						) : (
-							<span
+							<IconButton
+								icon="i-solar-user-plus-rounded-linear"
 								onClick={() => setLoginModalOpen(true)}
-								className="i-solar-user-plus-rounded-linear"
 							/>
 						)}
 					</button>
-					<button id="Setting" onClick={() => setSettingModalOpen(true)}>
-						<span className={`${styles.icon} i-solar-settings-linear`} />
-					</button>
-					<button
+					<IconButton
+						icon="i-solar-settings-linear"
+						onClick={() => setSettingModalOpen(true)}
+					/>
+					<IconButton
+						icon="i-solar-pip-2-line-duotone"
 						onClick={() => {
 							changePip();
 							setTimeout(() => {
 								event.emitTo('main', 'player-update-current-song', currentSong);
 							}, 1000);
 						}}
-					>
-						<span className="i-solar-pip-2-line-duotone" />
-					</button>
-					<button onClick={() => appWindow.minimize()}>
-						<span className="i-material-symbols-check-indeterminate-small-rounded" />
-					</button>
-					<button onClick={() => toggleMaximize()}>
-						<span className="i-material-symbols-chrome-maximize-outline" />
-					</button>
-					<button onClick={() => appWindow.hide()}>
-						<span className="i-material-symbols-close-rounded" />
-					</button>
+					/>
+					<IconButton
+						icon="i-material-symbols-check-indeterminate-small-rounded"
+						title="最小化"
+						onClick={() => appWindow.minimize()}
+					/>
+					<IconButton
+						icon="i-material-symbols-chrome-maximize-outline"
+						onClick={() => toggleMaximize()}
+					/>
+					<IconButton
+						icon="i-material-symbols-close-rounded"
+						onClick={() => appWindow.hide()}
+					/>
 				</div>
 			</header>
 			<Modal isOpen={isSettingModalOpen} onClose={() => setSettingModalOpen(false)}>

@@ -16,3 +16,34 @@
 		background: var(--button-focus-bg-color);
 	}
 }
+
+.button__icon {
+	border: none;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex-wrap: nowrap;
+	font-size: 1.5rem;
+	background: none;
+	padding: 0;
+	cursor: pointer;
+	color: var(--third-text-color);
+	transition: color 0.1s ease-in-out;
+
+	i {
+		font-size: 1.3rem;
+		display: block;
+	}
+
+	&:not(:last-child) {
+		margin-right: 1rem;
+	}
+
+	&:hover {
+		color: var(--primary-color);
+	}
+
+	&:focus {
+		outline: none;
+	}
+}

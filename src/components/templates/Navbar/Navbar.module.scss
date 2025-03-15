@@ -13,32 +13,6 @@
 			flex-wrap: nowrap;
 			align-items: stretch;
 			margin-right: 1rem;
-
-			button {
-				border: none;
-				font-size: 1.5rem;
-				background: none;
-				padding: 0;
-				cursor: pointer;
-				color: var(--third-text-color);
-				transition: all 0.1s ease-in-out;
-
-				&:not(:last-child) {
-					margin-right: 1rem;
-				}
-
-				span {
-					display: block;
-				}
-
-				&:hover {
-					color: var(--primary-color);
-				}
-
-				&:focus {
-					outline: none;
-				}
-			}
 		}
 	}
 
@@ -50,55 +24,40 @@
 		flex-wrap: nowrap;
 		align-items: stretch;
 
-		button {
+		&__login {
+			background: transparent;
 			border: none;
+			color: var(--text-color);
+			font-size: 1rem;
 			display: flex;
-			flex-direction: row;
 			align-items: center;
+			justify-content: center;
+			flex-direction: row;
 			flex-wrap: nowrap;
-			font-size: 1.5rem;
-			background: none;
-			padding: 0;
-			cursor: pointer;
-			color: var(--third-text-color);
-			transition: color 0.1s ease-in-out;
 
-			span {
-				font-size: 1.3rem;
-				display: block;
-			}
-
-			&:not(:last-child) {
+			&__info {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-direction: row;
+				flex-wrap: nowrap;
+				border: none;
+				background: transparent;
+				color: var(--text-color);
 				margin-right: 1rem;
-			}
 
-			&:hover {
-				color: var(--primary-color);
-			}
+				&__avatar {
+					margin-right: 0.4rem;
 
-			&:focus {
-				outline: none;
-			}
-		}
-
-		&__login__info {
-			display: flex !important;
-			align-items: center !important;
-			justify-content: center !important;
-			flex-direction: row !important;
-			flex-wrap: nowrap !important;
-
-			&__avatar {
-				margin-right: 0.4rem;
-
-				img {
-					width: 28px;
-					height: 28px;
+					img {
+						width: 28px;
+						height: 28px;
+					}
 				}
-			}
 
-			span {
-				font-size: 1rem !important;
+				span {
+					font-size: 1rem;
+				}
 			}
 		}
 	}
