@@ -7,6 +7,7 @@ interface SelectProps {
 	onChange: (value: any) => void;
 	className?: string;
 	style?: React.CSSProperties;
+	ref?: React.RefObject<HTMLSelectElement>;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -16,6 +17,7 @@ const Select: React.FC<SelectProps> = ({
 	onChange,
 	className = '',
 	style,
+	ref,
 }) => {
 	return (
 		<select
@@ -24,6 +26,7 @@ const Select: React.FC<SelectProps> = ({
 			onChange={(e) => onChange(e.target.value)}
 			title={title}
 			style={style}
+			ref={ref}
 		>
 			{options.map((option) => (
 				<option key={option.value} value={option.value}>

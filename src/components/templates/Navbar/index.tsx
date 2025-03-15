@@ -63,6 +63,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 						<IconButton
 							title="刷新"
 							icon="i-solar-restart-linear"
+							style={{ fontSize: '1.5rem' }}
 							onClick={() => {
 								navigate(0);
 							}}

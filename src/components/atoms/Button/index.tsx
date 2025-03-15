@@ -6,6 +6,7 @@ interface ButtonProps {
 	onClick?: () => void;
 	className?: string;
 	style?: React.CSSProperties;
+	ref?: React.RefObject<HTMLButtonElement>;
 }
 
 /**
@@ -16,6 +17,7 @@ interface ButtonProps {
  * @param {function} onClick - 点击事件
  * @param {string} className - 自定义类名
  * @param {React.CSSProperties} style - 自定义样式
+ * @param {React.RefObject<HTMLButtonElement>} ref - 按钮引用
  */
 export const Button: React.FC<ButtonProps> = ({
 	title,
@@ -23,6 +25,7 @@ export const Button: React.FC<ButtonProps> = ({
 	onClick,
 	className = '',
 	style,
+	ref,
 }) => {
 	return (
 		<button
@@ -30,6 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
 			title={title}
 			onClick={onClick}
 			style={style}
+			ref={ref}
 		>
 			{children}
 		</button>

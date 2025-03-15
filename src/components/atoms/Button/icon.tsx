@@ -6,7 +6,7 @@ interface ButtonProps {
 	onClick?: () => void;
 	className?: string;
 	style?: React.CSSProperties;
-    ref?: React.RefObject<HTMLButtonElement>;
+	ref?: React.RefObject<HTMLButtonElement>;
 }
 
 /**
@@ -25,7 +25,7 @@ export const IconButton: React.FC<ButtonProps> = ({
 	onClick,
 	className = '',
 	style,
-    ref,
+	ref,
 }) => {
 	return (
 		<button
@@ -33,7 +33,7 @@ export const IconButton: React.FC<ButtonProps> = ({
 			title={title}
 			onClick={onClick}
 			style={style}
-            ref={ref}
+			ref={ref}
 		>
 			<i className={icon} />
 		</button>

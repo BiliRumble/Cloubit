@@ -6,6 +6,7 @@ interface ChipProps {
 	onContextMenu?: () => void;
 	style?: React.CSSProperties;
 	className?: string;
+	ref?: React.RefObject<HTMLDivElement>;
 }
 
 /**
@@ -16,13 +17,15 @@ interface ChipProps {
  * @param {() => void} onContextMenu - 右键点击事件
  * @param {string} className - 自定义类名
  * @param {React.CSSProperties} style - 自定义样式
+ * @returns {JSX.Element} - Chip 组件
  */
 const Chip: React.FC<ChipProps> = ({
 	children,
 	onClick,
 	onContextMenu,
 	className = '',
-	style = {},
+	style,
+	ref,
 }) => {
 	return (
 		<div
@@ -30,6 +33,7 @@ const Chip: React.FC<ChipProps> = ({
 			style={style}
 			onClick={onClick}
 			onContextMenu={onContextMenu}
+			ref={ref}
 		>
 			<p>{children}</p>
 		</div>

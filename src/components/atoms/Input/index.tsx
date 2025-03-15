@@ -19,6 +19,7 @@ interface InputProps {
 	onChange: (value: string) => void;
 	className?: string;
 	style?: React.CSSProperties;
+	ref?: React.RefObject<HTMLInputElement>;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -29,6 +30,7 @@ const Input: React.FC<InputProps> = ({
 	onChange,
 	className = '',
 	style,
+	ref,
 }) => {
 	return (
 		<input
@@ -40,6 +42,7 @@ const Input: React.FC<InputProps> = ({
 			title={title}
 			inputMode={allowType}
 			style={style}
+			ref={ref}
 		/>
 	);
 };
