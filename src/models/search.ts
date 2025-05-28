@@ -35,6 +35,8 @@ export interface Album {
 	name: string;
 	picId: number;
 	picUrl: string;
+	img1v1: number;
+	img1v1Url: string;
 	publishTime: number;
 	size: number;
 	status: number;

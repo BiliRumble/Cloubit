@@ -7,7 +7,7 @@ const About: React.FC<{ className: string }> = ({ className }) => {
 		<div className={className}>
 			<h2>关于</h2>
 			<Control label={`版本 0.4.0-Preview`}>
-				<Button onClick={() => openUrl('https://github.com/BiliRumble/AzusaP/releases')}>
+				<Button onClick={() => openUrl('https://github.com/BiliRumble/Cloubit/releases')}>
 					更新日志
 				</Button>
 			</Control>
@@ -18,9 +18,9 @@ const About: React.FC<{ className: string }> = ({ className }) => {
 						alt="wakatime"
 					/>
 				</a>
-				<a href="https://github.com/BiliRumble/AzusaP">
+				<a href="https://github.com/BiliRumble/Cloubit">
 					<img
-						src="https://img.shields.io/github/license/bilirumble/AzusaP"
+						src="https://img.shields.io/github/license/bilirumble/Cloubit"
 						alt="License"
 					/>
 				</a>

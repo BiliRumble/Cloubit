@@ -28,3 +28,6 @@ yarn.lock
 pnpm-lock.yaml
 Cargo.lock
 src-tauri/target
+
+# 重构任务源代码
+temp

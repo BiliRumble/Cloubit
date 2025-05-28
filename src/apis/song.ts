@@ -1,4 +1,5 @@
-import { getSongURLResult, Lyric, Song, SongDetail } from '../models/song';
+import { invoke } from '@tauri-apps/api/core';
+import { Lyric, Song, SongDetail } from '../models/song';
 import request from '../utils/request';
 
 const { get } = request;
@@ -42,13 +43,8 @@ export async function checkSong(id: number): Promise<boolean> {
  * @param id 歌曲id
  * @returns getSongURLResult | null
  */
-export async function getSongURL(id: number): Promise<getSongURLResult | null> {
-	const response = (await get('song/url', { id: id })).data as getSongURLResult;
-	if (response.code === 200) {
-		console.debug('🌐 Get Song URL Success: ', response);
-		return response;
-	}
-	console.error('🌐 Cannot Get Song URL!');
+export async function getSongURL(id: number): Promise<any> {
+	const response = await invoke('api_get_song_url', { id: id });
 	return response;
 }
 

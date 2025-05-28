@@ -1,5 +1,4 @@
-import LazyImage from '../../atoms/LazyImage';
-import styles from './Card.module.scss';
+import LazyImage from '@/components/atoms/Image';
 
 interface CardProps {
 	key?: string | number;
@@ -28,16 +27,22 @@ const Card: React.FC<CardProps> = ({
 	onClick = () => {},
 }) => {
 	return (
-		<div className={styles.card + ' ' + className} style={style} onClick={onClick}>
+		<div
+			className={'flex flex-col items-start h-full w-full flex-nowrap' + ' ' + className}
+			style={style}
+			onClick={onClick}
+		>
 			<LazyImage
 				src={cover}
 				sizes="100%, 100%"
 				alt="图片"
-				maxRetries={5}
-				className={styles.img}
+				className="rounded-md w-full! h-auto! aspect-w-16! aspect-h-9!"
 			/>
-			<div className={styles.card__content}>
-				<h3 className={styles.card__content__title} title={text}>
+			<div className="flex flex-col items-start pt-0.3rem pb-0.3rem w-full h-full">
+				<h3
+					className="text-1.2rem max-w-[100%] whitespace-normal text-[var(--second-text-color)] overflow-hidden text-ellipsis box break-all"
+					title={text}
+				>
 					{text}
 				</h3>
 			</div>

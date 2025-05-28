@@ -323,14 +323,14 @@ export default class PlayerManager {
 
 	private handleCurrentSongRemoval() {
 		this._player?.unload();
-		document.title = 'AzusaP';
+		document.title = 'Cloubit';
 		this.next();
 	}
 
 	public clearPlaylist() {
 		this._playlist = { count: 0, data: [] };
 		this._currentSong = PLACEHOLDER_SONG;
-		document.title = 'AzusaP';
+		document.title = 'Cloubit';
 
 		usePlayerStore.setState({
 			playlist: this._playlist,

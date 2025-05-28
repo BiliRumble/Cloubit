@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import Chip from '../../atoms/Chip';
 import Input from '../../atoms/Input';
-import LazyImage from '../../atoms/LazyImage';
+import LazyImage from '../../atoms/Image';
 import styles from './MediaHeader.module.scss';
 
 interface MediaHeaderProps {

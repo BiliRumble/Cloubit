@@ -1,15 +1,11 @@
 import { useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import Navbar from './components/templates/Navbar';
-import PlayBar from './components/templates/PlayBar';
-import Sidebar from './components/templates/Sidebar';
+import { RouterProvider } from 'react-router-dom';
 import { useTheme } from './hooks/useTheme';
 import { unregisterAllShortcuts } from './managers/ShortcutManager';
 import { useSettingStore } from './store/setting';
 import { eventBus } from './utils/EventBus';
 import { init } from './utils/init';
 import Router from './routers';
-import styles from './styles/layout.module.scss';
 
 const App = () => {
 	const isWindowPath = location.pathname.startsWith('/windows/');
@@ -27,25 +23,16 @@ const App = () => {
 			unregisterAllShortcuts();
 		};
 	}, [useSettingStore.getState().enableGlobalShortcut]);
+	// invoke('api_search', {
+	// 	keyword: 'Echo',
+	// 	types: 1,
+	// 	limit: 2,
+	// 	offset: 0,
+	// }).then((res) => {
+	// 	console.log(res);
+	// });
 
-	return (
-		<BrowserRouter>
-			{!isWindowPath ? (
-				<main className={styles.layout}>
-					<Sidebar className={styles.layout__sidebar} />
-					<div className={styles.layout__content}>
-						<Navbar className={styles.layout__content__header} />
-						<main className={styles.layout__content__body}>
-							<Router />
-						</main>
-					</div>
-					<PlayBar className={styles.layout__playbar} />
-				</main>
-			) : (
-				<Router />
-			)}
-		</BrowserRouter>
-	);
+	return <RouterProvider router={Router} />;
 };
 
 export default App;

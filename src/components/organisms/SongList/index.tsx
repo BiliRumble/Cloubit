@@ -6,7 +6,7 @@ import { usePlayerManager } from '../../../context/PlayerContext';
 import { Artist } from '../../../models/search';
 import { useUserStore } from '../../../store/user';
 import { toLikeSong } from '../../../utils/song';
-import LazyImage from '../../atoms/LazyImage';
+import LazyImage from '../../atoms/Image';
 import ContextMenu, { MenuItem } from '../../numerator/ContextMenu';
 import styles from './SongList.module.scss';
 

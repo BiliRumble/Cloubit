@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRadarPlaylist, getUserDailyPlaylist, getUserDailySongs } from '../apis/user';
 import Card from '../components/numerator/Card';
-import LazyImage from '../components/atoms/LazyImage';
+import LazyImage from '../components/atoms/Image';
 import { DailySongsResult, recommendPlaylist } from '../models/song';
 import { useAuthStore } from '../store/auth';
 import styles from './index.module.scss';

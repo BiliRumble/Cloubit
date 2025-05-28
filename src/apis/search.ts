@@ -90,4 +90,24 @@ export async function getSearchResult(
 	}
 	console.error('🌐 Cannot get search result');
 	return null;
+
+	// if (!keyWord) return null;
+	// const typeMap = {
+	// 	song: 1,
+	// 	album: 10,
+	// 	playlist: 1000,
+	// 	artist: 100,
+	// };
+	// const response = (await invoke('api_search', {
+	// 	keyword: keyWord,
+	// 	types: typeMap[type],
+	// 	limit: limit,
+	// 	offset: offset,
+	// })) as MusicSearchResponse;
+	// if (response) {
+	// 	console.debug('🌐 Get search result successfully: ', response.result);
+	// 	return response.result;
+	// }
+	// console.error('🌐 Cannot get search result');
+	// return null;
 }

@@ -17,11 +17,8 @@ export type LoginCreateQRResult = {
 
 export type LoginCheckQRResult = {
 	code: number;
-	data: {
-		code: number;
-		message: string;
-		cookie: string;
-		nickname?: string;
-		avatarUrl?: string;
-	};
+	message: string;
+	cookie: string;
+	nickname?: string;
+	avatarUrl?: string;
 };

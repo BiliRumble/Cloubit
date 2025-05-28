@@ -1,19 +1,19 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
-	"productName": "AzusaP",
+	"productName": "Cloubit",
 	"version": "0.4.0",
-	"identifier": "top.rumble.azusap",
+	"identifier": "top.rumble.cloubit",
 	"build": {
-		"beforeDevCommand": "pnpm vdev",
+		"beforeDevCommand": "pnpm viteDev",
 		"devUrl": "http://localhost:1420",
-		"beforeBuildCommand": "pnpm vbuild",
+		"beforeBuildCommand": "pnpm viteBuild",
 		"frontendDist": "../dist"
 	},
 	"app": {
 		"windows": [
 			{
 				"label": "main",
-				"title": "AzusaP",
+				"title": "Cloubit",
 				"width": 1050,
 				"height": 590,
 				"minWidth": 1050,
