@@ -1,0 +1,53 @@
+{
+	"explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.expand": true,
+	"explorer.fileNesting.patterns": {
+		"package.json": "package-lock.json,pnpm-lock.yaml",
+		"eslint.config.js": ".eslintignore,.prettierrc.cjs",
+		"README.md": "CONTRIBUTING.md,LICENSE,.gitignore",
+		"vite.config.ts": "tsconfig.json,tsconfig.*.json,index.html, unocss.config.ts"
+	},
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "always"
+	},
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"cSpell.words": [
+		"appimage",
+		"appindicator",
+		"blockmodes",
+		"chrono",
+		"ckenh",
+		"cloubit",
+		"cloudmusic",
+		"codegen",
+		"cubelauncher",
+		"Dalvik",
+		"dichen",
+		"dtolnay",
+		"forencrypt",
+		"icns",
+		"KHTML",
+		"libayatana",
+		"librsvg",
+		"libwebkit",
+		"linuxapi",
+		"Netease",
+		"Pkcs",
+		"qrcode",
+		"REFERER",
+		"rngs",
+		"splitn",
+		"swatinem",
+		"symmetriccipher",
+		"weapi",
+		"xored"
+	],
+	"[rust]": {
+		"editor.defaultFormatter": "rust-lang.rust-analyzer"
+	},
+	"[toml]": {
+		"editor.defaultFormatter": "tamasfe.even-better-toml"
+	}
+}

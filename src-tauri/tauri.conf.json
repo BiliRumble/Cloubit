@@ -1,0 +1,32 @@
+{
+	"$schema": "https://schema.tauri.app/config/2",
+	"productName": "cloubit",
+	"version": "0.1.0",
+	"identifier": "cloubit",
+	"build": {
+		"beforeDevCommand": "pnpm dev",
+		"devUrl": "http://localhost:1420",
+		"beforeBuildCommand": "pnpm build",
+		"frontendDist": "../dist",
+		"removeUnusedCommands": true
+	},
+	"app": {
+		"windows": [
+			{
+				"label": "main",
+				"title": "Cloubit",
+				"minWidth": 1050,
+				"minHeight": 590,
+				"decorations": false
+			}
+		],
+		"security": {
+			"csp": null
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"]
+	}
+}

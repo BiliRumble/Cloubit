@@ -1,0 +1,86 @@
+name: Build
+on:
+    push:
+        branches:
+            - master
+            - refactor
+    pull_request:
+        branches:
+            - master
+
+jobs:
+    release:
+        permissions:
+            contents: write
+        strategy:
+            fail-fast: false
+            matrix:
+                platform: [macos-latest, ubuntu-22.04, windows-latest]
+        runs-on: ${{ matrix.platform }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: 8
+
+            - name: Install Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Install dependencies (Ubuntu)
+              if: matrix.platform == 'ubuntu-22.04'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                    libgtk-3-dev \
+                    libwebkit2gtk-4.1-dev \
+                    libayatana-appindicator3-dev \
+                    librsvg2-dev \
+                    libssl-dev
+
+            - name: Install dependencies (Windows)
+              if: matrix.platform == 'windows-latest'
+              run: |
+                  vcpkg install openssl:x64-windows-static
+                  echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
+                  echo "OPENSSL_DIR=$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows-static" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+            - name: Setup Rust
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Cache Rust builds
+              uses: swatinem/rust-cache@v2
+              with:
+                  workspaces: './src-tauri -> target'
+
+            - name: Build Tauri app
+              run: pnpm tauri build
+              env:
+                  CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER: ${{ matrix.platform == 'windows-latest' && 'x86_64-w64-mingw32-gcc' || '' }}
+                  CC_x86_64_pc_windows_gnu: ${{ matrix.platform == 'windows-latest' && 'x86_64-w64-mingw32-gcc' || '' }}
+                  CXX_x86_64_pc_windows_gnu: ${{ matrix.platform == 'windows-latest' && 'x86_64-w64-mingw32-g++' || '' }}
+
+            - name: Upload Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: release-${{ matrix.platform }}-${{ github.sha }}
+                  path: |
+                      src-tauri/target/release/bundle/deb/*.deb
+                      src-tauri/target/release/bundle/appimage/*.AppImage
+                      src-tauri/target/release/bundle/rpm/*.rpm
+
+                      src-tauri/target/release/*.exe
+                      src-tauri/target/release/bundle/msi/*.msi
+
+                      src-tauri/target/release/bundle/dmg/*.dmg
+                      src-tauri/target/release/bundle/macos/*.app
+                  retention-days: 7
