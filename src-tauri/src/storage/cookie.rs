@@ -1,13 +1,13 @@
 use sled::Db;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::{Arc, OnceLock, RwLock};
 use tauri_plugin_http::reqwest::header::{HeaderMap, SET_COOKIE};
 
 use crate::error::AppError;
 
 #[derive(Clone)]
 pub struct CookieManager {
-    store: Arc<Mutex<HashMap<String, String>>>,
+    store: Arc<RwLock<HashMap<String, String>>>,
     db: Db,
 }
 
@@ -27,13 +27,14 @@ impl CookieManager {
         };
 
         Ok(Self {
-            store: Arc::new(Mutex::new(store)),
+            store: Arc::new(RwLock::new(store)),
             db,
         })
     }
 
+    // 这里其实还有很大的优化空间，但是就目前来看够用
     pub fn update_from_headers(&self, headers: &HeaderMap) {
-        if let Ok(mut store) = self.store.lock() {
+        if let Ok(mut store) = self.store.write() {
             for header in headers.get_all(SET_COOKIE) {
                 if let Ok(cookie_str) = header.to_str() {
                     if let Some((key, value)) = parse_cookie(cookie_str) {
@@ -49,7 +50,7 @@ impl CookieManager {
     }
 
     pub fn get_header_value(&self) -> String {
-        if let Ok(store) = self.store.lock() {
+        if let Ok(store) = self.store.read() {
             store
                 .iter()
                 .map(|(k, v)| format!("{}={}", k, v))
@@ -63,14 +64,14 @@ impl CookieManager {
     #[allow(dead_code)]
     pub fn has_login_cookie(&self) -> bool {
         self.store
-            .lock()
+            .read()
             .map(|store| store.contains_key("MUSIC_U"))
             .unwrap_or(false)
     }
 
     #[allow(dead_code)]
     pub fn clear(&self) {
-        if let Ok(mut store) = self.store.lock() {
+        if let Ok(mut store) = self.store.write() {
             store.clear();
             let _ = self.db.remove("cookie_store");
         }

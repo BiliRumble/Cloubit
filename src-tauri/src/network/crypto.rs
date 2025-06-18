@@ -60,7 +60,7 @@ pub(crate) fn aes_encrypt(
     };
 
     let mut read_buffer = RefReadBuffer::new(text.as_bytes());
-    let mut buffer = [0; 4096];
+    let mut buffer = [0; 32768];
     let mut write_buffer = RefWriteBuffer::new(&mut buffer);
 
     encryptor

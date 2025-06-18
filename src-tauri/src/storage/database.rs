@@ -18,10 +18,15 @@ pub fn get_db() -> &'static Db {
             }
         }
 
-        sled::open(&db_path).unwrap_or_else(|e| {
-            log::error!("Failed to open database at {:?}: {}", db_path, e);
-            let fallback_path = std::path::Path::new(".").join("cloubit_db");
-            sled::open(fallback_path).expect("Failed to open fallback database")
+        let config = sled::Config::default()
+            .path(&db_path)
+            .cache_capacity(64 * 1024 * 1024)
+            .flush_every_ms(Some(1000))
+            .compression_factor(4);
+
+        config.open().unwrap_or_else(|e| {
+            log::error!("Failed to open database: {}", e);
+            std::process::exit(1);
         })
     })
 }

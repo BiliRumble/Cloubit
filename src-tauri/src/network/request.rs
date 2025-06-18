@@ -158,7 +158,7 @@ pub async fn create_request(
     let mut client_builder = ClientBuilder::new()
         .timeout(Duration::from_secs(10))
         .connect_timeout(Duration::from_secs(5))
-        .pool_max_idle_per_host(30)
+        .pool_max_idle_per_host(50)
         .pool_idle_timeout(Duration::from_secs(90))
         .gzip(true);
 

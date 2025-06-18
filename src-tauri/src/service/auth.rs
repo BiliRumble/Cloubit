@@ -3,11 +3,13 @@ use crate::get_device_id;
 use crate::network::request::{create_request, RequestOption, Response};
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
+use crypto::digest::Digest;
+use crypto::md5::Md5;
 use serde_json::{json, Value};
 
 pub async fn register_anonimous() -> Result<Response, AppError> {
     let option = RequestOption {
-        crypto: Some("weapi".to_string()),
+        crypto: Some("weapi".into()),
         ua: None,
         ip: None,
         real_ip: None,
@@ -20,7 +22,7 @@ pub async fn register_anonimous() -> Result<Response, AppError> {
     let device_id = get_device_id();
     let encoded_id = STANDARD.encode(format!(
         "{} {}",
-        device_id,
+        &device_id,
         cloudmusic_dll_encode_id(&device_id)
     ));
     let data: Value = json!({
@@ -31,16 +33,18 @@ pub async fn register_anonimous() -> Result<Response, AppError> {
 }
 
 fn cloudmusic_dll_encode_id(some_id: &String) -> String {
-    let id_xor_key_1 = "3go8&$8*3*3h0k(2)2";
-    let some_id_bytes = some_id.as_bytes();
-    let id_xor_key_1_bytes = id_xor_key_1.as_bytes();
+    const ID_XOR_KEY: &[u8] = b"3go8&$8*3*3h0k(2)2";
 
-    let xored_bytes: Vec<u8> = some_id_bytes
-        .iter()
+    let xored_bytes: Vec<u8> = some_id
+        .bytes()
         .enumerate()
-        .map(|(i, &b)| b ^ id_xor_key_1_bytes[i % id_xor_key_1_bytes.len()])
+        .map(|(i, b)| b ^ ID_XOR_KEY[i % ID_XOR_KEY.len()])
         .collect();
 
-    let digest = md5::compute(&xored_bytes);
-    STANDARD.encode(digest.as_ref())
+    let mut hasher = Md5::new();
+    hasher.input(&xored_bytes);
+
+    let mut result = [0u8; 16];
+    hasher.result(&mut result);
+    STANDARD.encode(result)
 }
