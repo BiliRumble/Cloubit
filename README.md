@@ -36,6 +36,12 @@ pnpm build
 pnpm dev
 ```
 
+### ✔️ 经过测试的平台
+
+- **Windows 11** 基础功能可用性测试
+- **Arch Linux** 长时间使用测试
+- **⚠️ macOS** 没有进行过任何测试，依赖社区反馈
+
 ### 📜 协议声明
 
 本项目遵循 [MIT](https://opensource.org/licenses/MIT) 协议，您可以在遵守协议的前提下自由使用和修改代码。

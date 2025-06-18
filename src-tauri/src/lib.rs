@@ -38,8 +38,9 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    env_logger::init();
+    #[cfg(debug_assertions)]
     env::set_var("RUST_LOG", "debug");
+    env_logger::init();
 
     tauri::Builder::default()
         .setup(|app| {

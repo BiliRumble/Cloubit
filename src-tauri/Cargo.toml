@@ -9,11 +9,15 @@ edition = "2021"
 name = "cloubit_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[profile.dev]
+incremental = true
+
 [profile.release]
-opt-level = 3
-lto = true
 codegen-units = 1
+lto = true
+opt-level = 3
 panic = "abort"
+strip = true
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -44,4 +48,4 @@ log = "0.4"
 env_logger = "0.11.5"
 cached = "0.54.0"
 qrcode = "0.14.1"
-uuid = { version = "1.1", features = ["v4", "serde"] }
+dirs = "5.0"

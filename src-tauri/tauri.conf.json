@@ -27,6 +27,15 @@
 	"bundle": {
 		"active": true,
 		"targets": "all",
-		"icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"]
+		"icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"],
+		"publisher": "bilirumble",
+		"copyright": "Copyright © 2025 bilirumble",
+		"category": "Music",
+		"shortDescription": "第三方网易云音乐播放器",
+		"longDescription": "第三方网易云音乐播放器, 基于Tauri2开发",
+		"homepage": "https://github.com/bilirumble/cloubit",
+		"license": "MIT",
+		"externalBin": [],
+		"resources": []
 	}
 }

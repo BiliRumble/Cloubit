@@ -65,7 +65,6 @@ pub async fn create_request(
     mut data: Value,
     option: RequestOption,
 ) -> Result<Response, AppError> {
-    // let request_id = uuid::Uuid::new_v4().to_string();
     let use_cache = option.cache.unwrap_or(true);
     let cache_key = generate_cache_key(uri, &data);
 
@@ -201,6 +200,8 @@ pub async fn create_request(
         },
         headers,
     };
+
+    warn!("[{}] {} - {}", crypto, answer.clone().status, uri);
 
     if status == 200 && use_cache && answer.body.get("code").and_then(|v| v.as_i64()) == Some(200) {
         if let Ok(mut cache) = get_cache().lock() {
