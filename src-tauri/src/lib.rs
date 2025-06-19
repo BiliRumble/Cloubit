@@ -1,15 +1,13 @@
 use std::env;
-
 use tauri::http::HeaderMap;
 use tauri_plugin_http::reqwest::header::SET_COOKIE;
 
+mod error;
 mod network;
 mod service;
 mod storage;
 
-mod error;
 use error::AppError;
-
 use network::device::get_device_id;
 use service::auth::register_anonimous;
 use storage::cookie::get_cookie_manager;
@@ -36,7 +34,6 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     #[cfg(debug_assertions)]
     env::set_var("RUST_LOG", "debug");

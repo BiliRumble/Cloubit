@@ -19,7 +19,7 @@ impl CookieManager {
             Ok(Some(data)) => serde_json::from_slice(&data)?,
             Ok(None) => HashMap::new(),
             Err(e) => {
-                return Err(AppError::Cache(format!(
+                return Err(AppError::Cookie(format!(
                     "Failed to read cookie store: {}",
                     e
                 )))

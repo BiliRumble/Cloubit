@@ -2,7 +2,7 @@
 
 <h1>🎵 Cloubit</h1>
 
-[![wakatime](https://wakatime.com/badge/user/347b183a-e02e-464a-a180-ed2963969f84/project/13a71991-4de0-4638-a7e6-5d3d7ed9a754.svg)](https://wakatime.com/badge/user/347b183a-e02e-464a-a180-ed2963969f84/project/13a71991-4de0-4638-a7e6-5d3d7ed9a754)
+[![wakatime](https://wakatime.com/badge/github/BiliRumble/Cloubit.svg)](https://wakatime.com/badge/github/BiliRumble/Cloubit)
 [![GitHub license](https://img.shields.io/github/license/bilirumble/Cloubit?color=blue)](https://github.com/bilirumble/Cloubit/blob/master/LICENSE)
 
 **网易云音乐播放器的开源替代方案**
