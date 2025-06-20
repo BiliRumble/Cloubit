@@ -462,6 +462,7 @@ dependencies = [
 name = "cloubit"
 version = "0.0.1"
 dependencies = [
+ "backtrace",
  "base64 0.22.1",
  "cached",
  "chrono",

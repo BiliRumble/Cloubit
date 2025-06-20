@@ -30,6 +30,7 @@ tauri-plugin-http = { version = "2.4.4", features = [
     "gzip",
     "native-tls",
 ] }
+backtrace = "0.3"
 
 cached = "0.55.1"
 dirs = "5.0"

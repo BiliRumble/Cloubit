@@ -1,4 +1,3 @@
-use std::env;
 use tauri::http::HeaderMap;
 use tauri_plugin_http::reqwest::header::SET_COOKIE;
 
@@ -36,10 +35,6 @@ fn greet(name: &str) -> String {
 }
 
 pub fn run() {
-    #[cfg(debug_assertions)]
-    env::set_var("RUST_LOG", "debug");
-    env_logger::init();
-
     tauri::Builder::default()
         .setup(|app| {
             let _ = app.handle();

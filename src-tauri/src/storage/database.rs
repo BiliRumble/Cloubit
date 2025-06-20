@@ -25,8 +25,7 @@ pub fn get_db() -> &'static Db {
             .compression_factor(4);
 
         config.open().unwrap_or_else(|e| {
-            log::error!("Failed to open database: {}", e);
-            std::process::exit(1);
+            panic!("Could not open database: {}", e);
         })
     })
 }
