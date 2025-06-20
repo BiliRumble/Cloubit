@@ -1,6 +1,7 @@
-use crate::error::AppError;
 use crate::get_device_id;
-use crate::network::request::{create_request, RequestOption, Response};
+use crate::models::http::RequestOption;
+use crate::network::request::create_request;
+use crate::{error::AppError, models::http::Response};
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 use crypto::digest::Digest;

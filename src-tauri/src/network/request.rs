@@ -1,68 +1,98 @@
-use std::{
-    collections::hash_map::DefaultHasher,
-    hash::{Hash, Hasher},
-    sync::{Arc, Mutex, OnceLock},
-    time::Duration,
-};
+use std::{sync::OnceLock, time::Duration};
 
-use cached::{Cached, TimedCache};
+use cached::Cached;
 use log::{debug, warn};
 use serde_json::{json, Value};
-use tauri_plugin_http::reqwest::{
-    header::{HeaderMap, HeaderValue, COOKIE, REFERER, SET_COOKIE, USER_AGENT},
-    ClientBuilder, Proxy,
-};
+use tauri::http::{header::SET_COOKIE, HeaderMap};
+use tauri_plugin_http::reqwest::{ClientBuilder, Proxy};
 
 use crate::{
     get_cookie_manager,
-    network::crypto::{eapi, weapi},
+    models::http::{RequestOption, Response},
+    network::{
+        crypto::{eapi, weapi},
+        header::build_request_headers,
+    },
+    storage::cache::{generate_cache_key, get_cache},
     AppError,
 };
 
-static REQUEST_CACHE: OnceLock<Arc<Mutex<TimedCache<String, Response>>>> = OnceLock::new();
+static HTTP_CLIENT: OnceLock<tauri_plugin_http::reqwest::Client> = OnceLock::new();
 
-fn get_cache() -> &'static Arc<Mutex<TimedCache<String, Response>>> {
-    REQUEST_CACHE.get_or_init(|| {
-        Arc::new(Mutex::new(TimedCache::with_lifespan_and_capacity(
-            300, 1000,
-        )))
+fn get_http_client() -> &'static tauri_plugin_http::reqwest::Client {
+    HTTP_CLIENT.get_or_init(|| {
+        ClientBuilder::new()
+            .timeout(Duration::from_secs(15))
+            .connect_timeout(Duration::from_secs(10))
+            .pool_max_idle_per_host(100)
+            .pool_idle_timeout(Duration::from_secs(90))
+            .gzip(true)
+            .build()
+            .expect("Failed to create HTTP client")
     })
 }
 
-#[derive(Default, Debug)]
-pub struct RequestOption {
-    pub crypto: Option<String>,
-    pub ip: Option<String>,
-    pub real_ip: Option<String>,
-    pub headers: Option<HeaderMap>,
-    pub proxy: Option<String>,
-    pub e_r: Option<bool>,
-    pub ua: Option<String>,
-    pub cache: Option<bool>,
+fn build_request_url_and_data(
+    uri: &str,
+    mut data: Value,
+    crypto: &str,
+    option: &RequestOption,
+) -> Result<(String, Value), AppError> {
+    match crypto {
+        "weapi" => Ok((
+            format!("https://music.163.com/weapi/{}", &uri[5..]),
+            weapi(&data)?,
+        )),
+        "linuxapi" => {
+            let unencrypted_data = json!({
+                "method": "POST",
+                "url": format!("https://music.163.com{}", uri),
+                "params": data
+            });
+            Ok((
+                "https://music.163.com/api/linux/forward".to_string(),
+                eapi(uri, &unencrypted_data)?,
+            ))
+        }
+        "eapi" => {
+            data["e_r"] = option
+                .e_r
+                .or_else(|| data.get("e_r").and_then(|v| v.as_bool()).or(Some(false)))
+                .unwrap_or_default()
+                .into();
+            Ok((
+                format!("https://interface.music.163.com/eapi/{}", &uri[5..]),
+                eapi(uri, &data)?,
+            ))
+        }
+        "api" => Ok((format!("https://interface.music.163.com{}", uri), data)),
+        _ => Err(AppError::Crypto(format!("Unsupported crypto: {}", crypto))),
+    }
 }
 
-#[derive(Debug, Clone)]
-pub struct Response {
-    #[allow(dead_code)]
-    pub status: u16,
-    pub body: Value,
-    pub cookie: Option<Vec<String>>,
-    #[allow(dead_code)]
-    pub headers: HeaderMap,
-}
+fn process_response_cookies(headers: &HeaderMap) -> Option<Vec<String>> {
+    let cookies: Vec<String> = headers
+        .get_all(SET_COOKIE)
+        .iter()
+        .filter_map(|v| v.to_str().ok())
+        .map(|s| {
+            s.split(';')
+                .filter(|p| !p.trim().starts_with("Domain="))
+                .collect::<Vec<_>>()
+                .join("; ")
+        })
+        .collect();
 
-fn generate_cache_key(uri: &str, data: &Value) -> String {
-    let mut hasher = DefaultHasher::new();
-    uri.hash(&mut hasher);
-    serde_json::to_string(data)
-        .unwrap_or_default()
-        .hash(&mut hasher);
-    format!("{:x}", hasher.finish())
+    if cookies.is_empty() {
+        None
+    } else {
+        Some(cookies)
+    }
 }
 
 pub async fn create_request(
     uri: &str,
-    mut data: Value,
+    data: Value,
     option: RequestOption,
 ) -> Result<Response, AppError> {
     let use_cache = option.cache.unwrap_or(true);
@@ -77,131 +107,41 @@ pub async fn create_request(
         }
     }
 
-    let mut headers = option.headers.unwrap_or_default();
+    let crypto = option.crypto.as_deref().unwrap_or("eapi");
+    let headers = build_request_headers(&option, crypto)?;
+    let (url, encrypt_data) = build_request_url_and_data(uri, data, crypto, &option)?;
 
-    if let Some(ip) = option.real_ip.or(option.ip).filter(|s| !s.is_empty()) {
-        if let Ok(ip_header_value) = ip.parse::<HeaderValue>() {
-            headers.insert("X-Real-IP", ip_header_value.clone());
-            headers.insert("X-Forwarded-For", ip_header_value);
-        } else {
-            warn!("Invalid IP address format '{}', skipping IP headers", ip);
-        }
-    }
-
-    let cookie_string = get_cookie_manager().get_header_value();
-    if !cookie_string.is_empty() {
-        let cookie_value = cookie_string
-            .parse::<HeaderValue>()
-            .map_err(|_| AppError::Cookie("Invalid cookie format".to_string()))?;
-        headers.insert(COOKIE, cookie_value);
-    }
-
-    let crypto = option.crypto.as_deref().unwrap_or_else(|| "eapi");
-
-    let (mut url, encrypt_data) = match crypto {
-        "weapi" => {
-            headers.insert(REFERER, "https://music.163.com".parse()?);
-            headers.insert(
-                USER_AGENT,
-                option
-                    .ua
-                    .unwrap_or_else(|| choose_user_agent(crypto, "pc"))
-                    .parse()?,
-            );
-            (
-                format!("{}/weapi/{}", "https://music.163.com", &uri[5..]),
-                weapi(&data)?,
-            )
-        }
-        "linuxapi" => {
-            headers.insert(
-                USER_AGENT,
-                option
-                    .ua
-                    .unwrap_or_else(|| choose_user_agent(crypto, "linux"))
-                    .parse()?,
-            );
-            let unencrypted_data = json!({"method": "POST", "url": format!("{}{}", "https://music.163.com", uri), "params": data});
-            (
-                format!("{}/api/linux/forward", "https://music.163.com"),
-                eapi(uri, &unencrypted_data)?,
-            )
-        }
-        "eapi" | "api" => {
-            headers.insert(
-                USER_AGENT,
-                option
-                    .ua
-                    .unwrap_or_else(|| choose_user_agent("api", "iphone"))
-                    .parse()?,
-            );
-            if crypto == "eapi" {
-                data["e_r"] = option
-                    .e_r
-                    .or_else(|| data.get("e_r").and_then(|v| v.as_bool()).or(Some(false)))
-                    .unwrap_or_default()
-                    .into();
-                (
-                    format!("{}/eapi/{}", "https://interface.music.163.com", &uri[5..]),
-                    eapi(uri, &data)?,
-                )
-            } else {
-                (
-                    format!("{}{}", "https://interface.music.163.com", uri),
-                    data,
-                )
-            }
-        }
-        _ => return Err(AppError::Crypto(format!("Unsupported crypto: {}", crypto))),
+    let client = if let Some(proxy_url) = &option.proxy {
+        ClientBuilder::new()
+            .timeout(Duration::from_secs(15))
+            .connect_timeout(Duration::from_secs(10))
+            .proxy(Proxy::all(proxy_url)?)
+            .gzip(true)
+            .build()?
+    } else {
+        get_http_client().clone()
     };
 
-    let mut client_builder = ClientBuilder::new()
-        .timeout(Duration::from_secs(10))
-        .connect_timeout(Duration::from_secs(5))
-        .pool_max_idle_per_host(50)
-        .pool_idle_timeout(Duration::from_secs(90))
-        .gzip(true);
+    let final_url = format!("{}?{}", url, json_to_urlencoded(&encrypt_data));
 
-    if let Some(proxy_url) = &option.proxy {
-        client_builder = client_builder.proxy(Proxy::all(proxy_url)?);
-    }
-
-    let client = client_builder.build()?;
-    url = format!("{}?{}", url, json_to_urlencoded(&encrypt_data));
-
-    let response = client.post(&url).headers(headers).send().await?;
+    let response = client.post(&final_url).headers(headers).send().await?;
 
     let status = response.status().as_u16();
-    let headers = response.headers().clone();
+    let response_headers = response.headers().clone();
+    let cookies = process_response_cookies(&response_headers);
 
-    let cookies: Vec<String> = headers
-        .get_all(SET_COOKIE)
-        .iter()
-        .filter_map(|v| v.to_str().ok())
-        .map(|s| {
-            s.split(';')
-                .filter(|p| !p.trim().starts_with("Domain="))
-                .collect::<Vec<_>>()
-                .join("; ")
-        })
-        .collect();
-
-    get_cookie_manager().update_from_headers(response.headers());
+    get_cookie_manager().update_from_headers(&response_headers);
 
     let body = response.json().await?;
 
     let answer = Response {
         status,
         body,
-        cookie: if cookies.is_empty() {
-            None
-        } else {
-            Some(cookies)
-        },
-        headers,
+        cookie: cookies,
+        headers: response_headers,
     };
 
-    warn!("[{}] {} - {}", crypto, answer.clone().status, uri);
+    debug!("[{}] {} - {}", crypto, status, uri);
 
     if status == 200 && use_cache && answer.body.get("code").and_then(|v| v.as_i64()) == Some(200) {
         if let Ok(mut cache) = get_cache().lock() {
@@ -214,45 +154,18 @@ pub async fn create_request(
     Ok(answer)
 }
 
-fn choose_user_agent(crypto: &str, ua_type: &str) -> String {
-    let user_agent_map = [
-        ("weapi", "pc", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0"),
-        ("linuxapi", "linux", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36"),
-        ("api", "pc", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36 Chrome/91.0.4472.164 NeteaseMusicDesktop/3.0.18.203152"),
-        ("api", "android", "NeteaseMusic/9.1.65.240927161425(9001065);Dalvik/2.1.0 (Linux; U; Android 14; 23013RK75C Build/UKQ1.230804.001)"),
-        ("api", "iphone", "NeteaseMusic 9.0.90/5038 (iPhone; iOS 16.2; zh_CN)"),
-    ];
-    match user_agent_map
-        .iter()
-        .find(|(key, value, _)| key == &crypto && value == &ua_type)
-    {
-        Some(x) => x,
-        _none => &{
-            warn!("Unknown user agent {}/{}", crypto, ua_type);
-            ("", "", "")
-        },
-    }
-    .2
-    .to_string()
-}
-
 fn json_to_urlencoded(data: &Value) -> String {
     let mut serializer = form_urlencoded::Serializer::new(String::new());
 
     if let Some(map) = data.as_object() {
         for (key, value) in map {
-            match value {
-                Value::String(s) => {
-                    serializer.append_pair(key, s);
-                }
-                Value::Number(num) => {
-                    serializer.append_pair(key, &num.to_string());
-                }
-                Value::Bool(b) => {
-                    serializer.append_pair(key, &b.to_string());
-                }
-                _ => {}
-            }
+            let value_str = match value {
+                Value::String(s) => s.clone(),
+                Value::Number(num) => num.to_string(),
+                Value::Bool(b) => b.to_string(),
+                _ => continue,
+            };
+            serializer.append_pair(key, &value_str);
         }
     }
 

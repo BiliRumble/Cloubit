@@ -3,6 +3,7 @@ use tauri::http::HeaderMap;
 use tauri_plugin_http::reqwest::header::SET_COOKIE;
 
 mod error;
+mod models;
 mod network;
 mod service;
 mod storage;
