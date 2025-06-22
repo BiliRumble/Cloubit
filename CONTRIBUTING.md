@@ -58,6 +58,8 @@ function Example(props: Props) {
 export default Example;
 ```
 
+## 提交规范
+
 ### 提交消息规范
 
 ```
@@ -92,6 +94,21 @@ Feat(Authentication): 修复认证API存在的问题
 - 修改登录页面UI不符合规范的设计
 
 解决 #114
+```
+
+### 分支规范
+
+在开发新功能或修复问题时，请创建一个新的分支，并在完成后合并到主分支。
+
+```bash
+# 创建新分支
+git checkout -b <类型>/<简短描述>-<issue号> # 例如: Feat/dark-mode-424
+
+# 开发并提交更改
+git add .
+git commit -m "<提交消息, 参考上文>"
+
+# 接下来，发送Pull Request
 ```
 
 ## 构建与发布

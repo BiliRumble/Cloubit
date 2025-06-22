@@ -26,7 +26,6 @@ fn generate_device_id() -> String {
             format!("{}{}", "967EC0141EDBE6529FF7", suffix)
         }
         Err(_) => {
-            // 应该永远都不会用上
             format!(
                 "{}7D7841F18CF238EC76AB6C92AFCBEE0E",
                 hex::encode(random_bytes).to_uppercase()
