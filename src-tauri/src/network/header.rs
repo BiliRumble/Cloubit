@@ -58,8 +58,7 @@ pub fn build_request_headers(option: &RequestOption, crypto: &str) -> Result<Hea
                 USER_AGENT,
                 option
                     .ua
-                    .as_ref()
-                    .map(|ua| ua.as_str())
+                    .as_deref()
                     .unwrap_or_else(|| choose_user_agent(crypto, "pc"))
                     .parse()?,
             );
@@ -69,8 +68,7 @@ pub fn build_request_headers(option: &RequestOption, crypto: &str) -> Result<Hea
                 USER_AGENT,
                 option
                     .ua
-                    .as_ref()
-                    .map(|ua| ua.as_str())
+                    .as_deref()
                     .unwrap_or_else(|| choose_user_agent(crypto, "linux"))
                     .parse()?,
             );
@@ -80,8 +78,7 @@ pub fn build_request_headers(option: &RequestOption, crypto: &str) -> Result<Hea
                 USER_AGENT,
                 option
                     .ua
-                    .as_ref()
-                    .map(|ua| ua.as_str())
+                    .as_deref()
                     .unwrap_or_else(|| choose_user_agent("api", "iphone"))
                     .parse()?,
             );

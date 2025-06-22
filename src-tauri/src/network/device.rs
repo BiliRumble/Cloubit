@@ -2,7 +2,7 @@ use rand::rngs::OsRng;
 use rand::TryRngCore;
 use std::sync::LazyLock;
 
-static DEVICE_ID: LazyLock<String> = LazyLock::new(|| generate_device_id());
+static DEVICE_ID: LazyLock<String> = LazyLock::new(generate_device_id);
 
 const DEVICE_ID_SUFFIXES: &[&str] = &[
     "F8EF0C9966B28293CC8D6415CCD93549",
@@ -35,6 +35,6 @@ fn generate_device_id() -> String {
     }
 }
 
-pub fn get_device_id() -> &'static String {
+pub fn get_device_id() -> &'static str {
     &DEVICE_ID
 }

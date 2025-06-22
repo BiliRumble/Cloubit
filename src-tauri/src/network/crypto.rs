@@ -18,7 +18,7 @@ use std::error::Error;
 use std::fmt;
 
 const IV: &str = "0102030405060708";
-const PRESET_KEY: &str = "0CoJUm6Qyw8W8jud";
+const PRESET_KEY: &str = "";
 const EAPI_KEY: &str = "e82ckenh8dichen8";
 const PUBLIC_KEY: &str = "-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7clFSs6sXqHauqKWqdtLkF2KexO40H1YTX8z2lSgBBOAxLsvaklV8k4cBFK9snQXE9/DDaFt6Rr7iVZMldczhC0JNgTz+SHXT6CBHuX3e9SdB1Ua44oncaTWz7OBGLbCiK45wIDAQAB
@@ -30,8 +30,8 @@ pub(crate) enum CryptoFormat {
 }
 
 pub(crate) enum AesCryptoMode {
-    ECB,
-    CBC,
+    Ecb,
+    Cbc,
 }
 
 #[derive(Debug)]
@@ -55,8 +55,8 @@ pub(crate) fn aes_encrypt(
     let (key_bytes, iv_bytes) = (key.as_bytes(), iv.as_bytes());
 
     let mut encryptor = match mode {
-        AesCryptoMode::ECB => ecb_encryptor(KeySize::KeySize128, key_bytes, PkcsPadding),
-        AesCryptoMode::CBC => cbc_encryptor(KeySize::KeySize128, key_bytes, iv_bytes, PkcsPadding),
+        AesCryptoMode::Ecb => ecb_encryptor(KeySize::KeySize128, key_bytes, PkcsPadding),
+        AesCryptoMode::Cbc => cbc_encryptor(KeySize::KeySize128, key_bytes, iv_bytes, PkcsPadding),
     };
 
     let mut read_buffer = RefReadBuffer::new(text.as_bytes());
@@ -108,7 +108,7 @@ pub fn eapi(url: &str, object: &serde_json::Value) -> Result<serde_json::Value, 
         object_str,
         md5_hash(&format!("nobody{}use{}md5forencrypt", url, object_str))
     );
-    let params = aes_encrypt(&data, AesCryptoMode::ECB, EAPI_KEY, "", CryptoFormat::Hex)?;
+    let params = aes_encrypt(&data, AesCryptoMode::Ecb, EAPI_KEY, "", CryptoFormat::Hex)?;
     Ok(json!({ "params": params }))
 }
 
@@ -121,14 +121,14 @@ pub fn weapi(object: &serde_json::Value) -> Result<serde_json::Value, Box<dyn Er
     let secret_key = generate_secret_key();
     let encrypted_text = aes_encrypt(
         &text,
-        AesCryptoMode::CBC,
+        AesCryptoMode::Cbc,
         PRESET_KEY,
         IV,
         CryptoFormat::Base64,
     )?;
     let params = aes_encrypt(
         &encrypted_text,
-        AesCryptoMode::CBC,
+        AesCryptoMode::Cbc,
         &secret_key,
         IV,
         CryptoFormat::Base64,

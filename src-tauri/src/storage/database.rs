@@ -6,8 +6,8 @@ static DB: OnceLock<Db> = OnceLock::new();
 pub fn get_db() -> &'static Db {
     DB.get_or_init(|| {
         let db_path = dirs::data_local_dir()
-            .or_else(|| dirs::data_dir())
-            .or_else(|| dirs::home_dir())
+            .or_else(dirs::data_dir)
+            .or_else(dirs::home_dir)
             .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| ".".into()))
             .join("cloubit")
             .join("database");

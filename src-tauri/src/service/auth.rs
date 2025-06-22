@@ -33,7 +33,7 @@ pub async fn register_anonimous() -> Result<Response, AppError> {
     create_request("/api/register/anonimous", data, option).await
 }
 
-fn cloudmusic_dll_encode_id(some_id: &String) -> String {
+fn cloudmusic_dll_encode_id(some_id: &&str) -> String {
     const ID_XOR_KEY: &[u8] = b"3go8&$8*3*3h0k(2)2";
 
     let xored_bytes: Vec<u8> = some_id

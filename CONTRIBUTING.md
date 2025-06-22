@@ -70,22 +70,22 @@ export default Example;
 
 **类型**：
 
-- `feat`: 新功能
-- `fix`: 错误修复
-- `docs`: 文档更新
-- `style`: 代码样式调整
-- `refactor`: 代码重构
-- `perf`: 性能优化
-- `test`: 测试相关
-- `chore`: 构建/配置变更
-- `ci`: 持续集成相关
-- `revert`: 回滚提交
-- `wip`: 工作中（未完成）
+- `Feat`: 新功能
+- `Fix`: 错误修复
+- `Docs`: 文档更新
+- `Style`: 代码样式调整
+- `Refactor`: 代码重构
+- `Perf`: 性能优化
+- `Test`: 测试相关
+- `Chore`: 构建/配置变更
+- `CI`: 持续集成相关
+- `Revert`: 回滚提交
+- `WIP`: 工作中（未完成）
 
 **示例**：
 
 ```
-feat(authentication): 修复认证API存在的问题
+Feat(Authentication): 修复认证API存在的问题
 
 - 修复签名异常
 - 添加用户认证状态管理

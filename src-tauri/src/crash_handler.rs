@@ -25,7 +25,7 @@ impl CrashHandler {
         panic::set_hook(Box::new(move |panic_info| {
             let timestamp = Utc::now();
             let filename = format!("crash_{}.txt", timestamp.format("%Y%m%d_%H%M%S_%f"));
-            let funnies = vec![
+            let funnies = [
                 "That's we got, folks!",
                 "Why you did do that?",
                 "Well, this is awkward.",
@@ -50,7 +50,7 @@ impl CrashHandler {
                 )
                 .ok();
                 writeln!(file, "Version: {}", env!("CARGO_PKG_VERSION")).ok();
-                writeln!(file, "").ok();
+                writeln!(file).ok();
 
                 writeln!(file, "Panic Information:").ok();
                 if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
@@ -70,12 +70,12 @@ impl CrashHandler {
                     )
                     .ok();
                 }
-                writeln!(file, "").ok();
+                writeln!(file).ok();
 
                 writeln!(file, "Stack Trace:").ok();
                 let bt = Backtrace::new();
                 writeln!(file, "{:?}", bt).ok();
-                writeln!(file, "").ok();
+                writeln!(file).ok();
 
                 writeln!(file, "System Information:").ok();
                 writeln!(
@@ -103,7 +103,7 @@ impl CrashHandler {
             let mut crash_files: Vec<_> = entries
                 .filter_map(|entry| entry.ok())
                 .filter(|entry| {
-                    entry.path().extension().map_or(false, |ext| ext == "txt")
+                    entry.path().extension().is_some_and(|ext| ext == "txt")
                         && entry.file_name().to_string_lossy().starts_with("crash_")
                 })
                 .collect();
