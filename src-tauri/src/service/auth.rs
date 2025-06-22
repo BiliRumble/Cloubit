@@ -4,8 +4,6 @@ use crate::network::request::create_request;
 use crate::{error::AppError, models::http::Response};
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
-use crypto::digest::Digest;
-use crypto::md5::Md5;
 use serde_json::{json, Value};
 
 pub async fn register_anonimous() -> Result<Response, AppError> {
@@ -42,10 +40,6 @@ fn cloudmusic_dll_encode_id(some_id: &&str) -> String {
         .map(|(i, b)| b ^ ID_XOR_KEY[i % ID_XOR_KEY.len()])
         .collect();
 
-    let mut hasher = Md5::new();
-    hasher.input(&xored_bytes);
-
-    let mut result = [0u8; 16];
-    hasher.result(&mut result);
-    STANDARD.encode(result)
+    let digest = md5::compute(&xored_bytes);
+    STANDARD.encode(digest.as_ref())
 }

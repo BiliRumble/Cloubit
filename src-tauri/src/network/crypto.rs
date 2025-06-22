@@ -1,12 +1,6 @@
+use aes::cipher::{block_padding::Pkcs7, BlockEncryptMut, KeyInit, KeyIvInit};
+use aes::Aes128;
 use base64::{engine::general_purpose::STANDARD, Engine};
-use crypto::aes::cbc_encryptor;
-use crypto::aes::ecb_encryptor;
-use crypto::aes::KeySize;
-use crypto::blockmodes::PkcsPadding;
-use crypto::buffer::{ReadBuffer, RefReadBuffer, RefWriteBuffer, WriteBuffer};
-use crypto::digest::Digest;
-use crypto::md5::Md5;
-use crypto::symmetriccipher::SymmetricCipherError;
 use hex::encode;
 use hex::encode as hex_encode;
 use openssl::encrypt::Encrypter;
@@ -17,8 +11,11 @@ use serde_json::json;
 use std::error::Error;
 use std::fmt;
 
+type Aes128CbcEnc = cbc::Encryptor<Aes128>;
+type Aes128EcbEnc = ecb::Encryptor<Aes128>;
+
 const IV: &str = "0102030405060708";
-const PRESET_KEY: &str = "";
+const PRESET_KEY: &str = "0CoJUm6Qyw8W8jud";
 const EAPI_KEY: &str = "e82ckenh8dichen8";
 const PUBLIC_KEY: &str = "-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7clFSs6sXqHauqKWqdtLkF2KexO40H1YTX8z2lSgBBOAxLsvaklV8k4cBFK9snQXE9/DDaFt6Rr7iVZMldczhC0JNgTz+SHXT6CBHuX3e9SdB1Ua44oncaTWz7OBGLbCiK45wIDAQAB
@@ -35,15 +32,15 @@ pub(crate) enum AesCryptoMode {
 }
 
 #[derive(Debug)]
-pub struct SymmetricCipherErrorWrapper(SymmetricCipherError);
+pub struct AesEncryptionError(String);
 
-impl fmt::Display for SymmetricCipherErrorWrapper {
+impl fmt::Display for AesEncryptionError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self.0)
+        write!(f, "AES encryption error: {}", self.0)
     }
 }
 
-impl Error for SymmetricCipherErrorWrapper {}
+impl Error for AesEncryptionError {}
 
 pub(crate) fn aes_encrypt(
     text: &str,
@@ -52,22 +49,34 @@ pub(crate) fn aes_encrypt(
     iv: &str,
     format: CryptoFormat,
 ) -> Result<String, Box<dyn Error>> {
-    let (key_bytes, iv_bytes) = (key.as_bytes(), iv.as_bytes());
-
-    let mut encryptor = match mode {
-        AesCryptoMode::Ecb => ecb_encryptor(KeySize::KeySize128, key_bytes, PkcsPadding),
-        AesCryptoMode::Cbc => cbc_encryptor(KeySize::KeySize128, key_bytes, iv_bytes, PkcsPadding),
+    let key_bytes = if key.len() < 16 {
+        let mut padded_key = vec![0u8; 16];
+        padded_key[..key.len()].copy_from_slice(key.as_bytes());
+        padded_key
+    } else {
+        key.as_bytes()[..16].to_vec()
     };
 
-    let mut read_buffer = RefReadBuffer::new(text.as_bytes());
-    let mut buffer = [0; 32768];
-    let mut write_buffer = RefWriteBuffer::new(&mut buffer);
+    let iv_bytes = if iv.len() < 16 {
+        let mut padded_iv = vec![0u8; 16];
+        padded_iv[..iv.len()].copy_from_slice(iv.as_bytes());
+        padded_iv
+    } else {
+        iv.as_bytes()[..16].to_vec()
+    };
 
-    encryptor
-        .encrypt(&mut read_buffer, &mut write_buffer, true)
-        .map_err(SymmetricCipherErrorWrapper)?;
-
-    let encrypted_data = write_buffer.take_read_buffer().take_remaining().to_vec();
+    let encrypted_data = match mode {
+        AesCryptoMode::Ecb => {
+            let cipher = Aes128EcbEnc::new_from_slice(&key_bytes)
+                .map_err(|e| AesEncryptionError(e.to_string()))?;
+            cipher.encrypt_padded_vec_mut::<Pkcs7>(text.as_bytes())
+        }
+        AesCryptoMode::Cbc => {
+            let cipher = Aes128CbcEnc::new_from_slices(&key_bytes, &iv_bytes)
+                .map_err(|e| AesEncryptionError(e.to_string()))?;
+            cipher.encrypt_padded_vec_mut::<Pkcs7>(text.as_bytes())
+        }
+    };
 
     match format {
         CryptoFormat::Base64 => Ok(STANDARD.encode(&encrypted_data)),
@@ -95,9 +104,8 @@ fn rsa_encrypt(input: &str, pem_key: &str) -> Result<String, Box<dyn Error>> {
 }
 
 fn md5_hash(input: &str) -> String {
-    let mut hasher = Md5::new();
-    hasher.input_str(input);
-    hasher.result_str()
+    let digest = md5::compute(input.as_bytes());
+    format!("{:x}", digest)
 }
 
 pub fn eapi(url: &str, object: &serde_json::Value) -> Result<serde_json::Value, Box<dyn Error>> {
