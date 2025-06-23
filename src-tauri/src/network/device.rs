@@ -1,10 +1,10 @@
 use rand::rngs::OsRng;
-use rand::TryRngCore;
+use rand::{rng, Rng, TryRngCore};
 use std::sync::LazyLock;
 
 static DEVICE_ID: LazyLock<String> = LazyLock::new(generate_device_id);
 
-const DEVICE_ID_SUFFIXES: &[&str] = &[
+const SDEVICEID_MD5: &[&str] = &[
     "F8EF0C9966B28293CC8D6415CCD93549",
     "B74BAAFF42C04B74CE59EDA3A7B31C8E",
     "279C344F8D33AB4D6DD29C3461348A1F",
@@ -19,17 +19,11 @@ fn generate_device_id() -> String {
     let mut random_bytes = [0u8; 20];
     match OsRng.try_fill_bytes(&mut random_bytes) {
         Ok(_) => {
-            let mut index_bytes = [0u8; 1];
-            let _ = OsRng.try_fill_bytes(&mut index_bytes);
-            let index = (index_bytes[0] as usize) % DEVICE_ID_SUFFIXES.len();
-            let suffix = DEVICE_ID_SUFFIXES[index];
-            format!("{}{}", "967EC0141EDBE6529FF7", suffix)
+            let suffix = SDEVICEID_MD5[rng().random_range(0..SDEVICEID_MD5.len())];
+            format!("{}{}", hex::encode(random_bytes).to_uppercase(), suffix)
         }
         Err(_) => {
-            format!(
-                "{}7D7841F18CF238EC76AB6C92AFCBEE0E",
-                hex::encode(random_bytes).to_uppercase()
-            )
+            "4UCKU2DEV1CE1DS1I45I7D7841F18CF238EC76AB6C92AFCBEE0E".to_string()
         }
     }
 }
