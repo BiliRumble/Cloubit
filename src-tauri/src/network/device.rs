@@ -22,9 +22,7 @@ fn generate_device_id() -> String {
             let suffix = SDEVICEID_MD5[rng().random_range(0..SDEVICEID_MD5.len())];
             format!("{}{}", hex::encode(random_bytes).to_uppercase(), suffix)
         }
-        Err(_) => {
-            "4UCKU2DEV1CE1DS1I45I7D7841F18CF238EC76AB6C92AFCBEE0E".to_string()
-        }
+        Err(_) => "4UCKU2DEV1CE1DS1I45I7D7841F18CF238EC76AB6C92AFCBEE0E".to_string(),
     }
 }
 

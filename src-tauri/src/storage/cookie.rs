@@ -33,16 +33,17 @@ impl CookieManager {
     }
 
     // 这里其实还有很大的优化空间，但是就目前来看够用
+    // 可以用tokio::sync::RwLock，但是我懒得搞，当作TODO吧
     pub fn update_from_headers(&self, headers: &HeaderMap) {
         if let Ok(mut store) = self.store.write() {
-            for header in headers.get_all(SET_COOKIE) {
-                if let Ok(cookie_str) = header.to_str() {
-                    if let Some((key, value)) = parse_cookie(cookie_str) {
-                        store.insert(key, value);
-                    }
-                }
-            }
-
+            headers
+                .get_all(SET_COOKIE)
+                .iter()
+                .filter_map(|header| header.to_str().ok())
+                .filter_map(parse_cookie)
+                .for_each(|(key, value)| {
+                    store.insert(key, value);
+                });
             if let Ok(json) = serde_json::to_vec(&*store) {
                 let _ = self.db.insert("cookie_store", json);
             }
