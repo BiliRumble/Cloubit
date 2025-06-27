@@ -14,7 +14,7 @@
 		"prepare": "husky",
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx",
 		"lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-		"format": "prettier --write --log-level warn \"src/**/*.{js,ts,json,jsx,tsx,css,scss,vue,html,md}\""
+		"format": "prettier --write --log-level warn \"ui/**/*.{js,ts,json,jsx,tsx,css,scss,vue,html,md}\""
 	},
 	"lint-staged": {
 		"*.{js,jsx,ts,tsx,css}": [

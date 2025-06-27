@@ -25,9 +25,9 @@
 		/* Resolve */
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["ui/*"]
 		}
 	},
-	"include": ["src"],
+	"include": ["ui"],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }

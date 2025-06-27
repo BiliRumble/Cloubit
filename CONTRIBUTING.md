@@ -190,9 +190,6 @@ pnpm lint:fix
 ```bash
 # 清理构建缓存
 pnpm tauri clean
-
-# 更新依赖
-cd src-tauri
 cargo update
 ```
 

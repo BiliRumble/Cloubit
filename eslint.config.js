@@ -57,7 +57,8 @@ export default [
 			'*.cjs',
 			'*.config.ts',
 			'*.config.js',
-			'src-tauri/**',
+			'src/**',
+			'target/**',
 		],
 	},
 ];

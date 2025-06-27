@@ -21,12 +21,20 @@ export default defineConfig(async () => ({
 				}
 			: undefined,
 		watch: {
-			ignored: ['**/src-tauri/**'],
+			ignored: [
+				'**/src/**',
+				'**/target/**',
+				'**/capabilities/**',
+				'**/gen/**',
+				'Cargo.toml',
+				'Cargo.lock',
+				'tauri.conf.json',
+			],
 		},
 	},
 	resolve: {
 		alias: {
-			'@': '/src',
+			'@': '/ui',
 		},
 	},
 }));

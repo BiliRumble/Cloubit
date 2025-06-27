@@ -7,7 +7,7 @@
 		"beforeDevCommand": "pnpm dev",
 		"devUrl": "http://localhost:1420",
 		"beforeBuildCommand": "pnpm build",
-		"frontendDist": "../dist",
+		"frontendDist": "./dist",
 		"removeUnusedCommands": true
 	},
 	"app": {
@@ -27,7 +27,7 @@
 	"bundle": {
 		"active": true,
 		"targets": "all",
-		"icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"],
+		"icon": ["public/icons/icon.icns", "public/icons/icon.ico", "public/icons/icon.png"],
 		"publisher": "bilirumble",
 		"copyright": "Copyright © 2025 bilirumble",
 		"category": "Music",
