@@ -10,6 +10,7 @@ pub enum AppError {
     Cache(String),
     Json(String),
     Parse(String),
+    Audio(String),
 }
 
 impl From<tauri_plugin_http::reqwest::header::InvalidHeaderValue> for AppError {
@@ -54,6 +55,24 @@ impl<T> From<std::sync::PoisonError<T>> for AppError {
     }
 }
 
+impl From<rodio::StreamError> for AppError {
+    fn from(err: rodio::StreamError) -> Self {
+        AppError::Audio(format!("Audio stream error: {}", err))
+    }
+}
+
+impl From<rodio::PlayError> for AppError {
+    fn from(err: rodio::PlayError) -> Self {
+        AppError::Audio(format!("Audio playback error: {}", err))
+    }
+}
+
+impl From<rodio::decoder::DecoderError> for AppError {
+    fn from(err: rodio::decoder::DecoderError) -> Self {
+        AppError::Audio(format!("Audio decoder error: {}", err))
+    }
+}
+
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -64,6 +83,7 @@ impl fmt::Display for AppError {
             AppError::Cache(msg) => write!(f, "Cache error: {}", msg),
             AppError::Json(msg) => write!(f, "JSON error: {}", msg),
             AppError::Parse(msg) => write!(f, "Parse error: {}", msg),
+            AppError::Audio(msg) => write!(f, "Audio error: {}", msg),
         }
     }
 }

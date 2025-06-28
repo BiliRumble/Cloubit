@@ -1,6 +1,7 @@
 use tauri::http::HeaderMap;
 use tauri_plugin_http::reqwest::header::SET_COOKIE;
 
+mod audio;
 mod error;
 mod models;
 mod network;
@@ -31,6 +32,10 @@ async fn init_config() -> Result<(), AppError> {
 
 #[tauri::command]
 fn greet(name: &str) -> String {
+    let backend = audio::engine::get_backend();
+    let _ = backend
+        .event_sender
+        .send(crate::models::audio::BackendState::Set(name.to_string()));
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
@@ -38,7 +43,9 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             let _ = app.handle();
-            tauri::async_runtime::spawn(async move {
+            tauri::async_runtime::block_on(async {
+                let _ = audio::engine::get_backend();
+
                 if get_cookie_manager().get_header_value().is_empty() {
                     if let Err(e) = init_config().await {
                         log::error!("Failed to initialize config: {}", e);
