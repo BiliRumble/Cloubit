@@ -1,115 +1,97 @@
 use log::{debug, error};
 use rodio::{Decoder, OutputStream, Sink};
 use std::io::Cursor;
-use tokio::sync::broadcast;
+use std::sync::mpsc;
+use std::thread;
 
 use crate::models::audio::BackendState;
 
 pub struct AudioBackend {
-    pub event_sender: broadcast::Sender<BackendState>,
+    pub command_sender: mpsc::Sender<BackendState>,
 }
 
-// 实现有点傻逼，但是跑起来了
+// 优化过的狗屎
 impl AudioBackend {
-    pub fn new() -> Self {
-        let (event_sender, event_receiver) = broadcast::channel(100);
+    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+        let (command_sender, command_receiver) = mpsc::channel();
 
-        std::thread::spawn(move || {
-            let stream_result = OutputStream::try_default();
-            if let Err(e) = &stream_result {
-                error!("Failed to initialize outputStream: {}", e);
-                return;
+        thread::spawn(move || {
+            if let Err(e) = Self::audio_thread_main(command_receiver) {
+                error!("Audio thread terminated with error: {}", e);
             }
-
-            let (_stream, stream_handle) = stream_result.unwrap();
-            let sink_result = Sink::try_new(&stream_handle);
-            if let Err(e) = &sink_result {
-                error!("Failed to create sink: {}", e);
-                return;
-            }
-
-            let sink = sink_result.unwrap();
-
-            let rt_result = tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build();
-
-            if let Err(e) = &rt_result {
-                error!("Failed to build runtime: {}", e);
-                return;
-            }
-
-            let rt = rt_result.unwrap();
-
-            rt.block_on(async {
-                let mut receiver = event_receiver;
-                while let Ok(e) = receiver.recv().await {
-                    match e {
-                        BackendState::Set(target) => {
-                            sink.clear();
-
-                            let resp = match tauri_plugin_http::reqwest::get(&target).await {
-                                Ok(r) => r,
-                                Err(e) => {
-                                    error!("Failed to fetch {}: {}", target, e);
-                                    continue;
-                                }
-                            };
-
-                            if !resp.status().is_success() {
-                                error!(
-                                    "Server returned error status: {} for {}",
-                                    resp.status(),
-                                    target
-                                );
-                                continue;
-                            }
-
-                            let bytes = match resp.bytes().await {
-                                Ok(b) => b,
-                                Err(e) => {
-                                    error!("Failed to read data: {}", e);
-                                    continue;
-                                }
-                            };
-
-                            let cursor = Cursor::new(bytes);
-
-                            let source = match Decoder::new(cursor) {
-                                Ok(s) => s,
-                                Err(e) => {
-                                    error!("Failed to decode data: {}", e);
-                                    continue;
-                                }
-                            };
-
-                            sink.append(source);
-                            sink.play();
-                        }
-                        BackendState::Play(resume) => {
-                            if resume {
-                                sink.play();
-                            } else {
-                                sink.pause();
-                            }
-                        }
-                        BackendState::Speed(speed) => {
-                            sink.set_speed(speed);
-                        }
-                        BackendState::Volume(volume) => {
-                            sink.set_volume(volume);
-                        }
-                        BackendState::Seek(pos) => {
-                            match sink.try_seek(std::time::Duration::from_secs(pos)) {
-                                Ok(_) => debug!("Seeked to position {}s", pos),
-                                Err(e) => error!("Failed to seek: {}", e),
-                            }
-                        }
-                    }
-                }
-            });
         });
 
-        Self { event_sender }
+        Ok(Self { command_sender })
+    }
+
+    fn audio_thread_main(
+        receiver: mpsc::Receiver<BackendState>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let (_stream, stream_handle) = OutputStream::try_default()?;
+        let sink = Sink::try_new(&stream_handle)?;
+
+        while let Ok(command) = receiver.recv() {
+            if let Err(e) = Self::handle_command(&sink, command) {
+                error!("Failed to handle audio command: {}", e);
+            }
+        }
+
+        drop(sink);
+        Ok(())
+    }
+
+    fn handle_command(
+        sink: &Sink,
+        command: BackendState,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        match command {
+            BackendState::Set(target) => {
+                sink.clear();
+                let resp =
+                    std::thread::spawn(move || tauri_plugin_http::reqwest::blocking::get(&target))
+                        .join()
+                        .map_err(|_| "Failed to join thread")?;
+
+                let resp = resp?;
+                if !resp.status().is_success() {
+                    return Err(format!("HTTP error: {}", resp.status()).into());
+                }
+
+                let bytes = resp.bytes()?;
+                let cursor = Cursor::new(bytes);
+                let source = Decoder::new(cursor)?;
+
+                sink.append(source);
+                sink.play();
+                // pass
+            }
+            BackendState::Play(resume) => {
+                if resume {
+                    sink.play();
+                } else {
+                    sink.pause();
+                }
+                // pass
+            }
+            BackendState::Speed(speed) => {
+                sink.set_speed(speed);
+                // pass
+            }
+            BackendState::Volume(volume) => {
+                sink.set_volume(volume);
+                // pass
+            }
+            BackendState::Seek(pos) => {
+                sink.try_seek(std::time::Duration::from_secs(pos))?;
+                debug!("Seeked to position {}s", pos);
+                // failed: [2025-07-03T09:27:46Z ERROR cloubit_lib::audio::backend] Failed to handle audio command: Seeking is not supported by source: rodio::decoder::flac::FlacDecoder<std::io::cursor::Cursor<bytes::bytes::Bytes>>
+            }
+        }
+        Ok(())
+    }
+
+    pub fn dummy() -> Self {
+        let (command_sender, _) = mpsc::channel();
+        Self { command_sender }
     }
 }

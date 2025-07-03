@@ -34,7 +34,7 @@ async fn init_config() -> Result<(), AppError> {
 fn greet(name: &str) -> String {
     let backend = audio::engine::get_backend();
     let _ = backend
-        .event_sender
+        .command_sender
         .send(crate::models::audio::BackendState::Set(name.to_string()));
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
