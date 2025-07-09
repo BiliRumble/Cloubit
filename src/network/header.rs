@@ -64,7 +64,7 @@ pub fn build_request_headers(option: &RequestOption, crypto: &str) -> Result<Hea
     if !cookie_string.is_empty() {
         let cookie_value = cookie_string
             .parse::<HeaderValue>()
-            .map_err(|_| AppError::Cookie("Invalid cookie format".to_string()))?;
+            .map_err(|_| AppError::Network("Invalid cookie format".to_string()))?;
         headers.insert(COOKIE, cookie_value);
     }
 

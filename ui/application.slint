@@ -1,9 +1,10 @@
-import { VerticalBox } from "std-widgets.slint";
+import { VerticalBox, HorizontalBox, Button, LineEdit } from "std-widgets.slint";
 
 export component MainWindow inherits Window {
     title: "Cloubit";
     min-width: 1050px;
     min-height: 590px;
+    callback play-audio(string);
 
     ContextMenuArea {
         Menu {
@@ -40,6 +41,24 @@ export component MainWindow inherits Window {
                 font-size: 30px;
                 height: 48px;
                 horizontal-alignment: TextHorizontalAlignment.center;
+            }
+
+            HorizontalBox {
+                padding: 20px;
+                spacing: 10px;
+                input-field := LineEdit {
+                    placeholder-text: "Enter audio URL...";
+                    font-size: 14px;
+                    preferred-width: 400px;
+                }
+
+                play-button := Button {
+                    text: "Play Audio";
+                    preferred-width: 100px;
+                    clicked => {
+                        root.play-audio(input-field.text);
+                    }
+                }
             }
         }
     }
