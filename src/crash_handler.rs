@@ -1,9 +1,11 @@
 use backtrace::Backtrace;
-use chrono::Utc;
-use std::fs::File;
-use std::io::Write;
-use std::panic::{self};
-use std::path::PathBuf;
+use std::{
+    fs::File,
+    io::Write,
+    panic::{self},
+    path::PathBuf,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 pub struct CrashHandler {
     crash_dir: PathBuf,
@@ -23,8 +25,35 @@ impl CrashHandler {
         let crash_dir = self.crash_dir.clone();
 
         panic::set_hook(Box::new(move |panic_info| {
-            let timestamp = Utc::now();
-            let filename = format!("crash_{}.txt", timestamp.format("%Y%m%d_%H%M%S_%f"));
+            let timestamp = SystemTime::now();
+            let duration_since_epoch = timestamp.duration_since(UNIX_EPOCH).unwrap_or_default();
+            let secs = duration_since_epoch.as_secs();
+            let nanos = duration_since_epoch.subsec_nanos();
+
+            let secs_since_epoch = secs;
+            let days = secs_since_epoch / 86400;
+            let remaining_secs = secs_since_epoch % 86400;
+            let hours = remaining_secs / 3600;
+            let remaining_secs = remaining_secs % 3600;
+            let minutes = remaining_secs / 60;
+            let seconds = remaining_secs % 60;
+
+            let year = 1970 + days / 365; // 不考虑闰年，反正差不了多少
+            let day_of_year = days % 365;
+            let month = (day_of_year / 30) + 1;
+            let day = (day_of_year % 30) + 1;
+
+            let filename = format!(
+                "crash_{}_{:02}{:02}_{:02}{:02}{:02}_{}.txt",
+                year,
+                month,
+                day,
+                hours,
+                minutes,
+                seconds,
+                nanos / 1_000_000
+            );
+
             let funnies = [
                 "That's we got, folks!",
                 "Why you did do that?",
@@ -36,7 +65,7 @@ impl CrashHandler {
                 "This was not supposed to happen.",
                 "This crash is brought to you by: Sleep Deprivation!",
             ];
-            let seed = timestamp.timestamp_nanos_opt().unwrap_or_default() as usize;
+            let seed = (secs ^ (nanos as u64)) as usize;
             let funny_line = funnies[seed % funnies.len()];
             let crash_file_path = crash_dir.join(filename);
 
@@ -45,8 +74,8 @@ impl CrashHandler {
                 writeln!(file, "// {}", funny_line).ok();
                 writeln!(
                     file,
-                    "Timestamp: {}",
-                    timestamp.format("%Y-%m-%d %H:%M:%S UTC")
+                    "Timestamp: {}-{:02}-{:02} {:02}:{:02}:{:02} UTC",
+                    year, month, day, hours, minutes, seconds
                 )
                 .ok();
                 writeln!(file, "Version: {}", env!("CARGO_PKG_VERSION")).ok();

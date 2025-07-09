@@ -1,5 +1,5 @@
+use reqwest::header::HeaderMap;
 use serde_json::Value;
-use tauri::http::HeaderMap;
 
 #[derive(Default, Debug)]
 pub struct RequestOption {

@@ -12,14 +12,14 @@ pub enum AppError {
     Parse(String),
 }
 
-impl From<tauri_plugin_http::reqwest::header::InvalidHeaderValue> for AppError {
-    fn from(err: tauri_plugin_http::reqwest::header::InvalidHeaderValue) -> Self {
+impl From<reqwest::header::InvalidHeaderValue> for AppError {
+    fn from(err: reqwest::header::InvalidHeaderValue) -> Self {
         AppError::InvalidHeader(err.to_string())
     }
 }
 
-impl From<tauri_plugin_http::reqwest::Error> for AppError {
-    fn from(err: tauri_plugin_http::reqwest::Error) -> Self {
+impl From<reqwest::Error> for AppError {
+    fn from(err: reqwest::Error) -> Self {
         AppError::Network(err.to_string())
     }
 }
