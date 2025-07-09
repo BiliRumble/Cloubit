@@ -1,5 +1,6 @@
 slint::include_modules!();
 
+mod audio;
 mod crash_handler;
 mod error;
 mod models;
@@ -7,6 +8,7 @@ mod network;
 mod service;
 mod storage;
 
+use audio::engine::get_backend;
 use error::AppError;
 use network::device::get_device_id;
 use reqwest::header::{HeaderMap, SET_COOKIE};
@@ -47,6 +49,22 @@ fn main() {
         });
     }
 
-    // TODO
-    let _ = MainWindow::new().expect("Could not create window").run();
+    // TODO: 调整设计
+    let main_window = MainWindow::new().expect("Could not create window");
+
+    main_window.on_play_audio({
+        let backend = get_backend();
+        move |url| {
+            if !url.trim().is_empty() {
+                if let Err(e) = backend
+                    .command_sender
+                    .send(crate::models::audio::BackendState::Set(url.to_string()))
+                {
+                    log::error!("Failed to send audio command: {}", e);
+                }
+            }
+        }
+    });
+
+    main_window.run().expect("Failed to run application");
 }

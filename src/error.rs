@@ -3,18 +3,18 @@ use std::fmt;
 
 #[derive(Debug, Clone)]
 pub enum AppError {
-    Network(String),
+    Audio(String),
+    Common(String),
     Crypto(String),
-    InvalidHeader(String),
-    Cookie(String),
-    Cache(String),
-    Json(String),
-    Parse(String),
+    Format(String),
+    IO(String),
+    Thread(String),
+    Network(String),
 }
 
 impl From<reqwest::header::InvalidHeaderValue> for AppError {
     fn from(err: reqwest::header::InvalidHeaderValue) -> Self {
-        AppError::InvalidHeader(err.to_string())
+        AppError::Network(err.to_string())
     }
 }
 
@@ -26,44 +26,56 @@ impl From<reqwest::Error> for AppError {
 
 impl From<serde_json::Error> for AppError {
     fn from(err: serde_json::Error) -> Self {
-        AppError::Json(err.to_string())
+        AppError::Format(err.to_string())
     }
 }
 
 impl From<Box<dyn std::error::Error>> for AppError {
     fn from(err: Box<dyn std::error::Error>) -> Self {
-        AppError::Crypto(err.to_string())
+        AppError::Common(err.to_string())
     }
 }
 
 impl From<serde_json::Value> for AppError {
     fn from(value: serde_json::Value) -> Self {
-        AppError::Json(value.to_string())
+        AppError::Format(value.to_string())
     }
 }
 
 impl From<sled::Error> for AppError {
     fn from(err: sled::Error) -> Self {
-        AppError::Cache(err.to_string())
+        AppError::IO(err.to_string())
     }
 }
 
 impl<T> From<std::sync::PoisonError<T>> for AppError {
     fn from(err: std::sync::PoisonError<T>) -> Self {
-        AppError::Cache(format!("Mutex poisoned: {}", err))
+        AppError::Thread(format!("Mutex poisoned: {}", err))
+    }
+}
+
+impl From<rodio::decoder::DecoderError> for AppError {
+    fn from(err: rodio::decoder::DecoderError) -> Self {
+        AppError::Audio(err.to_string())
+    }
+}
+
+impl From<rodio::source::SeekError> for AppError {
+    fn from(err: rodio::source::SeekError) -> Self {
+        AppError::Audio(err.to_string())
     }
 }
 
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            AppError::Network(msg) => write!(f, "Network error: {}", msg),
+            AppError::Audio(msg) => write!(f, "Audio error: {}", msg),
+            AppError::Common(msg) => write!(f, "Common error: {}", msg),
             AppError::Crypto(msg) => write!(f, "Crypto error: {}", msg),
-            AppError::InvalidHeader(msg) => write!(f, "Invalid header: {}", msg),
-            AppError::Cookie(msg) => write!(f, "Cookie error: {}", msg),
-            AppError::Cache(msg) => write!(f, "Cache error: {}", msg),
-            AppError::Json(msg) => write!(f, "JSON error: {}", msg),
-            AppError::Parse(msg) => write!(f, "Parse error: {}", msg),
+            AppError::Format(msg) => write!(f, "Format error: {}", msg),
+            AppError::IO(msg) => write!(f, "IO error: {}", msg),
+            AppError::Thread(msg) => write!(f, "Thread error: {}", msg),
+            AppError::Network(msg) => write!(f, "Network error: {}", msg),
         }
     }
 }
