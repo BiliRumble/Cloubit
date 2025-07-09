@@ -1,0 +1,45 @@
+[package]
+name = "cloubit"
+description = "Third party NetEaseCloudMusic Client"
+version = "0.0.1"
+authors = ["bilirumble <bilirumble@outlook.com>"]
+license = "MIT"
+edition = "2024"
+
+[profile.dev]
+incremental = true
+
+[profile.release]
+codegen-units = 1
+lto = true
+panic = "abort"
+strip = true
+
+[dependencies]
+aes = "0.8.4"
+backtrace = "0.3.75"
+base64 = "0.22.1"
+cached = "0.55.1"
+cbc = { version = "0.1.2", features = ["alloc"] }
+dirs = "6.0.0"
+ecb = "0.1.2"
+env_logger = "0.11.8"
+form_urlencoded = "1.2.1"
+hex = "0.4.3"
+log = "0.4.27"
+md5 = "0.8.0"
+openssl = { version = "0.10.73", features = ["vendored"] }
+rand = "0.9.1"
+reqwest = { version = "0.12.22", features = [
+    "json",
+    "cookies",
+    "gzip",
+    "native-tls",
+] }
+serde_json = "1.0.140"
+sled = "0.34.7"
+slint = "1.12.1"
+tokio = { version = "1.46.1", features = ["rt-multi-thread", "macros"] }
+
+[build-dependencies]
+slint-build = "1.12.1"

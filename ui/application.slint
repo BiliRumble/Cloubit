@@ -1,0 +1,46 @@
+import { VerticalBox } from "std-widgets.slint";
+
+export component MainWindow inherits Window {
+    title: "Cloubit";
+    min-width: 1050px;
+    min-height: 590px;
+
+    ContextMenuArea {
+        Menu {
+            MenuItem {
+                title: "Test form 1";
+            }
+
+            MenuItem {
+                title: "Test form 2";
+            }
+        }
+
+        VerticalBox {
+            ContextMenuArea {
+                height: 250px;
+                Menu {
+                    MenuItem {
+                        title: "Copy(TEST FORM)";
+                    }
+                }
+
+                Image {
+                    rotation-angle: 0deg;
+                    source: @image-url("../resources/logo.svg");
+                    vertical-alignment: ImageVerticalAlignment.center;
+                    height: 250px;
+                }
+            }
+
+            Text {
+                text: "Hello, Cloubit!";
+                vertical-alignment: TextVerticalAlignment.top;
+                wrap: TextWrap.word-wrap;
+                font-size: 30px;
+                height: 48px;
+                horizontal-alignment: TextHorizontalAlignment.center;
+            }
+        }
+    }
+}

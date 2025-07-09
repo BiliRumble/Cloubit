@@ -1,7 +1,7 @@
+use reqwest::header::{HeaderMap, SET_COOKIE};
 use sled::Db;
 use std::collections::HashMap;
 use std::sync::{Arc, OnceLock, RwLock};
-use tauri_plugin_http::reqwest::header::{HeaderMap, SET_COOKIE};
 
 use crate::error::AppError;
 
@@ -22,7 +22,7 @@ impl CookieManager {
                 return Err(AppError::Cookie(format!(
                     "Failed to read cookie store: {}",
                     e
-                )))
+                )));
             }
         };
 

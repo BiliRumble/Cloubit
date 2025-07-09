@@ -2,24 +2,25 @@ use std::{sync::OnceLock, time::Duration};
 
 use cached::Cached;
 use log::{debug, warn};
-use serde_json::{json, Value};
-use tauri::http::{header::SET_COOKIE, HeaderMap};
-use tauri_plugin_http::reqwest::{ClientBuilder, Proxy};
+use reqwest::{
+    ClientBuilder, Proxy,
+    header::{HeaderMap, SET_COOKIE},
+};
+use serde_json::{Value, json};
 
 use crate::{
-    get_cookie_manager,
+    AppError, get_cookie_manager,
     models::http::{RequestOption, Response},
     network::{
         crypto::{eapi, weapi},
         header::build_request_headers,
     },
     storage::cache::{generate_cache_key, get_cache},
-    AppError,
 };
 
-static HTTP_CLIENT: OnceLock<tauri_plugin_http::reqwest::Client> = OnceLock::new();
+static HTTP_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
 
-fn get_http_client() -> &'static tauri_plugin_http::reqwest::Client {
+fn get_http_client() -> &'static reqwest::Client {
     HTTP_CLIENT.get_or_init(|| {
         ClientBuilder::new()
             .timeout(Duration::from_secs(15))
