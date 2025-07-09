@@ -22,29 +22,11 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - name: Install pnpm
-              uses: pnpm/action-setup@v2
-              with:
-                  version: 8
-
-            - name: Install Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-                  cache: 'pnpm'
-
-            - name: Install dependencies
-              run: pnpm install
-
             - name: Install dependencies(Ubuntu)
               if: matrix.platform == 'ubuntu-22.04'
               run: |
                   sudo apt-get update
                   sudo apt-get install -y \
-                    libgtk-3-dev \
-                    libwebkit2gtk-4.1-dev \
-                    libayatana-appindicator3-dev \
-                    librsvg2-dev \
                     build-essential \
                     perl \
                     nasm
@@ -65,10 +47,10 @@ jobs:
             - name: Cache Rust builds
               uses: swatinem/rust-cache@v2
               with:
-                  workspaces: './src-tauri -> target'
+                  workspaces: './ -> target'
 
-            - name: Build Tauri app
-              run: pnpm tauri build
+            - name: Build Slint app
+              run: cargo build --release
               env:
                   OPENSSL_DIR: ${{ matrix.platform == 'windows-latest' && 'C:\\Program Files\\OpenSSL-Win64' || '' }}
                   OPENSSL_LIB_DIR: ${{ matrix.platform == 'windows-latest' && 'C:\\Program Files\\OpenSSL-Win64\\lib' || '' }}
@@ -79,13 +61,7 @@ jobs:
               with:
                   name: release-${{ matrix.platform }}-${{ github.sha }}
                   path: |
-                      src-tauri/target/release/bundle/deb/*.deb
-                      src-tauri/target/release/bundle/appimage/*.AppImage
-                      src-tauri/target/release/bundle/rpm/*.rpm
-
-                      src-tauri/target/release/*.exe
-                      src-tauri/target/release/bundle/msi/*.msi
-
-                      src-tauri/target/release/bundle/dmg/*.dmg
-                      src-tauri/target/release/bundle/macos/*.app
+                      target/release/cloubit.exe
+                      target/release/cloubit
+                      !target/release/cloubit.d
                   retention-days: 7
