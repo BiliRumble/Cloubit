@@ -62,6 +62,23 @@ impl CookieManager {
         }
     }
 
+    pub fn get(&self, key: &str) -> Option<String> {
+        self.store
+            .read()
+            .ok()
+            .and_then(|store| store.get(key).cloned())
+    }
+
+    #[allow(dead_code)]
+    pub fn set(&self, key: &str, value: &str) {
+        if let Ok(mut store) = self.store.write() {
+            store.insert(key.to_string(), value.to_string());
+            if let Ok(json) = serde_json::to_vec(&*store) {
+                let _ = self.db.insert("cookie_store", json);
+            }
+        }
+    }
+
     #[allow(dead_code)]
     pub fn has_login_cookie(&self) -> bool {
         self.store
