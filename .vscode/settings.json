@@ -20,13 +20,18 @@
         "editor.insertSpaces": true
     },
     "cSpell.words": [
+        "appver",
+        "buildver",
         "ckenh",
         "cloubit",
         "dichen",
         "forencrypt",
         "Issuse",
         "linuxapi",
+        "mobilename",
         "Netease",
+        "osver",
+        "versioncode",
         "weapi",
         "xored"
     ]
