@@ -1,7 +1,6 @@
 use crate::AppError;
 use log::{debug, error};
 use rodio::{Decoder, OutputStream, Sink};
-use std::io::Cursor;
 use std::sync::mpsc;
 use std::thread;
 
@@ -46,16 +45,16 @@ impl AudioBackend {
         match command {
             BackendState::Set(target) => {
                 sink.clear();
-                let resp = reqwest::get(target).await?;
-                if !resp.status().is_success() {
-                    return Err(AppError::Network("Could not download audio".to_string()));
+
+                let reader = crate::audio::reader::Reader::new(target.to_string());
+                if let Err(e) = reader.wait_preload(3) {
+                    return Err(AppError::Audio(format!(
+                        "Failed to preload audio data: {}",
+                        e
+                    )));
                 }
 
-                let bytes = resp.bytes().await?;
-                let cursor = Cursor::new(bytes);
-                let source = Decoder::new(cursor)?;
-
-                sink.append(source);
+                sink.append(Decoder::new(reader.clone())?);
                 sink.play();
                 // pass
             }

@@ -66,6 +66,12 @@ impl From<rodio::source::SeekError> for AppError {
     }
 }
 
+impl From<std::sync::mpsc::RecvError> for AppError {
+    fn from(err: std::sync::mpsc::RecvError) -> Self {
+        AppError::Thread(err.to_string())
+    }
+}
+
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
