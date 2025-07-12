@@ -72,6 +72,24 @@ impl From<std::sync::mpsc::RecvError> for AppError {
     }
 }
 
+impl From<std::io::Error> for AppError {
+    fn from(err: std::io::Error) -> Self {
+        AppError::IO(err.to_string())
+    }
+}
+
+impl From<rodio::PlayError> for AppError {
+    fn from(err: rodio::PlayError) -> Self {
+        AppError::Audio(err.to_string())
+    }
+}
+
+impl From<rodio::StreamError> for AppError {
+    fn from(err: rodio::StreamError) -> Self {
+        AppError::Audio(err.to_string())
+    }
+}
+
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {

@@ -1,4 +1,4 @@
-use std::{fs, path::Path, error::Error};
+use std::{error::Error, fs, path::Path};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let ui_dir = Path::new("ui");

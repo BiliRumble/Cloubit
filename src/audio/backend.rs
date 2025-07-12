@@ -12,7 +12,7 @@ pub struct AudioBackend {
 
 // 优化过的狗屎
 impl AudioBackend {
-    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new() -> Result<Self, AppError> {
         let (command_sender, command_receiver) = mpsc::channel();
 
         thread::spawn(move || {
@@ -25,9 +25,7 @@ impl AudioBackend {
         Ok(Self { command_sender })
     }
 
-    async fn audio_thread_main(
-        receiver: mpsc::Receiver<BackendState>,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    async fn audio_thread_main(receiver: mpsc::Receiver<BackendState>) -> Result<(), AppError> {
         let (_stream, stream_handle) = OutputStream::try_default()?;
         let sink = Sink::try_new(&stream_handle)?;
 
