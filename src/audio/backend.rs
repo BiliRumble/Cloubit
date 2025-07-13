@@ -1,7 +1,6 @@
 use crate::AppError;
 use log::{debug, error};
 use rodio::{Decoder, OutputStream, Sink};
-use std::io::Cursor;
 use std::sync::mpsc;
 use std::thread;
 
@@ -13,7 +12,7 @@ pub struct AudioBackend {
 
 // 优化过的狗屎
 impl AudioBackend {
-    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new() -> Result<Self, AppError> {
         let (command_sender, command_receiver) = mpsc::channel();
 
         thread::spawn(move || {
@@ -26,9 +25,7 @@ impl AudioBackend {
         Ok(Self { command_sender })
     }
 
-    async fn audio_thread_main(
-        receiver: mpsc::Receiver<BackendState>,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    async fn audio_thread_main(receiver: mpsc::Receiver<BackendState>) -> Result<(), AppError> {
         let (_stream, stream_handle) = OutputStream::try_default()?;
         let sink = Sink::try_new(&stream_handle)?;
 
@@ -46,16 +43,16 @@ impl AudioBackend {
         match command {
             BackendState::Set(target) => {
                 sink.clear();
-                let resp = reqwest::get(target).await?;
-                if !resp.status().is_success() {
-                    return Err(AppError::Network("Could not download audio".to_string()));
+
+                let reader = crate::audio::reader::Reader::new(target.to_string());
+                if let Err(e) = reader.wait_preload(3) {
+                    return Err(AppError::Audio(format!(
+                        "Failed to preload audio data: {}",
+                        e
+                    )));
                 }
 
-                let bytes = resp.bytes().await?;
-                let cursor = Cursor::new(bytes);
-                let source = Decoder::new(cursor)?;
-
-                sink.append(source);
+                sink.append(Decoder::new(reader.clone())?);
                 sink.play();
                 // pass
             }
