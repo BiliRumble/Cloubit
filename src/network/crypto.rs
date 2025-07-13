@@ -1,15 +1,15 @@
 use aes::Aes128;
 use aes::cipher::{BlockEncryptMut, KeyInit, KeyIvInit, block_padding::Pkcs7};
 use base64::{Engine, engine::general_purpose::STANDARD};
-use hex::{encode, encode as hex_encode};
-use openssl::{
-    encrypt::Encrypter,
-    pkey::PKey,
-    rsa::{Padding, Rsa},
-};
-use rand::{TryRngCore, rngs::OsRng};
+use hex::encode;
+use hex::encode as hex_encode;
+use openssl::encrypt::Encrypter;
+use openssl::pkey::PKey;
+use openssl::rsa::Padding;
+use openssl::rsa::Rsa;
 use serde_json::json;
-use std::{error::Error, fmt};
+use std::error::Error;
+use std::fmt;
 
 type Aes128CbcEnc = cbc::Encryptor<Aes128>;
 type Aes128EcbEnc = ecb::Encryptor<Aes128>;
@@ -121,16 +121,7 @@ pub fn eapi(url: &str, object: &serde_json::Value) -> Result<serde_json::Value, 
 }
 
 fn generate_secret_key() -> String {
-    const BASE62: &[u8] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let mut random_bytes = [0u8; 16];
-
-    match OsRng.try_fill_bytes(&mut random_bytes) {
-        Ok(_) => random_bytes
-            .iter()
-            .map(|&byte| BASE62[(byte as usize) % BASE62.len()] as char)
-            .collect(),
-        Err(_) => "1111111111111111".to_string(),
-    }
+    "1".repeat(16)
 }
 
 pub fn weapi(object: &serde_json::Value) -> Result<serde_json::Value, Box<dyn Error>> {

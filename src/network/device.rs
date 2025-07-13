@@ -1,5 +1,5 @@
 use rand::rngs::OsRng;
-use rand::{rng, Rng, TryRngCore};
+use rand::{Rng, TryRngCore, rng};
 use std::sync::LazyLock;
 
 static DEVICE_ID: LazyLock<String> = LazyLock::new(generate_device_id);
