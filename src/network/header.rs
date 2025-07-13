@@ -1,4 +1,5 @@
 use log::warn;
+use rand::random;
 use reqwest::header::{COOKIE, HeaderMap, HeaderValue, REFERER, USER_AGENT};
 
 use crate::{error::AppError, models::http::RequestOption, storage::cookie::get_cookie_manager};
@@ -71,6 +72,24 @@ pub fn build_request_headers(option: &RequestOption, crypto: &str) -> Result<Hea
     match crypto {
         "weapi" => {
             headers.insert(REFERER, "https://music.163.com".parse()?);
+            let cookie_manager = get_cookie_manager();
+            let mut cookie_parts = Vec::new();
+            let cookies = cookie_manager.get_header_value();
+            if !cookies.is_empty() {
+                cookie_parts.push(cookies);
+            }
+            if let Some(csrf) = cookie_manager.get("__csrf") {
+                if !csrf.is_empty() {
+                    cookie_parts.push(format!("__csrf={}", csrf));
+                }
+            }
+            if !cookie_parts.is_empty() {
+                let cookie_string = cookie_parts.join("; ");
+                let cookie_value = cookie_string
+                    .parse::<HeaderValue>()
+                    .map_err(|_| AppError::Network("Invalid cookie format".to_string()))?;
+                headers.insert(COOKIE, cookie_value);
+            }
             headers.insert(
                 USER_AGENT,
                 option
@@ -91,6 +110,53 @@ pub fn build_request_headers(option: &RequestOption, crypto: &str) -> Result<Hea
             );
         }
         "eapi" | "api" => {
+            let cookie_manager = get_cookie_manager();
+            let timestamp = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_millis() as u64;
+
+            let mut header_map = std::collections::HashMap::new();
+            header_map.insert("osver", "16.2".to_string());
+            header_map.insert("deviceId", crate::get_device_id().to_string());
+            header_map.insert("os", "iPhone OS".to_string());
+            header_map.insert("appver", "9.0.90".to_string());
+            header_map.insert("versioncode", "140".to_string());
+            header_map.insert("mobilename", "".to_string());
+            header_map.insert("buildver", (timestamp / 1000).to_string());
+            header_map.insert("resolution", "1920x1080".to_string());
+            header_map.insert("__csrf", cookie_manager.get("__csrf").unwrap_or_default());
+            header_map.insert("channel", "distribution".to_string());
+            header_map.insert(
+                "requestId",
+                format!("{}_{:04}", timestamp, random::<u16>() % 1000),
+            );
+            if let Some(music_u) = cookie_manager.get("MUSIC_U") {
+                if !music_u.is_empty() {
+                    header_map.insert("MUSIC_U", music_u);
+                }
+            } else if let Some(music_a) = cookie_manager.get("MUSIC_A") {
+                if !music_a.is_empty() {
+                    header_map.insert("MUSIC_A", music_a);
+                }
+            }
+            let cookie_string = header_map
+                .iter()
+                .map(|(key, value)| {
+                    format!(
+                        "{}={}",
+                        urlencoding::encode(key),
+                        urlencoding::encode(value)
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("; ");
+
+            let cookie_value = cookie_string
+                .parse::<HeaderValue>()
+                .map_err(|_| AppError::Network("Invalid cookie format".to_string()))?;
+            headers.insert(COOKIE, cookie_value);
+
             headers.insert(
                 USER_AGENT,
                 option
