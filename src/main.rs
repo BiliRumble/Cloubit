@@ -32,7 +32,7 @@ async fn init_config() -> Result<(), AppError> {
     Ok(())
 }
 
-fn main() {
+fn main() -> Result<(), AppError> {
     env_logger::init();
 
     let crash_handler = crash_handler::CrashHandler::new();
@@ -50,7 +50,7 @@ fn main() {
     }
 
     // TODO: 调整设计
-    let main_window = MainWindow::new().expect("Could not create window");
+    let main_window = MainWindow::new()?;
 
     main_window.on_play_audio({
         let backend = get_backend();
@@ -66,5 +66,18 @@ fn main() {
         }
     });
 
-    main_window.run().expect("Failed to run application");
+    main_window.on_test_hide({
+        let window_weak = main_window.as_weak();
+        move || {
+            if let Some(window) = window_weak.upgrade() {
+                let _ = window.window().hide().ok();
+                std::thread::sleep(std::time::Duration::from_secs(3));
+                let _ = window.window().show().ok();
+            }
+        }
+    });
+
+    main_window.show()?;
+    let _ = slint::run_event_loop_until_quit();
+    Ok(())
 }

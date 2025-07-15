@@ -4,7 +4,10 @@ export component MainWindow inherits Window {
     title: "Cloubit";
     min-width: 1050px;
     min-height: 590px;
+    icon: @image-url("../resources/logo.svg");
+
     callback play-audio(string);
+    callback test-hide();
 
     ContextMenuArea {
         Menu {
@@ -58,6 +61,13 @@ export component MainWindow inherits Window {
                     clicked => {
                         root.play-audio(input-field.text);
                     }
+                }
+            }
+
+            Button {
+                text: "Hide";
+                clicked => {
+                    root.test-hide();
                 }
             }
         }

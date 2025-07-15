@@ -10,6 +10,7 @@ pub enum AppError {
     IO(String),
     Thread(String),
     Network(String),
+    Window(String),
 }
 
 impl From<reqwest::header::InvalidHeaderValue> for AppError {
@@ -90,6 +91,12 @@ impl From<rodio::StreamError> for AppError {
     }
 }
 
+impl From<slint::PlatformError> for AppError {
+    fn from(err: slint::PlatformError) -> Self {
+        AppError::Window(err.to_string())
+    }
+}
+
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
@@ -100,6 +107,7 @@ impl fmt::Display for AppError {
             AppError::IO(msg) => write!(f, "IO error: {}", msg),
             AppError::Thread(msg) => write!(f, "Thread error: {}", msg),
             AppError::Network(msg) => write!(f, "Network error: {}", msg),
+            AppError::Window(msg) => write!(f, "Window error: {}", msg),
         }
     }
 }
