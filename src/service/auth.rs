@@ -1,5 +1,5 @@
-use crate::get_device_id;
 use crate::models::http::RequestOption;
+use crate::network::device::get_device_id;
 use crate::network::request::create_request;
 use crate::{error::AppError, models::http::Response};
 use base64::Engine;

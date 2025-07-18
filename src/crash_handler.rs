@@ -120,6 +120,7 @@ impl CrashHandler {
                     "A crash has occurred. A crash dump has been saved to {:?}",
                     crash_file_path
                 );
+                slint::quit_event_loop();
                 std::process::exit(1);
             } else {
                 log::error!("Failed to create crash dump file");

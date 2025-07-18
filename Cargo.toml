@@ -26,6 +26,7 @@ ecb = "0.1.2"
 env_logger = "0.11.8"
 form_urlencoded = "1.2.1"
 hex = "0.4.3"
+image = "0.25.6"
 log = "0.4.27"
 md5 = "0.8.0"
 openssl = { version = "0.10.73", features = ["vendored"] }
@@ -45,6 +46,7 @@ serde_json = "1.0.140"
 sled = "0.34.7"
 slint = "1.12.1"
 tokio = { version = "1.46.1", features = ["rt-multi-thread", "macros"] }
+tray-item = { version = "0.10.0", features = ["ksni"] }
 urlencoding = "2.1.3"
 
 [build-dependencies]

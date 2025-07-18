@@ -97,6 +97,18 @@ impl From<slint::PlatformError> for AppError {
     }
 }
 
+impl From<tray_item::TIError> for AppError {
+    fn from(err: tray_item::TIError) -> Self {
+        AppError::Window(err.to_string())
+    }
+}
+
+impl From<image::ImageError> for AppError {
+    fn from(err: image::ImageError) -> Self {
+        AppError::Format(err.to_string())
+    }
+}
+
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {

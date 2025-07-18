@@ -9,13 +9,16 @@ use reqwest::{
 use serde_json::{Value, json};
 
 use crate::{
-    AppError, get_cookie_manager,
+    AppError,
     models::http::{RequestOption, Response},
     network::{
         crypto::{eapi, weapi},
         header::build_request_headers,
     },
-    storage::cache::{generate_cache_key, get_cache},
+    storage::{
+        cache::{generate_cache_key, get_cache},
+        cookie::get_cookie_manager,
+    },
 };
 
 static HTTP_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();

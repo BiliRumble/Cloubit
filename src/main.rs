@@ -1,6 +1,5 @@
-slint::include_modules!();
-
 mod audio;
+mod core;
 mod crash_handler;
 mod error;
 mod models;
@@ -8,29 +7,9 @@ mod network;
 mod service;
 mod storage;
 
-use audio::engine::get_backend;
 use error::AppError;
-use network::device::get_device_id;
-use reqwest::header::{HeaderMap, SET_COOKIE};
-use service::auth::register_anonimous;
-use storage::cookie::get_cookie_manager;
-use storage::database::get_db;
 
-async fn init_config() -> Result<(), AppError> {
-    let response = register_anonimous().await?;
-
-    if let Some(cookies) = response.cookie {
-        let mut headers = HeaderMap::new();
-        for cookie in cookies {
-            if let Ok(header_value) = cookie.parse() {
-                headers.append(SET_COOKIE, header_value);
-            }
-        }
-        get_cookie_manager().update_from_headers(&headers);
-    }
-
-    Ok(())
-}
+use crate::core::app;
 
 fn main() -> Result<(), AppError> {
     env_logger::init();
@@ -39,45 +18,8 @@ fn main() -> Result<(), AppError> {
     crash_handler.install();
     crash_handler.cleanup_old_crashes(3);
 
-    let rt = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
-
-    if get_cookie_manager().get_header_value().is_empty() {
-        rt.block_on(async {
-            if let Err(e) = init_config().await {
-                log::error!("Failed to initialize config: {}", e);
-            }
-        });
-    }
-
-    // TODO: 调整设计
-    let main_window = MainWindow::new()?;
-
-    main_window.on_play_audio({
-        let backend = get_backend();
-        move |url| {
-            if !url.trim().is_empty() {
-                if let Err(e) = backend
-                    .command_sender
-                    .send(crate::models::audio::BackendState::Set(url.to_string()))
-                {
-                    log::error!("Failed to send audio command: {}", e);
-                }
-            }
-        }
-    });
-
-    main_window.on_test_hide({
-        let window_weak = main_window.as_weak();
-        move || {
-            if let Some(window) = window_weak.upgrade() {
-                let _ = window.window().hide().ok();
-                std::thread::sleep(std::time::Duration::from_secs(3));
-                let _ = window.window().show().ok();
-            }
-        }
-    });
-
-    main_window.show()?;
+    app::run()?;
     let _ = slint::run_event_loop_until_quit();
+
     Ok(())
 }

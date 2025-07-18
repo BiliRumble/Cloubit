@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, OnceLock, RwLock};
 
 use crate::error::AppError;
+use crate::storage::database::get_db;
 
 #[derive(Clone)]
 pub struct CookieManager {
@@ -91,7 +92,7 @@ fn parse_cookie(header: &str) -> Option<(String, String)> {
 
 pub fn get_cookie_manager() -> &'static CookieManager {
     COOKIE_MANAGER.get_or_init(|| {
-        CookieManager::new(crate::get_db().clone())
+        CookieManager::new(get_db().clone())
             .unwrap_or_else(|e| panic!("Failed to initialize cookie manager: {}", e))
     })
 }
