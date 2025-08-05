@@ -5,6 +5,9 @@ export component MainWindow inherits Window {
     min-width: 1050px;
     min-height: 590px;
     callback play-audio(string);
+    callback pause-audio();
+    callback resume-audio();
+    callback seek-audio(string);
 
     ContextMenuArea {
         Menu {
@@ -57,6 +60,41 @@ export component MainWindow inherits Window {
                     preferred-width: 100px;
                     clicked => {
                         root.play-audio(input-field.text);
+                    }
+                }
+            }
+
+            HorizontalBox {
+                padding: 20px;
+                spacing: 10px;
+
+                pause-button := Button {
+                    text: "Pause Audio";
+                    preferred-width: 100px;
+                    clicked => {
+                        root.pause-audio();
+                    }
+                }
+
+                resume-button := Button {
+                    text: "Resume Audio";
+                    preferred-width: 100px;
+                    clicked => {
+                        root.resume-audio();
+                    }
+                }
+
+                seek-pos := LineEdit {
+                    placeholder-text: "Enter seek time...";
+                    font-size: 14px;
+                    preferred-width: 400px;
+                }
+
+                seek-button := Button {
+                    text: "Seek Audio";
+                    preferred-width: 100px;
+                    clicked => {
+                        root.seek-audio(seek-pos.text);
                     }
                 }
             }

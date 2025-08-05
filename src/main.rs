@@ -51,9 +51,9 @@ fn main() {
 
     // TODO: 调整设计
     let main_window = MainWindow::new().expect("Could not create window");
+    let backend = get_backend();
 
     main_window.on_play_audio({
-        let backend = get_backend();
         move |url| {
             if !url.trim().is_empty() {
                 if let Err(e) = backend
@@ -61,6 +61,44 @@ fn main() {
                     .send(crate::models::audio::BackendState::Set(url.to_string()))
                 {
                     log::error!("Failed to send audio command: {}", e);
+                }
+            }
+        }
+    });
+
+    main_window.on_pause_audio({
+        move || {
+            if let Err(e) = backend
+                .command_sender
+                .send(crate::models::audio::BackendState::Play(false))
+            {
+                log::error!("Failed to send audio command: {}", e);
+            }
+        }
+    });
+
+    main_window.on_resume_audio({
+        move || {
+            if let Err(e) = backend
+                .command_sender
+                .send(crate::models::audio::BackendState::Play(true))
+            {
+                log::error!("Failed to send audio command: {}", e);
+            }
+        }
+    });
+
+    // 需要溢出检查
+    main_window.on_seek_audio({
+        move |pos| {
+            if !pos.trim().is_empty() {
+                if let Ok(pos) = pos.parse::<u64>() {
+                    if let Err(e) = backend
+                        .command_sender
+                        .send(crate::models::audio::BackendState::Seek(pos))
+                    {
+                        log::error!("Failed to send audio command: {}", e);
+                    }
                 }
             }
         }
