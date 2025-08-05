@@ -2,13 +2,20 @@ use log::{debug, error};
 use reqwest::header::{HeaderMap, HeaderValue, RANGE};
 use std::collections::HashMap;
 use std::io::{Read, Seek, SeekFrom};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Duration;
+use tokio::runtime::Runtime;
 
 use crate::error::AppError;
 
 const CHUNK_SIZE: usize = 256 * 1024;
 const MAX_CACHED_CHUNKS: usize = 8;
+
+static RT: OnceLock<Runtime> = OnceLock::new();
+
+fn get_rt() -> &'static Runtime {
+    RT.get_or_init(|| Runtime::new().expect("Failed to create runtime"))
+}
 
 #[derive(Clone)]
 pub struct Reader {
@@ -16,7 +23,6 @@ pub struct Reader {
     client: reqwest::Client,
     position: Arc<Mutex<u64>>,
     chunks: Arc<Mutex<HashMap<u64, Arc<Vec<u8>>>>>,
-    runtime: Arc<tokio::runtime::Runtime>,
 }
 
 impl Reader {
@@ -40,7 +46,6 @@ impl Reader {
             client,
             position: Arc::new(Mutex::new(0)),
             chunks: Arc::new(Mutex::new(HashMap::new())),
-            runtime: Arc::new(tokio::runtime::Runtime::new().expect("Failed to create runtime")),
         }
     }
 
@@ -69,7 +74,7 @@ impl Reader {
         let client = self.client.clone();
         let url = self.url.clone();
 
-        self.runtime.spawn(async move {
+        get_rt().spawn(async move {
             let start = chunk_index * CHUNK_SIZE as u64;
             let range_header = format!("bytes={}-{}", start, start + CHUNK_SIZE as u64 - 1);
 
