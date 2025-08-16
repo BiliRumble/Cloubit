@@ -3,7 +3,7 @@
 	"explorer.fileNesting.expand": true,
 	"explorer.fileNesting.patterns": {
 		"Cargo.toml": "Cargo.lock,build.rs",
-		"README.md": "CONTRIBUTING.md,NOTICE.md,LICENSE,.gitignore",
+		"README.md": "CONTRIBUTING.md,NOTICE.md,LICENSE,.gitignore,SECURITY.md",
 	},
 	"editor.formatOnSave": true,
     "editor.formatOnPaste": true,
